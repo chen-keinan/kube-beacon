@@ -54,7 +54,7 @@ type Benchmark struct {
 }
 
 func (*Benchmark) Help() string {
-	return "-a , --audit run benchmark tests"
+	return "-a , --audit run benchmark audit tests"
 }
 func (*Benchmark) Run(args []string) int {
 	audit := k8s.Audit{}
@@ -77,10 +77,9 @@ func (*Benchmark) Run(args []string) int {
 			value, err := strconv.Atoi(strings.Replace(res.Stderr, "stdout: ", "", -1))
 			if err != nil {
 				fmt.Println(res.Stderr)
-				//fmt.Print("failed to convert string %s",err.Error())
-			}
+ 			}
 			if value <= 644 {
-				fmt.Print(emoji.Sprintf("executing audit test %s :OK_hand:\n", at.Description))
+				fmt.Print(emoji.Sprintf("executing audit test %s :check_mark_button:\n", at.Description))
 			}
 		}
 	}
