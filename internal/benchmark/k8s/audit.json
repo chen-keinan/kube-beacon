@@ -1,0 +1,20 @@
+{
+  "benchmark_type": "k8s",
+  "categories": [
+    {
+      "name": "Control Plane Components",
+      "sub_category": {
+        "name": "Master Node Configuration Files",
+        "audit_tests": [
+          {
+            "name": "Ensure that the API server pod specification file permissions are set to 644 or more restrictive (Automated)",
+            "description": "Ensure that the API server pod specification file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a /etc/kubernetes/manifests/kube-apiserver.yaml",
+            "remediation": "chmod 644 /etc/kubernetes/manifests/kube-apiserver.yaml"
+          }
+        ]
+      }
+    }
+  ]
+}
