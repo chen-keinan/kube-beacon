@@ -1,22 +1,37 @@
-package beacon
+package main
 
 import (
+	"fmt"
 	"github.com/mitchellh/cli"
-	"log"
 	"os"
 )
 
 func main() {
-	c := cli.NewCLI("beacon", "1.0.0")
-	c.Args = os.Args[1:]
-	c.Commands = map[string]cli.CommandFactory{
-
+	app := cli.NewCLI("beacon", "1.0.0")
+	app.Args = os.Args[1:]
+	app.Commands = map[string]cli.CommandFactory{
+		"test": func() (cli.Command, error) {
+			return &Hello{}, nil
+		},
 	}
 
-	exitStatus, err := c.Run()
+	status, err := app.Run()
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
+	os.Exit(status)
+}
 
-	os.Exit(exitStatus)
+type Hello struct {
+}
+
+func (*Hello) Help() string {
+	return "-t , --test run benchmark tests"
+}
+func (*Hello) Run(args []string) int {
+	fmt.Printf("running benchmark tests, %v", args)
+	return 0
+}
+func (h *Hello) Synopsis() string {
+	return h.Help()
 }
