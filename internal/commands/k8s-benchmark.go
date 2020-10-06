@@ -7,6 +7,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/benchmark/k8s"
 	"github.com/kyokomi/emoji"
 	"strconv"
+	"strings"
 )
 
 const auditJson = `{
@@ -42,10 +43,10 @@ const auditJson = `{
 type K8sBenchmark struct {
 }
 
-func (*K8sBenchmark) Help() string {
+func (K8sBenchmark) Help() string {
 	return "-a , --audit run benchmark audit tests"
 }
-func (*K8sBenchmark) Run(args []string) int {
+func (K8sBenchmark) Run(args []string) int {
 	audit := k8s.Audit{}
 	err := json.Unmarshal([]byte(auditJson), &audit)
 	if err != nil {
@@ -59,13 +60,13 @@ func (*K8sBenchmark) Run(args []string) int {
 				Shell:   true,
 			}
 			res, err := ls.Execute()
-
 			if err != nil {
 				fmt.Sprintf("Failed to execute command %s", err.Error())
 			}
- 			switch at.CheckType {
+			output := strings.Trim(res.Stdout, "\n")
+			switch at.CheckType {
 			case "permission":
-				value, err := strconv.Atoi(res.Stdout)
+				value, err := strconv.Atoi(output)
 				if err != nil {
 					fmt.Println(res.Stderr)
 				}
@@ -73,10 +74,7 @@ func (*K8sBenchmark) Run(args []string) int {
 					fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
 				}
 			case "ownership":
-				fmt.Println(res.Stderr)
-				if res.Stdout == "root:root" {
-					fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
-				}else{
+				if output == "root:root" {
 					fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
 				}
 			}
@@ -85,6 +83,6 @@ func (*K8sBenchmark) Run(args []string) int {
 
 	return 0
 }
-func (h *K8sBenchmark) Synopsis() string {
+func (h K8sBenchmark) Synopsis() string {
 	return h.Help()
 }
