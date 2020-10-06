@@ -5,6 +5,7 @@ import (
 	"fmt"
 	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/chen-keinan/beacon/internal/benchmark/k8s"
+	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/kyokomi/emoji"
 	"strconv"
 	"strings"
@@ -40,15 +41,20 @@ const auditJson = `{
   ]
 }`
 
+//K8sBenchmark k8s benchmark object
 type K8sBenchmark struct {
 }
 
+//Help return benchmark command help
 func (K8sBenchmark) Help() string {
 	return "-a , --audit run benchmark audit tests"
 }
+
+//Run execute benchmark command
 func (K8sBenchmark) Run(args []string) int {
 	audit := k8s.Audit{}
-	err := json.Unmarshal([]byte(auditJson), &audit)
+	auditFile := utils.GetK8sBenchmarkAuditTestsFile()
+	err := json.Unmarshal([]byte(auditFile), &audit)
 	if err != nil {
 		fmt.Print("Failed to read audit test file")
 	}
@@ -72,10 +78,14 @@ func (K8sBenchmark) Run(args []string) int {
 				}
 				if value <= 644 {
 					fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
+				} else {
+					fmt.Print(emoji.Sprintf("audit test %s :cross_mark_button:\n", at.Description))
 				}
 			case "ownership":
 				if output == "root:root" {
 					fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
+				} else {
+					fmt.Print(emoji.Sprintf("audit test %s :cross_mark_button:\n", at.Description))
 				}
 			}
 		}
