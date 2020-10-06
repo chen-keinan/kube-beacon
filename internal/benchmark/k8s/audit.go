@@ -20,5 +20,6 @@ type AuditTest struct {
 	ProfileApplicability string `json:"profile_applicability"`
 	Description          string `json:"description"`
 	AuditCommand         string `json:"audit"`
+	CheckType            string `json:"check_type"`
 	Remediation          string `json:"remediation"`
 }
