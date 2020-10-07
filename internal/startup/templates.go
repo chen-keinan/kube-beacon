@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/gobuffalo/packr"
 )
-//LoadK8sBenchmark use packr to load benchmark audit test json
+
+//LoadK8sBenchmarkFile use packr to load benchmark audit test json
 func LoadK8sBenchmarkFile() string {
 	box := packr.NewBox("./../benchmark/k8s")
 	s, err := box.FindString("audit.json")

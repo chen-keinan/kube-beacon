@@ -16,7 +16,6 @@ func GetHomeFolder() string {
 	if err != nil {
 		panic("Failed to fetch user home folder")
 	}
-	user.Current()
 	return path.Join(usr.HomeDir, ".beacon")
 }
 
@@ -25,7 +24,7 @@ func CreateHomeFolderIfNotExist() error {
 	beaconFolder := GetHomeFolder()
 	_, err := os.Stat(beaconFolder)
 	if os.IsNotExist(err) {
-		errDir := os.MkdirAll(beaconFolder, 0755)
+		errDir := os.MkdirAll(beaconFolder, 0750)
 		if errDir != nil {
 			return fmt.Errorf("failed to create beacon home folder at %s", beaconFolder)
 		}
@@ -43,7 +42,7 @@ func CreateBenchmarkFolderIfNotExist() error {
 	benchmarkFolder := GetBenchmarkFolder()
 	_, err := os.Stat(benchmarkFolder)
 	if os.IsNotExist(err) {
-		errDir := os.MkdirAll(benchmarkFolder, 0755)
+		errDir := os.MkdirAll(benchmarkFolder, 0750)
 		if errDir != nil {
 			return fmt.Errorf("failed to create beacon benchmark folder folder at %s", benchmarkFolder)
 		}
@@ -63,15 +62,18 @@ func CreateBenchmarkFileIfNotExist(filename, fileData string) error {
 		if err != nil {
 			return fmt.Errorf("failed to write benchmark file")
 		}
-		f.Close()
+		err = f.Close()
+		if err != nil {
+			fmt.Printf("faild to close file %s", filePath)
+		}
 	}
 	return nil
 }
 
 //GetK8sBenchmarkAuditTestsFile return k8s benchmark file
 func GetK8sBenchmarkAuditTestsFile() string {
-	filePath := filepath.Join(GetBenchmarkFolder(), common.K8sBenchmarkAuditFileName)
-	data, err := ioutil.ReadFile(filePath)
+	filePath := filepath.Join(GetBenchmarkFolder(), filepath.Clean(common.K8sBenchmarkAuditFileName))
+	data, err := ioutil.ReadFile(filepath.Clean(filePath))
 	if err != nil {
 		panic("failed to read k8s benchmark audit file")
 	}

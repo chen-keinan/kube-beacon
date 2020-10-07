@@ -1,20 +1,24 @@
 package k8s
 
+//Audit data model
 type Audit struct {
 	BenchmarkType string     `json:"benchmark_type"`
 	Categories    []Category `json:"categories"`
 }
 
+//Category data model
 type Category struct {
 	Name        string      `json:"name"`
 	SubCategory SubCategory `json:"sub_category"`
 }
 
+//SubCategory data model
 type SubCategory struct {
 	Name       string      `json:"name"`
 	AuditTests []AuditTest `json:"audit_tests"`
 }
 
+//AuditTest data model
 type AuditTest struct {
 	Name                 string   `json:"Name"`
 	ProfileApplicability string   `json:"profile_applicability"`
