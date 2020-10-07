@@ -57,6 +57,86 @@
             "references": [
               "https://kubernetes.io/docs/admin/kube-controller-manager"
             ]
+          },
+          {
+            "name": "Ensure that the scheduler pod specification file permissions are set to 644 or more restrictive (Automated)",
+            "description": "Ensure that the scheduler pod specification file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a /etc/kubernetes/manifests/kube-scheduler.yaml",
+            "remediation": "chmod 644 /etc/kubernetes/manifests/kube-scheduler.yaml",
+            "check_type": "permission",
+            "impact": "None",
+            "default_value": "By default, kube-scheduler.yaml file has permissions of 640.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-scheduler/"
+            ]
+          },
+          {
+            "name": "Ensure that the scheduler pod specification file ownership is set to root:root (Automated)",
+            "description": "Ensure that the scheduler pod specification file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G /etc/kubernetes/manifests/kube-scheduler.yaml",
+            "remediation": "chown root:root /etc/kubernetes/manifests/kube-scheduler.yaml",
+            "check_type": "ownership",
+            "impact": "None",
+            "default_value": "By default, kube-scheduler.yaml file ownership is set to root:root.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-scheduler/"
+            ]
+          },
+          {
+            "name": "Ensure that the etcd pod specification file permissions are set to 644 or more restrictive (Automated)",
+            "description": "Ensure that the /etc/kubernetes/manifests/etcd.yaml file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a /etc/kubernetes/manifests/etcd.yaml",
+            "remediation": "chmod 644 /etc/kubernetes/manifests/etcd.yaml",
+            "check_type": "permission",
+            "impact": "None",
+            "default_value": "By default, /etc/kubernetes/manifests/etcd.yaml file has permissions of 640.",
+            "references": [
+              "https://coreos.com/etcd",
+              "https://kubernetes.io/docs/admin/etcd/"
+            ]
+          },
+          {
+            "name": "Ensure that the etcd pod specification file ownership is set to root:root (Automated)",
+            "description": "Ensure that the /etc/kubernetes/manifests/etcd.yaml file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G /etc/kubernetes/manifests/etcd.yaml",
+            "remediation": "chown root:root /etc/kubernetes/manifests/etcd.yaml",
+            "check_type": "ownership",
+            "impact": "None",
+            "default_value": "By default, /etc/kubernetes/manifests/etcd.yaml file ownership is set to root:root.",
+            "references": [
+              "https://coreos.com/etcd",
+              "https://kubernetes.io/docs/admin/etcd/"
+            ]
+          },
+          {
+            "name": "Ensure that the Container Network Interface file permissions are set to 644 or more restrictive (Manual)",
+            "description": "Ensure that the Container Network Interface files have permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a /*/cni/*",
+            "remediation": "chmod 644 <path/to/cni/files>",
+            "check_type": "permission",
+            "impact": "None",
+            "default_value": "N/A",
+            "references": [
+              "https://kubernetes.io/docs/concepts/cluster-administration/networking/"
+            ]
+          },
+          {
+            "name": "Ensure that the Container Network Interface file ownership is set to root:root (Manual)",
+            "description": "Ensure that the Container Network Interface files have ownership set to root:root.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G /*/cni/*",
+            "remediation": "chown root:root <path/to/cni/files>",
+            "check_type": "ownership",
+            "impact": "None",
+            "default_value": "None",
+            "references": [
+              "https://kubernetes.io/docs/concepts/cluster-administration/networking/"
+            ]
           }
         ]
       }

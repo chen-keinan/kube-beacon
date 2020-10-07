@@ -69,23 +69,33 @@ func (K8sBenchmark) Run(args []string) int {
 			if err != nil {
 				fmt.Sprintf("Failed to execute command %s", err.Error())
 			}
-			output := strings.Trim(res.Stdout, "\n")
+			outputs := strings.Split(res.Stdout, "\n")
 			switch at.CheckType {
 			case "permission":
-				value, err := strconv.Atoi(output)
-				if err != nil {
-					fmt.Println(res.Stderr)
-				}
-				if value <= 644 {
-					fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
-				} else {
-					fmt.Print(emoji.Sprintf("audit test %s :cross_mark_button:\n", at.Description))
+				for _, o := range outputs {
+					if len(o) == 0 {
+						continue
+					}
+					value, err := strconv.Atoi(o)
+					if err != nil {
+						fmt.Println(res.Stderr)
+					}
+					if value <= 644 {
+						fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
+					} else {
+						fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))
+					}
 				}
 			case "ownership":
-				if output == "root:root" {
-					fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
-				} else {
-					fmt.Print(emoji.Sprintf("audit test %s :cross_mark_button:\n", at.Description))
+				for _, o := range outputs {
+					if len(o) == 0 {
+						continue
+					}
+					if o == "root:root" {
+						fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
+					} else {
+						fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))
+					}
 				}
 			}
 		}
