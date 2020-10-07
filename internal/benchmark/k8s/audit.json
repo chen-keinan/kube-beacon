@@ -137,6 +137,34 @@
             "references": [
               "https://kubernetes.io/docs/concepts/cluster-administration/networking/"
             ]
+          },
+          {
+            "name": "Ensure that the etcd data directory permissions are set to 700 or more restrictive (Automated)",
+            "description": "Ensure that the etcd data directory has permissions of 700 or more restrictive.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a \"$(ps -ef | grep etcd |grep 'data-dir' > psetcd && grep -o 'data-dir=[^\"]\\S*' psetcd | awk -F \"=\" '{print $2}' && rm psetcd)\"",
+            "remediation": "chmod 700 \"$(ps -ef | grep etcd |grep 'data-dir' > psetcd && grep -o 'data-dir=[^\"]\\S*' psetcd | awk -F \"=\" '{print $2}' && rm psetcd)\"",
+            "check_type": "permission",
+            "impact": "None",
+            "default_value": "By default, etcd data directory has permissions of 755.",
+            "references": [
+              "https://coreos.com/etcd/docs/latest/op-guide/configuration.html#data-dir",
+              "https://kubernetes.io/docs/admin/etcd/"
+            ]
+          },
+          {
+            "name": "Ensure that the etcd data directory ownership is set to etcd:etcd (Automated)",
+            "description": "Ensure that the etcd data directory ownership is set to etcd:etcd.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G \"$(ps -ef | grep etcd |grep 'data-dir' > psetcd && grep -o 'data-dir=[^\"]\\S*' psetcd | awk -F \"=\" '{print $2}' && rm psetcd)\"",
+            "remediation": "chown etcd:etcd \"$(ps -ef | grep etcd |grep 'data-dir' > psetcd && grep -o 'data-dir=[^\"]\\S*' psetcd | awk -F \"=\" '{print $2}' && rm psetcd)\"",
+            "check_type": "ownership",
+            "impact": "None",
+            "default_value": "By default, etcd data directory ownership is set to etcd:etcd.",
+            "references": [
+              "https://coreos.com/etcd/docs/latest/op-guide/configuration.html#data-dir",
+              "https://kubernetes.io/docs/admin/etcd/"
+            ]
           }
         ]
       }
