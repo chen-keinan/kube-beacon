@@ -1,0 +1,14 @@
+.vscode
+.tmp
+.testCoverage.txt
+.idea
+statics
+.history
+client/node_modules
+.DS_Store
+lint.xml
+cp.out
+vendor/
+*/mocks*
+coverage.html
+a_startup-packr.go

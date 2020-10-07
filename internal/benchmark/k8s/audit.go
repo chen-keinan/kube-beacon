@@ -16,10 +16,13 @@ type SubCategory struct {
 }
 
 type AuditTest struct {
-	Name                 string `json:"Name"`
-	ProfileApplicability string `json:"profile_applicability"`
-	Description          string `json:"description"`
-	AuditCommand         string `json:"audit"`
-	CheckType            string `json:"check_type"`
-	Remediation          string `json:"remediation"`
+	Name                 string   `json:"Name"`
+	ProfileApplicability string   `json:"profile_applicability"`
+	Description          string   `json:"description"`
+	AuditCommand         string   `json:"audit"`
+	CheckType            string   `json:"check_type"`
+	Remediation          string   `json:"remediation"`
+	Impact               string   `json:"impact"`
+	DefaultValue         string   `json:"default_value"`
+	References           []string `json:"references"`
 }

@@ -12,7 +12,12 @@
             "profile_applicability": "Level 1 - Master Node",
             "audit": "stat -c %a /etc/kubernetes/manifests/kube-apiserver.yaml",
             "remediation": "chmod 644 /etc/kubernetes/manifests/kube-apiserver.yaml",
-            "check_type": "permission"
+            "check_type": "permission",
+            "impact": "None",
+            "default_value": "By default, the kube-apiserver.yaml file has permissions of 640.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/"
+            ]
           },
           {
             "name": "Ensure that the API server pod specification file ownership is set to root:root (Automated)",
@@ -20,7 +25,38 @@
             "profile_applicability": "Level 1 - Master Node",
             "audit": "stat -c %U:%G /etc/kubernetes/manifests/kube-apiserver.yaml",
             "remediation": "chown root:root /etc/kubernetes/manifests/kube-apiserver.yaml",
-            "check_type": "ownership"
+            "check_type": "ownership",
+            "impact": "None",
+            "default_value": "By default, the kube-apiserver.yaml file ownership is set to root:root.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/"
+            ]
+          },
+          {
+            "name": "Ensure that the controller manager pod specification file permissions are set to 644 or more restrictive (Automated)",
+            "description": "Ensure that the controller manager pod specification file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a /etc/kubernetes/manifests/kube-controller-manager.yaml",
+            "remediation": "chmod 644 /etc/kubernetes/manifests/kube-controller-manager.yaml",
+            "check_type": "permission",
+            "impact": "None",
+            "default_value": "By default, the kube-controller-manager.yaml file has permissions of 640.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-controller-manager"
+            ]
+          },
+          {
+            "name": "Ensure that the controller manager pod specification file ownership is set to root:root (Automated)",
+            "description": "Ensure that the controller manager pod specification file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G /etc/kubernetes/manifests/kube-controller-manager.yaml",
+            "remediation": "chown root:root /etc/kubernetes/manifests/kube-controller-manager.yaml",
+            "check_type": "ownership",
+            "impact": "None",
+            "default_value": "By default, kube-controller-manager.yaml file ownership is set to root:root.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-controller-manager"
+            ]
           }
         ]
       }
