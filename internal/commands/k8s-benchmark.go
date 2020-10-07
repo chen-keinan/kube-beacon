@@ -42,7 +42,6 @@ func (bk K8sBenchmark) runTests(ac k8s.Category) {
 			Args:    []string{},
 			Shell:   true,
 		}
-		fmt.Println(at.AuditCommand)
 		res, err := ls.Execute()
 		if err != nil {
 			fmt.Printf("Failed to execute command %s", err.Error())
