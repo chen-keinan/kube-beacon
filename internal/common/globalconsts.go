@@ -1,6 +1,6 @@
 package common
 
 const (
-	//K8sBenchmarkAuditFileName file name
-	K8sBenchmarkAuditFileName = "k8s_benchmark.json"
+	//MasterNodeConfigurationFiles file name
+	MasterNodeConfigurationFiles = "master_node_configuration_files.json"
 )

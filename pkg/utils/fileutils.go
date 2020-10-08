@@ -71,11 +71,11 @@ func CreateBenchmarkFileIfNotExist(filename, fileData string) error {
 }
 
 //GetK8sBenchmarkAuditTestsFile return k8s benchmark file
-func GetK8sBenchmarkAuditTestsFile() string {
-	filePath := filepath.Join(GetBenchmarkFolder(), filepath.Clean(common.K8sBenchmarkAuditFileName))
+func GetK8sBenchmarkAuditTestsFile() []string {
+	filePath := filepath.Join(GetBenchmarkFolder(), filepath.Clean(common.MasterNodeConfigurationFiles))
 	data, err := ioutil.ReadFile(filepath.Clean(filePath))
 	if err != nil {
 		panic("failed to read k8s benchmark audit file")
 	}
-	return string(data)
+	return []string{string(data)}
 }

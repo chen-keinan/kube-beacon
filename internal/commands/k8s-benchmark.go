@@ -23,15 +23,16 @@ func (bk K8sBenchmark) Help() string {
 //Run execute benchmark command
 func (bk K8sBenchmark) Run(args []string) int {
 	audit := k8s.Audit{}
-	auditFile := utils.GetK8sBenchmarkAuditTestsFile()
-	err := json.Unmarshal([]byte(auditFile), &audit)
-	if err != nil {
-		fmt.Print("Failed to read audit test file")
+	auditFiles := utils.GetK8sBenchmarkAuditTestsFile()
+	for _, auditFile := range auditFiles {
+		err := json.Unmarshal([]byte(auditFile), &audit)
+		if err != nil {
+			fmt.Print("Failed to read audit test file")
+		}
+		for _, ac := range audit.Categories {
+			bk.runTests(ac)
+		}
 	}
-	for _, ac := range audit.Categories {
-		bk.runTests(ac)
-	}
-
 	return 0
 }
 

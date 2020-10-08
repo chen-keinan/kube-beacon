@@ -21,7 +21,7 @@ func StartCli() {
 		panic(err)
 	}
 	benchK8s := LoadK8sBenchmarkFile()
-	err = utils.CreateBenchmarkFileIfNotExist(common.K8sBenchmarkAuditFileName, benchK8s)
+	err = utils.CreateBenchmarkFileIfNotExist(common.MasterNodeConfigurationFiles, benchK8s)
 	if err != nil {
 		panic(err)
 	}
