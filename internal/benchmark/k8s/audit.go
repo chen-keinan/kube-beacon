@@ -1,5 +1,10 @@
 package k8s
 
+import (
+	"encoding/json"
+	"github.com/mitchellh/mapstructure"
+)
+
 //Audit data model
 type Audit struct {
 	BenchmarkType string     `json:"benchmark_type"`
@@ -20,14 +25,47 @@ type SubCategory struct {
 
 //AuditTest data model
 type AuditTest struct {
-	Name                 string   `json:"Name"`
-	ProfileApplicability string   `json:"profile_applicability"`
-	Description          string   `json:"description"`
-	AuditCommand         string   `json:"audit"`
-	CheckType            string   `json:"check_type"`
-	Remediation          string   `json:"remediation"`
-	Impact               string   `json:"impact"`
-	DefaultValue         string   `json:"default_value"`
-	References           []string `json:"references"`
-	EvalExpr             string   `json:"eval_expr"`
+	Name                 string   `mapstructure:"name" json:"name"`
+	ProfileApplicability string   `mapstructure:"profile_applicability" json:"profile_applicability"`
+	Description          string   `mapstructure:"description" json:"description"`
+	AuditCommand         string   `mapstructure:"audit" json:"audit"`
+	CheckType            string   `mapstructure:"check_type" json:"check_type"`
+	Remediation          string   `mapstructure:"remediation" json:"remediation"`
+	Impact               string   `mapstructure:"impact" json:"impact"`
+	DefaultValue         string   `mapstructure:"default_value" json:"default_value"`
+	References           []string `mapstructure:"references" json:"references"`
+	EvalExpr             string   `mapstructure:"eval_expr" json:"eval_expr"`
+	Sanitize             ExprSanitize
+}
+
+//UnmarshalJSON over unmarshall to add logic
+func (at *AuditTest) UnmarshalJSON(data []byte) error {
+	var res map[string]interface{}
+	if err := json.Unmarshal(data, &res); err != nil {
+		return err
+	}
+	err := mapstructure.Decode(res, &at)
+	if err != nil {
+		return err
+	}
+	switch at.CheckType {
+	case "ownership":
+		at.Sanitize = exprSanitizeOwnership
+	case "permission":
+		at.Sanitize = exprSanitizePermission
+	default:
+		at.Sanitize = exprSanitizePermission
+	}
+	return nil
+}
+
+//ExprSanitize sanitize expr
+type ExprSanitize func(expr string) string
+
+var exprSanitizeOwnership ExprSanitize = func(expr string) string {
+	return "'" + expr + "'"
+}
+
+var exprSanitizePermission ExprSanitize = func(expr string) string {
+	return expr
 }

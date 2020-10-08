@@ -13,6 +13,7 @@ require (
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/mitchellh/cli v1.1.2
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/rogpeppe/go-internal v1.6.2 // indirect
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/spf13/cobra v1.0.0 // indirect

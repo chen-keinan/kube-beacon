@@ -56,10 +56,7 @@ func (bk K8sBenchmark) evalExpression(outputs []string, at k8s.AuditTest) {
 		if len(o) == 0 {
 			continue
 		}
-		if at.CheckType == "ownership" {
-			o = "'" + o + "'"
-		}
-		expr := o + at.EvalExpr
+		expr := at.Sanitize(o) + at.EvalExpr
 		expression, err := govaluate.NewEvaluableExpression(expr)
 		if err != nil {
 			fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))
