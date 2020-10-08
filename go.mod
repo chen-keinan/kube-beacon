@@ -3,6 +3,7 @@ module github.com/chen-keinan/beacon
 go 1.14
 
 require (
+	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/alexellis/go-execute v0.0.0-20200124154445-8697e4e28c5e
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/packr v1.30.1

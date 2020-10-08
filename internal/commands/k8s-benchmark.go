@@ -3,11 +3,11 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Knetic/govaluate"
 	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/chen-keinan/beacon/internal/benchmark/k8s"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/kyokomi/emoji"
-	"strconv"
 	"strings"
 )
 
@@ -47,38 +47,28 @@ func (bk K8sBenchmark) runTests(ac k8s.Category) {
 			fmt.Printf("Failed to execute command %s", err.Error())
 		}
 		outputs := strings.Split(res.Stdout, "\n")
-		switch at.CheckType {
-		case "permission":
-			bk.checkPermission(outputs, res, at)
-		case "ownership":
-			bk.checkOwnership(outputs, at)
-		}
+		bk.evalExpression(outputs, at)
 	}
 }
 
-func (bk K8sBenchmark) checkPermission(outputs []string, res execute.ExecResult, at k8s.AuditTest) {
+func (bk K8sBenchmark) evalExpression(outputs []string, at k8s.AuditTest) {
 	for _, o := range outputs {
 		if len(o) == 0 {
 			continue
 		}
-		value, err := strconv.Atoi(o)
-		if err != nil {
-			fmt.Println(res.Stderr)
+		if at.CheckType == "ownership" {
+			o = "'" + o + "'"
 		}
-		if value <= 644 {
-			fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
-		} else {
+		expr := o + at.EvalExpr
+		expression, err := govaluate.NewEvaluableExpression(expr)
+		if err != nil {
 			fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))
 		}
-	}
-}
-
-func (bk K8sBenchmark) checkOwnership(outputs []string, at k8s.AuditTest) {
-	for _, o := range outputs {
-		if len(o) == 0 {
-			continue
+		result, err := expression.Evaluate(nil)
+		if err != nil {
+			fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))
 		}
-		if o == "root:root" {
+		if result.(bool) {
 			fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
 		} else {
 			fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))

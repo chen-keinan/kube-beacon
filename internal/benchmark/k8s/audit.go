@@ -29,4 +29,5 @@ type AuditTest struct {
 	Impact               string   `json:"impact"`
 	DefaultValue         string   `json:"default_value"`
 	References           []string `json:"references"`
+	EvalExpr             string   `json:"eval_expr"`
 }

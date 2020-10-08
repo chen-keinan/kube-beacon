@@ -14,6 +14,7 @@
             "remediation": "chmod 644 /etc/kubernetes/manifests/kube-apiserver.yaml",
             "check_type": "permission",
             "impact": "None",
+            "eval_expr": "<= 644",
             "default_value": "By default, the kube-apiserver.yaml file has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"
@@ -27,6 +28,7 @@
             "remediation": "chown root:root /etc/kubernetes/manifests/kube-apiserver.yaml",
             "check_type": "ownership",
             "impact": "None",
+            "eval_expr": "== 'root:root'",
             "default_value": "By default, the kube-apiserver.yaml file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"
@@ -40,6 +42,7 @@
             "remediation": "chmod 644 /etc/kubernetes/manifests/kube-controller-manager.yaml",
             "check_type": "permission",
             "impact": "None",
+            "eval_expr": "<= 644",
             "default_value": "By default, the kube-controller-manager.yaml file has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-controller-manager"
@@ -53,6 +56,7 @@
             "remediation": "chown root:root /etc/kubernetes/manifests/kube-controller-manager.yaml",
             "check_type": "ownership",
             "impact": "None",
+            "eval_expr": "== 'root:root'",
             "default_value": "By default, kube-controller-manager.yaml file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-controller-manager"
@@ -66,6 +70,7 @@
             "remediation": "chmod 644 /etc/kubernetes/manifests/kube-scheduler.yaml",
             "check_type": "permission",
             "impact": "None",
+            "eval_expr": "<= 644",
             "default_value": "By default, kube-scheduler.yaml file has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-scheduler/"
@@ -79,6 +84,7 @@
             "remediation": "chown root:root /etc/kubernetes/manifests/kube-scheduler.yaml",
             "check_type": "ownership",
             "impact": "None",
+            "eval_expr": "== 'root:root'",
             "default_value": "By default, kube-scheduler.yaml file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-scheduler/"
@@ -92,6 +98,7 @@
             "remediation": "chmod 644 /etc/kubernetes/manifests/etcd.yaml",
             "check_type": "permission",
             "impact": "None",
+            "eval_expr": "<= 644",
             "default_value": "By default, /etc/kubernetes/manifests/etcd.yaml file has permissions of 640.",
             "references": [
               "https://coreos.com/etcd",
@@ -105,6 +112,7 @@
             "audit": "stat -c %U:%G /etc/kubernetes/manifests/etcd.yaml",
             "remediation": "chown root:root /etc/kubernetes/manifests/etcd.yaml",
             "check_type": "ownership",
+            "eval_expr": "== 'root:root'",
             "impact": "None",
             "default_value": "By default, /etc/kubernetes/manifests/etcd.yaml file ownership is set to root:root.",
             "references": [
@@ -120,6 +128,7 @@
             "remediation": "chmod 644 <path/to/cni/files>",
             "check_type": "permission",
             "impact": "None",
+            "eval_expr": "<= 644",
             "default_value": "N/A",
             "references": [
               "https://kubernetes.io/docs/concepts/cluster-administration/networking/"
@@ -133,6 +142,7 @@
             "remediation": "chown root:root <path/to/cni/files>",
             "check_type": "ownership",
             "impact": "None",
+            "eval_expr": "== 'root:root'",
             "default_value": "None",
             "references": [
               "https://kubernetes.io/docs/concepts/cluster-administration/networking/"
@@ -146,6 +156,7 @@
             "remediation": "chmod 700 \"$(ps -ef | grep etcd |grep 'data-dir' | grep -o 'data-dir=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1')\"",
             "check_type": "permission",
             "impact": "None",
+            "eval_expr": "<= 700",
             "default_value": "By default, etcd data directory has permissions of 755.",
             "references": [
               "https://coreos.com/etcd/docs/latest/op-guide/configuration.html#data-dir",
@@ -160,6 +171,7 @@
             "remediation": "chown etcd:etcd \"$(ps -ef | grep etcd |grep 'data-dir' | grep -o 'data-dir=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1')\"",
             "check_type": "ownership",
             "impact": "None",
+            "eval_expr": "== 'etcd:etcd'",
             "default_value": "By default, etcd data directory ownership is set to etcd:etcd.",
             "references": [
               "https://coreos.com/etcd/docs/latest/op-guide/configuration.html#data-dir",
