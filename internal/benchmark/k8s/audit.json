@@ -177,6 +177,104 @@
               "https://coreos.com/etcd/docs/latest/op-guide/configuration.html#data-dir",
               "https://kubernetes.io/docs/admin/etcd/"
             ]
+          },
+          {
+            "name": "Ensure that the admin.conf file permissions are set to 644 or more restrictive (Automated)",
+            "description": "Ensure that the admin.conf file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a /etc/kubernetes/admin.conf",
+            "remediation": "chmod 644 /etc/kubernetes/admin.conf",
+            "check_type": "permission",
+            "impact": "None",
+            "eval_expr": "<= 644",
+            "default_value": "By default, admin.conf has permissions of 640.",
+            "references": [
+              "https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/"
+            ]
+          },
+          {
+            "name": "Ensure that the admin.conf file ownership is set to root:root (Automated)",
+            "description": "Ensure that the admin.conf file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G /etc/kubernetes/admin.conf",
+            "remediation": "chown root:root /etc/kubernetes/admin.conf",
+            "check_type": "ownership",
+            "impact": "None",
+            "eval_expr": "== 'root:root'",
+            "default_value": "By default, admin.conf file ownership is set to root:root.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubeadm/"
+            ]
+          },
+          {
+            "name": "Ensure that the scheduler.conf file permissions are set to 644 or more restrictive (Automated)",
+            "description": "Ensure that the scheduler.conf file permissions are set to 644 or more restrictive (Automated)",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a /etc/kubernetes/scheduler.conf",
+            "remediation": "chmod 644 /etc/kubernetes/scheduler.conf",
+            "check_type": "permission",
+            "impact": "None",
+            "eval_expr": "<= 644",
+            "default_value": "By default, scheduler.conf has permissions of 640.",
+            "references": [
+              "https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/"
+            ]
+          },
+          {
+            "name": "Ensure that the scheduler.conf file ownership is set to root:root (Automated)",
+            "description": "Ensure that the scheduler.conf file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G /etc/kubernetes/scheduler.conf",
+            "remediation": "chown root:root /etc/kubernetes/scheduler.conf",
+            "check_type": "ownership",
+            "impact": "None",
+            "eval_expr": "== 'root:root'",
+            "default_value": "By default, scheduler.conf file ownership is set to root:root.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubeadm/"
+            ]
+          },
+          {
+            "name": "Ensure that the controller-manager.conf file permissions are set to 644 or more restrictive (Automated)",
+            "description": "Ensure that the controller-manager.conf file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a /etc/kubernetes/controller-manager.conf",
+            "remediation": "chmod 644 /etc/kubernetes/controller-manager.conf",
+            "check_type": "permission",
+            "impact": "None",
+            "eval_expr": "<= 644",
+            "default_value": "By default, controller-manager.conf has permissions of 640.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-controller-manager/"
+            ]
+          },
+          {
+            "name": "Ensure that the controller-manager.conf file ownership is set to root:root (Automated)",
+            "description": "Ensure that the controller-manager.conf file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G /etc/kubernetes/controller-manager.conf",
+            "remediation": "chown root:root /etc/kubernetes/controller-manager.conf",
+            "check_type": "ownership",
+            "impact": "None",
+            "eval_expr": "== 'root:root'",
+            "default_value": "By default, controller-manager.conf file ownership is set to root:root.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-controller-manager/"
+            ]
+          },
+          {
+            "name": "Ensure that the Kubernetes PKI directory and file ownership is set to root:root (Automated)",
+            "description": "Ensure that the Kubernetes PKI directory and file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %U:%G $(ls -R /etc/kubernetes/pki/ | awk '/:$/&&f{s=$0;f=0}/:$/&&!f{sub(/:$/,\"\");s=$0;f=1;next}NF&&f{ print s\"/\"$0 }')",
+            "remediation": "chown -R root:root /etc/kubernetes/pki/",
+            "check_type": "ownership",
+            "impact": "None",
+            "eval_expr": "== 'root:root'",
+            "default_value": "By default, the /etc/kubernetes/pki/ directory and all of the files and directories contained within it, are set to be owned by the root user.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/"
+            ]
           }
         ]
       }
