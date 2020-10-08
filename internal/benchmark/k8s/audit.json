@@ -289,6 +289,20 @@
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"
             ]
+          },
+          {
+            "name": "Ensure that the Kubernetes PKI key file permissions are set to 600 (Manual)",
+            "description": "Ensure that Kubernetes PKI key files have permissions of 600.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "stat -c %a $(ls -aR /etc/kubernetes/pki/ | awk '/:$/&&f{s=$0;f=0}/:$/&&!f{sub(/:$/,\"\");s=$0;f=1;next}NF&&f{ print s\"/\"$0 }' | grep \\.key$)",
+            "remediation": "chmod -R 600 /etc/kubernetes/pki/*.key",
+            "check_type": "permission",
+            "impact": "None",
+            "eval_expr": "<= 600",
+            "default_value": "By default, the keys used by Kubernetes are set to have permissions of 600",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/"
+            ]
           }
         ]
       }
