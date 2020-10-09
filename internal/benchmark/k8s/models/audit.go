@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/mitchellh/mapstructure"
 	"strings"
 )
@@ -78,7 +79,7 @@ var exprSanitizePermission ExprSanitize = func(expr string) string {
 }
 
 func validateRegExOutPut(expr string) string {
-	if strings.Contains(expr, "[^\"]\\S*'") {
+	if strings.Contains(expr, common.GrepRegex) {
 		return ""
 	}
 	return expr
