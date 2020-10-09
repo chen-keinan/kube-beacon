@@ -38,7 +38,7 @@ func (bk K8sAudit) Run(args []string) int {
 
 func (bk K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
-		result, err := shell.NewShellExec().Exec(at.AuditCommand)
+ 		result, err := shell.NewShellExec().Exec(at.AuditCommand)
 		if err != nil {
 			fmt.Printf("Failed to execute command %s", err.Error())
 			continue
@@ -68,7 +68,7 @@ func (bk K8sAudit) evalExpression(outputs []string, at models.AuditTest) {
 
 func (bk K8sAudit) evalCommandExpr(at models.AuditTest, o string) (bool, error) {
 	expr := strings.ReplaceAll(at.EvalExpr,"$1",at.Sanitize(o))
-	expression, err := govaluate.NewEvaluableExpression(expr)
+ 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
 		return false, fmt.Errorf("failed to build evaluation command expr for audit test %s", at.Description)
 	}

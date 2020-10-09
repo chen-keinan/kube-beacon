@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"github.com/mitchellh/mapstructure"
+	"strings"
 )
 
 //Audit data model
@@ -65,13 +66,20 @@ func (at *AuditTest) UnmarshalJSON(data []byte) error {
 type ExprSanitize func(expr string) string
 
 var exprSanitizeOwnership ExprSanitize = func(expr string) string {
-	return expr
+	return ValidateRegExOutPut(expr)
 }
 
 var exprSanitizeProcessParam ExprSanitize = func(expr string) string {
-	return expr
+	return ValidateRegExOutPut(expr)
 }
 
 var exprSanitizePermission ExprSanitize = func(expr string) string {
+	return ValidateRegExOutPut(expr)
+}
+
+func ValidateRegExOutPut(expr string) string {
+	if strings.Contains(expr, "[^\"]\\S*'") {
+		return ""
+	}
 	return expr
 }

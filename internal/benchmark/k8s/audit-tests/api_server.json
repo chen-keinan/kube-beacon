@@ -10,7 +10,7 @@
             "name": "Ensure that the --anonymous-auth argument is set to false (Manual)",
             "description": "Disable anonymous requests to the API server.",
             "profile_applicability": "Level 1 - Master Node",
-            "audit": "ps -ef | grep kube-apiserver |grep 'anonymous-auth' | grep -o 'anonymous-auth=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+            "audit": "ps -ef | grep kube-apiserver |grep 'anonymous-auth' | grep -Po 'anonymous-auth=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.\n--anonymous-auth=false",
             "check_type": "process_param",
             "impact": "Anonymous requests will be rejected.",
@@ -25,7 +25,7 @@
             "name": "Ensure that the --basic-auth-file argument is not set (Automated)",
             "description": "Do not use basic authentication.",
             "profile_applicability": "Level 1 - Master Node",
-            "audit": "ps -ef | grep kube-apiserver |grep 'basic-auth-file' | grep -o 'basic-auth-file=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+            "audit": "ps -ef | grep kube-apiserver |grep 'basic-auth-file' | grep -Po 'basic-auth-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --basic-auth-file=<filename> parameter.",
             "check_type": "process_param",
             "impact": "You will have to configure and use alternate authentication mechanisms such as tokens and certificates. Username and password for basic authentication could no longer be used.",
@@ -40,7 +40,7 @@
             "name": "Ensure that the --token-auth-file parameter is not set (Automated)",
             "description": "Do not use token based authentication.",
             "profile_applicability": "Level 1 - Master Node",
-            "audit": "ps -ef | grep kube-apiserver |grep 'token-auth-file' | grep -o 'token-auth-file=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+            "audit": "ps -ef | grep kube-apiserver |grep 'token-auth-file' | grep -Po 'token-auth-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --token-auth-file=<filename> parameter.",
             "check_type": "process_param",
             "impact": "You will have to configure and use alternate authentication mechanisms such as certificates. Static token based authentication could not be used.",
@@ -55,7 +55,7 @@
             "name": "Ensure that the --kubelet-https argument is set to true (Automated)",
             "description": "Use https for kubelet connections.",
             "profile_applicability": "Level 1 - Master Node",
-            "audit": "ps -ef | grep kube-apiserver |grep 'kubelet-https' | grep -o 'kubelet-https=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+            "audit": "ps -ef | grep kube-apiserver |grep 'anonymous-auth' | grep -Po 'anonymous-auth=\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --token-auth-file=<filename> parameter.",
             "check_type": "process_param",
             "impact": "You require TLS to be configured on apiserver as well as kubelets.",
@@ -64,6 +64,38 @@
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/",
               "https://kubernetes.io/docs/admin/kubelet-authentication-authorization/"
+            ]
+          },
+          {
+            "name": "Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate (Automated)",
+            "description": "Enable certificate based kubelet authentication.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'kubelet-client-certificate' | grep -o 'kubelet-client-certificate=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and set up the TLS connection between the apiserver and kubelets. Then, edit API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the kubelet client certificate and key parameters as below. --kubelet-client-certificate=<path/to/client-certificate-file> --kubelet-client-key=<path/to/client-key-file>",
+            "check_type": "process_param",
+            "impact": "You require TLS to be configured on apiserver as well as kubelets.",
+            "eval_expr": "'$1' == '/etc/kubernetes/pki/apiserver-kubelet-client.crt'",
+            "default_value": "By default, certificate-based kubelet authentication is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/kubelet-authentication-authorization/",
+              "https://kubernetes.io/docs/concepts/cluster-administration/master-node-communication/#apiserver---kubelet"
+            ]
+          },
+          {
+            "name": "Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate (Automated)",
+            "description": "Enable certificate based kubelet authentication.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'kubelet-client-key' | grep -Po 'kubelet-client-key=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and set up the TLS connection between the apiserver and kubelets. Then, edit API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the kubelet client certificate and key parameters as below. --kubelet-client-certificate=<path/to/client-certificate-file> --kubelet-client-key=<path/to/client-key-file>",
+            "check_type": "process_param",
+            "impact": "You require TLS to be configured on apiserver as well as kubelets.",
+            "eval_expr": "'$1' == '/etc/kubernetes/pki/apiserver-kubelet-client.key'",
+            "default_value": "By default, certificate-based kubelet authentication is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/kubelet-authentication-authorization/",
+              "https://kubernetes.io/docs/concepts/cluster-administration/master-node-communication/#apiserver---kubelet"
             ]
           }
         ]
