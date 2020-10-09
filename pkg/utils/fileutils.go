@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"github.com/chen-keinan/beacon/internal/common"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -50,32 +49,21 @@ func CreateBenchmarkFolderIfNotExist() error {
 	return nil
 }
 
-//CreateBenchmarkFileIfNotExist create benchmark audit file if not exist
-func CreateBenchmarkFileIfNotExist(filename, fileData string) error {
-	filePath := filepath.Join(GetBenchmarkFolder(), filename)
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		f, err := os.Create(filePath)
-		if err != nil {
-			panic(err)
-		}
-		_, err = f.WriteString(fileData)
-		if err != nil {
-			return fmt.Errorf("failed to write benchmark file")
-		}
-		err = f.Close()
-		if err != nil {
-			fmt.Printf("faild to close file %s", filePath)
-		}
-	}
-	return nil
-}
-
 //GetK8sBenchmarkAuditTestsFile return k8s benchmark file
 func GetK8sBenchmarkAuditTestsFile() []string {
-	filePath := filepath.Join(GetBenchmarkFolder(), filepath.Clean(common.MasterNodeConfigurationFiles))
-	data, err := ioutil.ReadFile(filepath.Clean(filePath))
+	filesData := make([]string, 0)
+	folder := GetBenchmarkFolder()
+	filesInfo, err := ioutil.ReadDir(filepath.Join(folder))
 	if err != nil {
-		panic("failed to read k8s benchmark audit file")
+		fmt.Printf("failed to read files from folder %s", folder)
 	}
-	return []string{string(data)}
+	for _, fileInfo := range filesInfo {
+		filePath := filepath.Join(GetBenchmarkFolder(), filepath.Clean(fileInfo.Name()))
+		fData, err := ioutil.ReadFile(filepath.Clean(filePath))
+		if err != nil {
+			panic("failed to read k8s benchmark audit file")
+		}
+		filesData = append(filesData, string(fData))
+	}
+	return filesData
 }

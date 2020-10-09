@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Knetic/govaluate"
-	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/chen-keinan/beacon/internal/benchmark/k8s"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/kyokomi/emoji"
@@ -38,23 +37,18 @@ func (bk K8sBenchmark) Run(args []string) int {
 
 func (bk K8sBenchmark) runTests(ac k8s.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
-		ls := execute.ExecTask{
-			Command: at.AuditCommand,
-			Args:    []string{},
-			Shell:   true,
-		}
-		res, err := ls.Execute()
+		result, err := NewShellExec().Exec(at.AuditCommand)
 		if err != nil {
 			fmt.Printf("Failed to execute command %s", err.Error())
 		}
-		outputs := strings.Split(res.Stdout, "\n")
+		outputs := strings.Split(result.Stdout, "\n")
 		bk.evalExpression(outputs, at)
 	}
 }
 
 func (bk K8sBenchmark) evalExpression(outputs []string, at k8s.AuditTest) {
 	for _, o := range outputs {
-		if len(o) == 0 {
+		if len(o) == 0 && len(outputs) > 1 {
 			continue
 		}
 		expr := at.Sanitize(o) + at.EvalExpr

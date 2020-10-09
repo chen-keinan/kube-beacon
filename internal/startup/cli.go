@@ -3,7 +3,6 @@ package startup
 import (
 	"fmt"
 	"github.com/chen-keinan/beacon/internal/commands"
-	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/cli"
 	"os"
@@ -20,8 +19,8 @@ func StartCli() {
 	if err != nil {
 		panic(err)
 	}
-	benchK8s := LoadK8sBenchmarkFile()
-	err = utils.CreateBenchmarkFileIfNotExist(common.MasterNodeConfigurationFiles, benchK8s)
+	filesData := LoadK8sBenchmarkFile()
+	err = CreateBenchmarkFileIfNotExist(filesData)
 	if err != nil {
 		panic(err)
 	}

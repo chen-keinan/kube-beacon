@@ -1,0 +1,28 @@
+{
+  "benchmark_type": "k8s",
+  "categories": [
+    {
+      "name": "Control Plane Components",
+      "sub_category": {
+        "name": "API Server",
+        "audit_tests": [
+          {
+            "name": "Ensure that the --anonymous-auth argument is set to false (Manual)",
+            "description": "Disable anonymous requests to the API server.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'anonymous-auth' | grep -o 'anonymous-auth=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.\n--anonymous-auth=false",
+            "check_type": "process_param",
+            "impact": "Anonymous requests will be rejected.",
+            "eval_expr": "== 'false'",
+            "default_value": "By default, anonymous access is enabled.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/authentication/#anonymous-requests"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

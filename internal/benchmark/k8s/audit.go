@@ -53,6 +53,8 @@ func (at *AuditTest) UnmarshalJSON(data []byte) error {
 		at.Sanitize = exprSanitizeOwnership
 	case "permission":
 		at.Sanitize = exprSanitizePermission
+	case "process_param":
+		at.Sanitize = exprSanitizeProcessParam
 	default:
 		at.Sanitize = exprSanitizePermission
 	}
@@ -63,6 +65,10 @@ func (at *AuditTest) UnmarshalJSON(data []byte) error {
 type ExprSanitize func(expr string) string
 
 var exprSanitizeOwnership ExprSanitize = func(expr string) string {
+	return "'" + expr + "'"
+}
+
+var exprSanitizeProcessParam ExprSanitize = func(expr string) string {
 	return "'" + expr + "'"
 }
 
