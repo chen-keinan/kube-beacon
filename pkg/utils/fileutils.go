@@ -49,8 +49,8 @@ func CreateBenchmarkFolderIfNotExist() error {
 	return nil
 }
 
-//GetK8sBenchmarkAuditTestsFile return k8s benchmark file
-func GetK8sBenchmarkAuditTestsFile() []string {
+//GetK8sBenchAuditFiles return k8s benchmark file
+func GetK8sBenchAuditFiles() []string {
 	filesData := make([]string, 0)
 	folder := GetBenchmarkFolder()
 	filesInfo, err := ioutil.ReadDir(filepath.Join(folder))
