@@ -53,21 +53,34 @@ func (bk K8sAudit) evalExpression(outputs []string, at models.AuditTest) {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
 		}
-		expr := at.Sanitize(o) + at.EvalExpr
-		expression, err := govaluate.NewEvaluableExpression(expr)
+		result, err := bk.evalCommandExpr(at, o)
 		if err != nil {
-			fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))
+			fmt.Println(err)
+			continue
 		}
-		result, err := expression.Evaluate(nil)
-		if err != nil {
-			fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))
-		}
-		if result.(bool) {
+		if result {
 			fmt.Print(emoji.Sprintf("audit test %s :check_mark_button:\n", at.Description))
 		} else {
 			fmt.Print(emoji.Sprintf("audit test %s :cross_mark:\n", at.Description))
 		}
 	}
+}
+
+func (bk K8sAudit) evalCommandExpr(at models.AuditTest, o string) (bool, error) {
+	expr := at.Sanitize(o) + at.EvalExpr
+	expression, err := govaluate.NewEvaluableExpression(expr)
+	if err != nil {
+		return false, fmt.Errorf("failed to build evaluation command expr for audit test %s", at.Description)
+	}
+	result, err := expression.Evaluate(nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to evaluate command expr for audit test %s", at.Description)
+	}
+	b, ok := result.(bool)
+	if ok {
+		return b, nil
+	}
+	return false, nil
 }
 
 //Synopsis for help
