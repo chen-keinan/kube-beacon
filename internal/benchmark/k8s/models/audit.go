@@ -66,18 +66,18 @@ func (at *AuditTest) UnmarshalJSON(data []byte) error {
 type ExprSanitize func(expr string) string
 
 var exprSanitizeOwnership ExprSanitize = func(expr string) string {
-	return ValidateRegExOutPut(expr)
+	return validateRegExOutPut(expr)
 }
 
 var exprSanitizeProcessParam ExprSanitize = func(expr string) string {
-	return ValidateRegExOutPut(expr)
+	return validateRegExOutPut(expr)
 }
 
 var exprSanitizePermission ExprSanitize = func(expr string) string {
-	return ValidateRegExOutPut(expr)
+	return validateRegExOutPut(expr)
 }
 
-func ValidateRegExOutPut(expr string) string {
+func validateRegExOutPut(expr string) string {
 	if strings.Contains(expr, "[^\"]\\S*'") {
 		return ""
 	}
