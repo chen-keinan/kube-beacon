@@ -14,7 +14,7 @@
             "remediation": "chmod 644 /etc/kubernetes/manifests/kube-apiserver.yaml",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "By default, the kube-apiserver.yaml file has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"
@@ -28,7 +28,7 @@
             "remediation": "chown root:root /etc/kubernetes/manifests/kube-apiserver.yaml",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "default_value": "By default, the kube-apiserver.yaml file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"
@@ -42,7 +42,7 @@
             "remediation": "chmod 644 /etc/kubernetes/manifests/kube-controller-manager.yaml",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "By default, the kube-controller-manager.yaml file has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-controller-manager"
@@ -56,7 +56,7 @@
             "remediation": "chown root:root /etc/kubernetes/manifests/kube-controller-manager.yaml",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "default_value": "By default, kube-controller-manager.yaml file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-controller-manager"
@@ -70,7 +70,7 @@
             "remediation": "chmod 644 /etc/kubernetes/manifests/kube-scheduler.yaml",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "By default, kube-scheduler.yaml file has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-scheduler/"
@@ -84,7 +84,7 @@
             "remediation": "chown root:root /etc/kubernetes/manifests/kube-scheduler.yaml",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "default_value": "By default, kube-scheduler.yaml file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-scheduler/"
@@ -98,7 +98,7 @@
             "remediation": "chmod 644 /etc/kubernetes/manifests/etcd.yaml",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "By default, /etc/kubernetes/manifests/etcd.yaml file has permissions of 640.",
             "references": [
               "https://coreos.com/etcd",
@@ -112,7 +112,7 @@
             "audit": "stat -c %U:%G /etc/kubernetes/manifests/etcd.yaml",
             "remediation": "chown root:root /etc/kubernetes/manifests/etcd.yaml",
             "check_type": "ownership",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "impact": "None",
             "default_value": "By default, /etc/kubernetes/manifests/etcd.yaml file ownership is set to root:root.",
             "references": [
@@ -128,7 +128,7 @@
             "remediation": "chmod 644 <path/to/cni/files>",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "N/A",
             "references": [
               "https://kubernetes.io/docs/concepts/cluster-administration/networking/"
@@ -142,7 +142,7 @@
             "remediation": "chown root:root <path/to/cni/files>",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "default_value": "None",
             "references": [
               "https://kubernetes.io/docs/concepts/cluster-administration/networking/"
@@ -156,7 +156,7 @@
             "remediation": "chmod 700 $(ps -ef | grep etcd |grep 'data-dir' | grep -o 'data-dir=[^\"]\\S*' | awk -F \"=\" '{print $2}')",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 700",
+            "eval_expr": "$1 <= 700",
             "default_value": "By default, etcd data directory has permissions of 755.",
             "references": [
               "https://coreos.com/etcd/docs/latest/op-guide/configuration.html#data-dir",
@@ -171,7 +171,7 @@
             "remediation": "chown etcd:etcd $(ps -ef | grep etcd |grep 'data-dir' | grep -o 'data-dir=[^\"]\\S*' | awk -F \"=\" '{print $2}')",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'etcd:etcd'",
+            "eval_expr": "'$1' == 'etcd:etcd'",
             "default_value": "By default, etcd data directory ownership is set to etcd:etcd.",
             "references": [
               "https://coreos.com/etcd/docs/latest/op-guide/configuration.html#data-dir",
@@ -186,7 +186,7 @@
             "remediation": "chmod 644 /etc/kubernetes/admin.conf",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "By default, admin.conf has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/"
@@ -200,7 +200,7 @@
             "remediation": "chown root:root /etc/kubernetes/admin.conf",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "default_value": "By default, admin.conf file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kubeadm/"
@@ -214,7 +214,7 @@
             "remediation": "chmod 644 /etc/kubernetes/scheduler.conf",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "By default, scheduler.conf has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/"
@@ -228,7 +228,7 @@
             "remediation": "chown root:root /etc/kubernetes/scheduler.conf",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "default_value": "By default, scheduler.conf file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kubeadm/"
@@ -242,7 +242,7 @@
             "remediation": "chmod 644 /etc/kubernetes/controller-manager.conf",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "By default, controller-manager.conf has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-controller-manager/"
@@ -256,7 +256,7 @@
             "remediation": "chown root:root /etc/kubernetes/controller-manager.conf",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "default_value": "By default, controller-manager.conf file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-controller-manager/"
@@ -270,7 +270,7 @@
             "remediation": "chown -R root:root /etc/kubernetes/pki/",
             "check_type": "ownership",
             "impact": "None",
-            "eval_expr": "== 'root:root'",
+            "eval_expr": "'$1' == 'root:root'",
             "default_value": "By default, the /etc/kubernetes/pki/ directory and all of the files and directories contained within it, are set to be owned by the root user.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"
@@ -284,7 +284,7 @@
             "remediation": "chmod -R 644 /etc/kubernetes/pki/*.crt",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 644",
+            "eval_expr": "$1 <= 644",
             "default_value": "By default, the certificates used by Kubernetes are set to have permissions of 644",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"
@@ -298,7 +298,7 @@
             "remediation": "chmod -R 600 /etc/kubernetes/pki/*.key",
             "check_type": "permission",
             "impact": "None",
-            "eval_expr": "<= 600",
+            "eval_expr": "$1 <= 600",
             "default_value": "By default, the keys used by Kubernetes are set to have permissions of 600",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"

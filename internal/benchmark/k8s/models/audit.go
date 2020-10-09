@@ -65,11 +65,11 @@ func (at *AuditTest) UnmarshalJSON(data []byte) error {
 type ExprSanitize func(expr string) string
 
 var exprSanitizeOwnership ExprSanitize = func(expr string) string {
-	return "'" + expr + "'"
+	return expr
 }
 
 var exprSanitizeProcessParam ExprSanitize = func(expr string) string {
-	return "'" + expr + "'"
+	return expr
 }
 
 var exprSanitizePermission ExprSanitize = func(expr string) string {

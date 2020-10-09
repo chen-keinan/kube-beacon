@@ -14,11 +14,56 @@
             "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.\n--anonymous-auth=false",
             "check_type": "process_param",
             "impact": "Anonymous requests will be rejected.",
-            "eval_expr": "== 'false'",
+            "eval_expr": "'$1' == 'false'",
             "default_value": "By default, anonymous access is enabled.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/",
               "https://kubernetes.io/docs/admin/authentication/#anonymous-requests"
+            ]
+          },
+          {
+            "name": "Ensure that the --basic-auth-file argument is not set (Automated)",
+            "description": "Do not use basic authentication.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'basic-auth-file' | grep -o 'basic-auth-file=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --basic-auth-file=<filename> parameter.",
+            "check_type": "process_param",
+            "impact": "You will have to configure and use alternate authentication mechanisms such as tokens and certificates. Username and password for basic authentication could no longer be used.",
+            "eval_expr": "'$1' == ''",
+            "default_value": "By default, basic authentication is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/authentication/#static-password-file"
+            ]
+          },
+          {
+            "name": "Ensure that the --token-auth-file parameter is not set (Automated)",
+            "description": "Do not use token based authentication.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'token-auth-file' | grep -o 'token-auth-file=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --token-auth-file=<filename> parameter.",
+            "check_type": "process_param",
+            "impact": "You will have to configure and use alternate authentication mechanisms such as certificates. Static token based authentication could not be used.",
+            "eval_expr": "'$1' == ''",
+            "default_value": "By default, --token-auth-file argument is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/authentication/#static-token-file",
+              " https://kubernetes.io/docs/admin/kube-apiserver/"
+            ]
+          },
+          {
+            "name": "Ensure that the --kubelet-https argument is set to true (Automated)",
+            "description": "Use https for kubelet connections.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'kubelet-https' | grep -o 'kubelet-https=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --token-auth-file=<filename> parameter.",
+            "check_type": "process_param",
+            "impact": "You require TLS to be configured on apiserver as well as kubelets.",
+            "eval_expr": "'$1' == '' || '$1' == 'true'",
+            "default_value": "By default, kubelet connections are over https.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/kubelet-authentication-authorization/"
             ]
           }
         ]
