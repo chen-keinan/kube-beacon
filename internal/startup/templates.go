@@ -11,8 +11,11 @@ import (
 
 //LoadK8sBenchmarkFile use packr to load benchmark audit test json
 func LoadK8sBenchmarkFile() []BenchFilesData {
-	box := packr.NewBox("./../benchmark/k8s")
+	box := packr.NewBox("./../benchmark/k8s/audit-tests")
 	s, err := box.FindString(common.MasterNodeConfigurationFiles)
+	if err != nil {
+		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
+	}
 	a, err := box.FindString(common.APIServer)
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
@@ -43,6 +46,7 @@ func CreateBenchmarkFileIfNotExist(filesData []BenchFilesData) error {
 	return nil
 }
 
+//BenchFilesData hold test files
 type BenchFilesData struct {
 	Name string
 	Data string

@@ -34,10 +34,10 @@ func InitCLI(sa SanitizeArgs) {
 	app.Args = sa(os.Args[1:])
 	app.Commands = map[string]cli.CommandFactory{
 		"audit": func() (cli.Command, error) {
-			return &commands.K8sBenchmark{}, nil
+			return &commands.K8sAudit{}, nil
 		},
 		"a": func() (cli.Command, error) {
-			return &commands.K8sBenchmark{}, nil
+			return &commands.K8sAudit{}, nil
 		},
 	}
 	status, err := app.Run()

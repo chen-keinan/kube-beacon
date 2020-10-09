@@ -4,24 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Knetic/govaluate"
-	"github.com/chen-keinan/beacon/internal/benchmark/k8s"
+	"github.com/chen-keinan/beacon/internal/benchmark/k8s/models"
+	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/kyokomi/emoji"
 	"strings"
 )
 
-//K8sBenchmark k8s benchmark object
-type K8sBenchmark struct {
+//K8sAudit k8s benchmark object
+type K8sAudit struct {
 }
 
 //Help return benchmark command help
-func (bk K8sBenchmark) Help() string {
+func (bk K8sAudit) Help() string {
 	return "-a , --audit run benchmark audit tests"
 }
 
 //Run execute benchmark command
-func (bk K8sBenchmark) Run(args []string) int {
-	audit := k8s.Audit{}
+func (bk K8sAudit) Run(args []string) int {
+	audit := models.Audit{}
 	auditFiles := utils.GetK8sBenchmarkAuditTestsFile()
 	for _, auditFile := range auditFiles {
 		err := json.Unmarshal([]byte(auditFile), &audit)
@@ -35,18 +36,19 @@ func (bk K8sBenchmark) Run(args []string) int {
 	return 0
 }
 
-func (bk K8sBenchmark) runTests(ac k8s.Category) {
+func (bk K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
-		result, err := NewShellExec().Exec(at.AuditCommand)
+		result, err := shell.NewShellExec().Exec(at.AuditCommand)
 		if err != nil {
 			fmt.Printf("Failed to execute command %s", err.Error())
+			continue
 		}
 		outputs := strings.Split(result.Stdout, "\n")
 		bk.evalExpression(outputs, at)
 	}
 }
 
-func (bk K8sBenchmark) evalExpression(outputs []string, at k8s.AuditTest) {
+func (bk K8sAudit) evalExpression(outputs []string, at models.AuditTest) {
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
@@ -69,6 +71,6 @@ func (bk K8sBenchmark) evalExpression(outputs []string, at k8s.AuditTest) {
 }
 
 //Synopsis for help
-func (bk K8sBenchmark) Synopsis() string {
+func (bk K8sAudit) Synopsis() string {
 	return bk.Help()
 }
