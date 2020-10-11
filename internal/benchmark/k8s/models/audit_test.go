@@ -87,8 +87,8 @@ func Test_CheckType_Regex_OK(t *testing.T) {
 
 //Test_JsonMarshalBad test
 func Test_JsonMarshalBad(t *testing.T) {
-	ab := AuditBench{}
-	err := json.Unmarshal([]byte("bad"), &ab)
+	ab := &AuditBench{}
+	err := ab.UnmarshalJSON([]byte("{bad,wwq}"))
 	if err == nil {
 		t.Fatal(err)
 	}
