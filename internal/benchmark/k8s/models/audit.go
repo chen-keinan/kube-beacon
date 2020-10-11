@@ -57,30 +57,56 @@ func (at *AuditTest) UnmarshalJSON(data []byte) error {
 		at.Sanitize = exprSanitizePermission
 	case "process_param":
 		at.Sanitize = exprSanitizeProcessParam
-	default:
-		at.Sanitize = exprSanitizePermission
+	case "multi_process_param":
+		at.Sanitize = exprSanitizeMultiProcessParam
 	}
 	return nil
 }
 
 //ExprSanitize sanitize expr
-type ExprSanitize func(expr string) string
+type ExprSanitize func(output, expr string) string
 
-var exprSanitizeOwnership ExprSanitize = func(expr string) string {
-	return validateRegExOutPut(expr)
+var exprSanitizeOwnership ExprSanitize = func(output, expr string) string {
+	return SanitizeRegExOutPut(output, expr)
 }
 
-var exprSanitizeProcessParam ExprSanitize = func(expr string) string {
-	return validateRegExOutPut(expr)
+var exprSanitizeProcessParam ExprSanitize = func(output, expr string) string {
+	return SanitizeRegExOutPut(output, expr)
 }
 
-var exprSanitizePermission ExprSanitize = func(expr string) string {
-	return validateRegExOutPut(expr)
-}
-
-func validateRegExOutPut(expr string) string {
+var exprSanitizeMultiProcessParam ExprSanitize = func(output, expr string) string {
+	var s string
 	if strings.Contains(expr, common.GrepRegex) {
-		return ""
+		s = ""
+	} else {
+		s = parseMultiValue(output)
 	}
-	return expr
+	return strings.ReplaceAll(expr, "$1", s)
 }
+
+func parseMultiValue(output string) string {
+	builder := strings.Builder{}
+	sOutout := strings.Split(output, ",")
+	for index, val := range sOutout {
+		if index != 0 {
+			if index > 0 {
+				builder.WriteString(",")
+			}
+		}
+		if len(val) > 0 {
+			builder.WriteString("'" + val + "'")
+		}
+	}
+	return builder.String()
+}
+
+var exprSanitizePermission ExprSanitize = func(output, expr string) string {
+	return SanitizeRegExOutPut(output, expr)
+}
+
+func SanitizeRegExOutPut(output, expr string) string {
+	if strings.Contains(output, common.GrepRegex) {
+		output = ""
+	}
+	return  strings.ReplaceAll(expr, "$1", output)
+ }
