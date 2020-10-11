@@ -7,6 +7,7 @@ require (
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/packr/v2 v2.8.0 // indirect
+	github.com/gojp/goreportcard v0.0.0-20200928020921-6cb26c2f6add // indirect
 	github.com/golang/mock v1.4.4 // indirect
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible

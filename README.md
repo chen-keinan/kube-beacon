@@ -1,4 +1,3 @@
 # Beacon
 
-go test ./... -coverprofile fmtcoverage.html fmt
-go tool cover -html=fmtcoverage.html -o coverage.html
+[![Go Report Card](https://goreportcard.com/report/github.com/chen-keinan/beacon)](https://goreportcard.com/report/github.com/chen-keinan/beacon)
