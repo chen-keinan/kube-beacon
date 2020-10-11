@@ -44,46 +44,56 @@ func (bk K8sAudit) runTests(ac models.Category) {
 			continue
 		}
 		outputs := strings.Split(result.Stdout, "\n")
-		err = bk.evalExpression(outputs, at)
+		match, err := bk.evalExpression(outputs, at)
 		if err != nil {
 			fmt.Println(err.Error())
+		} else {
+			bk.printTestResults(match, at)
 		}
 	}
 }
 
-func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) error {
+func (bk K8sAudit) printTestResults(match bool, at models.AuditBench) {
+	if match {
+		fmt.Print(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
+	} else {
+		fmt.Print(emoji.Sprintf(":cross_mark: %s\n", at.Name))
+
+	}
+}
+
+func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) (bool, error) {
+	match := 0
+	validOutPutCount := 0
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
 		}
-		result, err := bk.evalCommandExpr(at, o)
+		validOutPutCount++
+		count, err := bk.evalCommandExpr(at, o)
 		if err != nil {
-			return fmt.Errorf(err.Error())
+			return false, fmt.Errorf(err.Error())
 		}
-		if result {
-			fmt.Print(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
-		} else {
-			fmt.Print(emoji.Sprintf(":cross_mark: %s\n", at.Name))
-		}
+		match += count
 	}
-	return nil
+	return match == validOutPutCount, nil
 }
 
-func (bk K8sAudit) evalCommandExpr(at models.AuditBench, o string) (bool, error) {
+func (bk K8sAudit) evalCommandExpr(at models.AuditBench, o string) (int, error) {
 	expr := at.Sanitize(o, at.EvalExpr)
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
-		return false, fmt.Errorf("failed to build evaluation command expr for audit test %s", at.Description)
+		return 0, fmt.Errorf("failed to build evaluation command expr for audit test %s", at.Description)
 	}
 	result, err := expression.Evaluate(nil)
 	if err != nil {
-		return false, fmt.Errorf("failed to evaluate command expr for audit test %s", at.Description)
+		return 0, fmt.Errorf("failed to evaluate command expr for audit test %s", at.Description)
 	}
 	b, ok := result.(bool)
-	if ok {
-		return b, nil
+	if ok && b {
+		return 1, nil
 	}
-	return false, nil
+	return 0, nil
 }
 
 //Synopsis for help

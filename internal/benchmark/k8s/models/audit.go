@@ -88,9 +88,12 @@ func parseMultiValue(output, expr string) string {
 	builder := strings.Builder{}
 	sOutout := strings.Split(output, ",")
 	if len(sOutout) == 1 {
-		expr = strings.ReplaceAll(expr, "IN", "==")
-		return strings.ReplaceAll(expr, "($1)", "'"+sOutout[0]+"'")
+		return sanitizeSingleValue(expr, sOutout)
 	}
+	return sanitizeMultiValue(sOutout, expr, builder)
+}
+
+func sanitizeMultiValue(sOutout []string, expr string, builder strings.Builder) string {
 	for index, val := range sOutout {
 		if index != 0 {
 			if index > 0 {
@@ -101,7 +104,14 @@ func parseMultiValue(output, expr string) string {
 			builder.WriteString("'" + val + "'")
 		}
 	}
-	return builder.String()
+	return strings.ReplaceAll(expr, "$1", builder.String())
+}
+
+func sanitizeSingleValue(expr string, sOutout []string) string {
+	if strings.Contains(expr, "IN") {
+		expr = strings.ReplaceAll(expr, "IN", "==")
+	}
+	return strings.ReplaceAll(expr, "($1)", "'"+sOutout[0]+"'")
 }
 
 var exprSanitizePermission ExprSanitize = func(output, expr string) string {
