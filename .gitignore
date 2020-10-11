@@ -12,3 +12,4 @@ vendor/
 */mocks*
 coverage.html
 a_startup-packr.go
+fmtcoverage.html

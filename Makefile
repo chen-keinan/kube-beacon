@@ -21,7 +21,8 @@ test:
 	#@go get github.com/golang/mock/mockgen@latest
 	#@go install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
 	@go generate ./...
-	$(GOTEST) ./... -coverprofile cp.out
+	$(GOTEST) ./... -coverprofile fmtcoverage.html fmt
+	go tool cover -html=fmtcoverage.html -o coverage.html
 build:
 	go get -u github.com/gobuffalo/packr/packr
 	packr
