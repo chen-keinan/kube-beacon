@@ -1,3 +1,5 @@
 # Beacon
 
-[![Go Report Card](https://goreportcard.com/report/github.com/chen-keinan/beacon)](https://goreportcard.com/report/github.com/chen-keinan/beacon)
+[![](https://goreportcard.com/report/github.com/chen-keinan/beacon?style=flat-square)](https://goreportcard.com/badge/github.com/chen-keinan/beacon)
+
+ 
