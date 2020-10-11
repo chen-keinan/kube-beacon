@@ -38,7 +38,7 @@ func Test_CheckType_Owner_OK(t *testing.T) {
 	assert.Equal(t, ti, "'root:root' == 'root:root'")
 }
 
-//Test_CheckType_Owner_OK test
+//Test_CheckType_ProcessParam_OK test
 func Test_CheckType_ProcessParam_OK(t *testing.T) {
 	ab := Audit{}
 	err := json.Unmarshal([]byte(CheckTypeProcessParam), &ab)
@@ -50,7 +50,7 @@ func Test_CheckType_ProcessParam_OK(t *testing.T) {
 	assert.Equal(t, ti, "'false' == 'false'")
 }
 
-//Test_CheckType_Owner_OK test
+//Test_CheckType_Multi_ProcessParam_OK test
 func Test_CheckType_Multi_ProcessParam_OK(t *testing.T) {
 	ab := Audit{}
 	err := json.Unmarshal([]byte(CheckTypeMultiProcessParam), &ab)
