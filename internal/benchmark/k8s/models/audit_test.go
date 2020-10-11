@@ -61,6 +61,17 @@ func Test_CheckType_Multi_ProcessParam_OK(t *testing.T) {
 	ti := bench.Sanitize("RBAC,bbb", bench.EvalExpr)
 	assert.Equal(t, ti, "'RBAC' IN ('RBAC','bbb')")
 }
+//Test_CheckType_Multi_ProcessParam_OK test
+func Test_CheckType_Multi_ProcessParam_RexOK(t *testing.T) {
+	ab := Audit{}
+	err := json.Unmarshal([]byte(CheckTypeMultiProcessParam), &ab)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bench := ab.Categories[0].SubCategory.AuditTests[0]
+	ti := bench.Sanitize(common.GrepRegex, bench.EvalExpr)
+	assert.Equal(t, ti, "'RBAC' IN ()")
+}
 
 //Test_CheckType_Owner_OK test
 func Test_CheckType_Regex_OK(t *testing.T) {
