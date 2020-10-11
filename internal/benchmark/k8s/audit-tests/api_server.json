@@ -7,8 +7,8 @@
         "name": "API Server",
         "audit_tests": [
           {
-            "name": "Ensure that the --anonymous-auth argument is set to false (Manual)",
-            "description": "1.2.1 Disable anonymous requests to the API server.",
+            "name": "1.2.1 Ensure that the --anonymous-auth argument is set to false ",
+            "description": "Disable anonymous requests to the API server.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'anonymous-auth' | grep -o 'anonymous-auth=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.\n--anonymous-auth=false",
@@ -22,8 +22,8 @@
             ]
           },
           {
-            "name": "Ensure that the --basic-auth-file argument is not set (Automated)",
-            "description": "1.2.2 Do not use basic authentication.",
+            "name": "1.2.2 Ensure that the --basic-auth-file argument is not set ",
+            "description": "Do not use basic authentication.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'basic-auth-file' | grep -o 'basic-auth-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --basic-auth-file=<filename> parameter.",
@@ -37,8 +37,8 @@
             ]
           },
           {
-            "name": "Ensure that the --token-auth-file parameter is not set (Automated)",
-            "description": "1.2.3 Do not use token based authentication.",
+            "name": "1.2.3 Ensure that the --token-auth-file parameter is not set ",
+            "description": "Do not use token based authentication.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'token-auth-file' | grep -o 'token-auth-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --token-auth-file=<filename> parameter.",
@@ -52,8 +52,8 @@
             ]
           },
           {
-            "name": "Ensure that the --kubelet-https argument is set to true (Automated)",
-            "description": "1.2.4 Use https for kubelet connections.",
+            "name": "1.2.4 Ensure that the --kubelet-https argument is set to true ",
+            "description": "Use https for kubelet connections.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'anonymous-auth' | grep -o 'anonymous-auth=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the documentation and configure alternate mechanisms for authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --token-auth-file=<filename> parameter.",
@@ -67,8 +67,8 @@
             ]
           },
           {
-            "name": "Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate (Automated)",
-            "description": "1.2.5 Enable certificate based kubelet authentication.",
+            "name": "1.2.5 Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate ",
+            "description": "Enable certificate based kubelet authentication.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'kubelet-client-certificate' | grep -o 'kubelet-client-certificate=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the Kubernetes documentation and set up the TLS connection between the apiserver and kubelets. Then, edit API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the kubelet client certificate and key parameters as below. --kubelet-client-certificate=<path/to/client-certificate-file> --kubelet-client-key=<path/to/client-key-file>",
@@ -83,8 +83,8 @@
             ]
           },
           {
-            "name": "Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate (Automated)",
-            "description": "1.2.6 Enable certificate based kubelet authentication.",
+            "name": "1.2.5 Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate ",
+            "description": "Enable certificate based kubelet authentication.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'kubelet-client-key' | grep -o 'kubelet-client-key=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the Kubernetes documentation and set up the TLS connection between the apiserver and kubelets. Then, edit API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the kubelet client certificate and key parameters as below. --kubelet-client-certificate=<path/to/client-certificate-file> --kubelet-client-key=<path/to/client-key-file>",
@@ -99,8 +99,8 @@
             ]
           },
           {
-            "name": "Ensure that the --kubelet-certificate-authority argument is set as appropriate (Automated)",
-            "description": "1.2.7 Verify kubelet's certificate before establishing connection.",
+            "name": "1.2.6 Ensure that the --kubelet-certificate-authority argument is set as appropriate ",
+            "description": "Verify kubelet's certificate before establishing connection.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'kubelet-certificate-authority' | grep -o 'kubelet-certificate-authority=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Follow the Kubernetes documentation and setup the TLS connection between the apiserver and kubelets. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the -- kubelet-certificate-authority parameter to the path to the cert file for the certificate authority. --kubelet-certificate-authority=<ca-string>",
@@ -115,8 +115,8 @@
             ]
           },
           {
-            "name": "Ensure that the --authorization-mode argument is not set to AlwaysAllow (Automated)",
-            "description": "1.2.8 Do not always authorize all requests.",
+            "name": "1.2.7 Ensure that the --authorization-mode argument is not set to AlwaysAllow ",
+            "description": "Do not always authorize all requests.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'authorization-mode' | grep -o 'authorization-mode=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to values other than AlwaysAllow. One such example could be as below.\n--authorization-mode=RBAC",
@@ -130,8 +130,8 @@
             ]
           },
           {
-            "name": "Ensure that the --authorization-mode argument includes Node (Automated)",
-            "description": "1.2.9 Restrict kubelet nodes to reading only objects associated with them.",
+            "name": "1.2.8 Ensure that the --authorization-mode argument includes Node ",
+            "description": "Restrict kubelet nodes to reading only objects associated with them.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'authorization-mode' | grep -o 'authorization-mode=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes Node. --authorization-mode=Node,RBAC",
@@ -146,8 +146,8 @@
             ]
           },
           {
-            "name": "Ensure that the --authorization-mode argument includes RBAC (Automated)",
-            "description": "1.2.10 Turn on Role Based Access Control.",
+            "name": "1.2.9 Ensure that the --authorization-mode argument includes RBAC ",
+            "description": "Turn on Role Based Access Control.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": "ps -ef | grep kube-apiserver |grep 'authorization-mode' | grep -o 'authorization-mode=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
             "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC",

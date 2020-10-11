@@ -59,9 +59,9 @@ func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) {
 			continue
 		}
 		if result {
-			fmt.Print(emoji.Sprintf(":check_mark_button: %s\n", at.Description))
+			fmt.Print(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
 		} else {
-			fmt.Print(emoji.Sprintf(":cross_mark: %s\n", at.Description))
+			fmt.Print(emoji.Sprintf(":cross_mark: %s\n", at.Name))
 		}
 	}
 }
