@@ -18,8 +18,8 @@ lint:
 tidy:
 	$(GOMOD) tidy -v
 test:
-	@go get github.com/golang/mock/mockgen@latest
-	@go install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
+	#@go get github.com/golang/mock/mockgen@latest
+	#@go install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
 	@go generate ./...
 	$(GOTEST) ./... -coverprofile cp.out
 build:

@@ -21,12 +21,12 @@ type Category struct {
 
 //SubCategory data model
 type SubCategory struct {
-	Name       string      `json:"name"`
-	AuditTests []AuditTest `json:"audit_tests"`
+	Name       string       `json:"name"`
+	AuditTests []AuditBench `json:"audit_tests"`
 }
 
-//AuditTest data model
-type AuditTest struct {
+//AuditBench data model
+type AuditBench struct {
 	Name                 string   `mapstructure:"name" json:"name"`
 	ProfileApplicability string   `mapstructure:"profile_applicability" json:"profile_applicability"`
 	Description          string   `mapstructure:"description" json:"description"`
@@ -41,7 +41,7 @@ type AuditTest struct {
 }
 
 //UnmarshalJSON over unmarshall to add logic
-func (at *AuditTest) UnmarshalJSON(data []byte) error {
+func (at *AuditBench) UnmarshalJSON(data []byte) error {
 	var res map[string]interface{}
 	if err := json.Unmarshal(data, &res); err != nil {
 		return err

@@ -48,7 +48,7 @@ func (bk K8sAudit) runTests(ac models.Category) {
 	}
 }
 
-func (bk K8sAudit) evalExpression(outputs []string, at models.AuditTest) {
+func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) {
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
@@ -66,7 +66,7 @@ func (bk K8sAudit) evalExpression(outputs []string, at models.AuditTest) {
 	}
 }
 
-func (bk K8sAudit) evalCommandExpr(at models.AuditTest, o string) (bool, error) {
+func (bk K8sAudit) evalCommandExpr(at models.AuditBench, o string) (bool, error) {
  	expr := at.Sanitize(o, at.EvalExpr)
  	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
