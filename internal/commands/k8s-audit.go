@@ -67,8 +67,8 @@ func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) {
 }
 
 func (bk K8sAudit) evalCommandExpr(at models.AuditBench, o string) (bool, error) {
- 	expr := at.Sanitize(o, at.EvalExpr)
- 	expression, err := govaluate.NewEvaluableExpression(expr)
+	expr := at.Sanitize(o, at.EvalExpr)
+	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
 		return false, fmt.Errorf("failed to build evaluation command expr for audit test %s", at.Description)
 	}

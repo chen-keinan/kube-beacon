@@ -104,9 +104,10 @@ var exprSanitizePermission ExprSanitize = func(output, expr string) string {
 	return SanitizeRegExOutPut(output, expr)
 }
 
+//SanitizeRegExOutPut for regex case
 func SanitizeRegExOutPut(output, expr string) string {
 	if strings.Contains(output, common.GrepRegex) {
 		output = ""
 	}
-	return  strings.ReplaceAll(expr, "$1", output)
- }
+	return strings.ReplaceAll(expr, "$1", output)
+}
