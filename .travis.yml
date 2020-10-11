@@ -6,5 +6,4 @@ env:
 before_install:
   - make build_travis
 script:
-  - ./lint.sh
   - make test
