@@ -44,19 +44,21 @@ func (bk K8sAudit) runTests(ac models.Category) {
 			continue
 		}
 		outputs := strings.Split(result.Stdout, "\n")
-		bk.evalExpression(outputs, at)
+		err = bk.evalExpression(outputs, at)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
 
-func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) {
+func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) error {
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
 		}
 		result, err := bk.evalCommandExpr(at, o)
 		if err != nil {
-			fmt.Println(err)
-			continue
+			return fmt.Errorf(err.Error())
 		}
 		if result {
 			fmt.Print(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
@@ -64,6 +66,7 @@ func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) {
 			fmt.Print(emoji.Sprintf(":cross_mark: %s\n", at.Name))
 		}
 	}
+	return nil
 }
 
 func (bk K8sAudit) evalCommandExpr(at models.AuditBench, o string) (bool, error) {

@@ -158,6 +158,22 @@
             "references": [
               "https://kubernetes.io/docs/reference/access-authn-authz/rbac/"
             ]
+          },
+          {
+            "name": "1.2.10 Ensure that the admission control plugin EventRateLimit is set",
+            "description": "Limit the rate at which the API server accepts requests.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and set the desired limits in a configuration file. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml and set the below parameters\n --enable-admission-plugins=...,EventRateLimit,... --admission-control-config-file=<path/to/configuration/file>",
+            "check_type": "multi_process_param",
+            "impact": "You need to carefully tune in limits as per your environment.",
+            "eval_expr": "'EventRateLimit' IN ($1)",
+            "default_value": "By default, EventRateLimit is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/admission-controllers/#eventratelimit",
+              "https://github.com/staebler/community/blob/9873b632f4d99b5d99c38c9b15fe2f8b93d0a746/contributors/design- proposals/admission_control_event_rate_limit.md"
+            ]
           }
         ]
       }
