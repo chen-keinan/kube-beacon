@@ -70,7 +70,7 @@ func Test_CheckType_Multi_ProcessParam_RexOK(t *testing.T) {
 	}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	ti := bench.Sanitize(common.GrepRegex, bench.EvalExpr)
-	assert.Equal(t, ti, "'RBAC' IN ()")
+	assert.Equal(t, ti, "'RBAC' IN ('')")
 }
 
 //Test_CheckType_Owner_OK test
