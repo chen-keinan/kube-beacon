@@ -77,6 +77,9 @@ var exprSanitizeProcessParam ExprSanitize = func(output, expr string) string {
 var exprSanitizeMultiProcessParam ExprSanitize = func(output, expr string) string {
 	var s string
 	if strings.Contains(output, common.GrepRegex) {
+		if strings.Contains(expr, "'$1'") {
+			expr = strings.ReplaceAll(expr, "'$1'", "$1")
+		}
 		s = "''"
 		return strings.ReplaceAll(expr, "$1", s)
 	}
@@ -85,6 +88,7 @@ var exprSanitizeMultiProcessParam ExprSanitize = func(output, expr string) strin
 }
 
 func parseMultiValue(output, expr string) string {
+	//add condition value before split to array
 	if strings.Contains(expr, "'$1'") {
 		expr = strings.ReplaceAll(expr, "'$1'", "'"+output+"'")
 	}
