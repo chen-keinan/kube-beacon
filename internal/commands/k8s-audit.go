@@ -23,9 +23,12 @@ func (bk K8sAudit) Help() string {
 //Run execute benchmark command
 func (bk K8sAudit) Run(args []string) int {
 	audit := models.Audit{}
-	auditFiles := utils.GetK8sBenchAuditFiles()
+	auditFiles, err := utils.GetK8sBenchAuditFiles()
+	if err != nil {
+		panic(fmt.Sprintf("failed to read audit files %s", err))
+	}
 	for _, auditFile := range auditFiles {
-		err := json.Unmarshal([]byte(auditFile), &audit)
+		err := json.Unmarshal([]byte(auditFile.Data), &audit)
 		if err != nil {
 			panic("Failed to unmarshal audit test json file")
 		}

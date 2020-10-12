@@ -50,20 +50,26 @@ func CreateBenchmarkFolderIfNotExist() error {
 }
 
 //GetK8sBenchAuditFiles return k8s benchmark file
-func GetK8sBenchAuditFiles() []string {
-	filesData := make([]string, 0)
+func GetK8sBenchAuditFiles() ([]FilesInfo, error) {
+	filesData := make([]FilesInfo, 0)
 	folder := GetBenchmarkFolder()
 	filesInfo, err := ioutil.ReadDir(filepath.Join(folder))
 	if err != nil {
-		fmt.Printf("failed to read files from folder %s", folder)
+		return nil, err
 	}
 	for _, fileInfo := range filesInfo {
 		filePath := filepath.Join(GetBenchmarkFolder(), filepath.Clean(fileInfo.Name()))
 		fData, err := ioutil.ReadFile(filepath.Clean(filePath))
 		if err != nil {
-			panic("failed to read k8s benchmark audit file")
+			return nil, err
 		}
-		filesData = append(filesData, string(fData))
+		filesData = append(filesData, FilesInfo{fileInfo.Name(), string(fData)})
 	}
-	return filesData
+	return filesData, nil
+}
+
+//FilesInfo file data
+type FilesInfo struct {
+	Name string
+	Data string
 }

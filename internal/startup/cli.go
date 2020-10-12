@@ -19,8 +19,8 @@ func StartCli() {
 	if err != nil {
 		panic(err)
 	}
-	filesData := LoadK8sBenchmarkFile()
-	err = CreateBenchmarkFileIfNotExist(filesData)
+	filesData := GenerateK8sBenchmarkFiles()
+	err = SaveBenchmarkFilesIfNotExist(filesData)
 	if err != nil {
 		panic(err)
 	}

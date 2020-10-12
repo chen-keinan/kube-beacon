@@ -9,23 +9,25 @@ import (
 	"path/filepath"
 )
 
-//LoadK8sBenchmarkFile use packr to load benchmark audit test json
-func LoadK8sBenchmarkFile() []BenchFilesData {
+//GenerateK8sBenchmarkFiles use packr to load benchmark audit test json
+func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
+	fileInfo := make([]utils.FilesInfo, 0)
 	box := packr.NewBox("./../benchmark/k8s/audit-tests")
 	s, err := box.FindString(common.MasterNodeConfigurationFiles)
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.MasterNodeConfigurationFiles, Data: s})
 	a, err := box.FindString(common.APIServer)
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
-	return []BenchFilesData{{common.MasterNodeConfigurationFiles, s},
-		{common.APIServer, a}}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.APIServer, Data: a})
+	return fileInfo
 }
 
-//CreateBenchmarkFileIfNotExist create benchmark audit file if not exist
-func CreateBenchmarkFileIfNotExist(filesData []BenchFilesData) error {
+//SaveBenchmarkFilesIfNotExist create benchmark audit file if not exist
+func SaveBenchmarkFilesIfNotExist(filesData []utils.FilesInfo) error {
 	for _, fileData := range filesData {
 		filePath := filepath.Join(utils.GetBenchmarkFolder(), fileData.Name)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -39,15 +41,9 @@ func CreateBenchmarkFileIfNotExist(filesData []BenchFilesData) error {
 			}
 			err = f.Close()
 			if err != nil {
-				fmt.Printf("faild to close file %s", filePath)
+				return fmt.Errorf("faild to close file %s", filePath)
 			}
 		}
 	}
 	return nil
-}
-
-//BenchFilesData hold test files
-type BenchFilesData struct {
-	Name string
-	Data string
 }
