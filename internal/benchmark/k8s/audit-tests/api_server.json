@@ -174,6 +174,21 @@
               "https://kubernetes.io/docs/admin/admission-controllers/#eventratelimit",
               "https://github.com/staebler/community/blob/9873b632f4d99b5d99c38c9b15fe2f8b93d0a746/contributors/design- proposals/admission_control_event_rate_limit.md"
             ]
+          },
+          {
+            "name": "1.2.11 Ensure that the admission control plugin AlwaysAdmit is not set",
+            "description": "Do not allow all requests.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and either remove the --enable-admission-plugins parameter, or set it to a value that does not include AlwaysAdmit.",
+            "check_type": "multi_process_param",
+            "impact": "Only requests explicitly allowed by the admissions control plugins would be served.",
+            "eval_expr": "'$1' != '' && !('AlwaysAdmit' IN ($1))",
+            "default_value": "AlwaysAdmit is not in the list of default admission plugins.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/admission-controllers/#alwaysadmit"
+            ]
           }
         ]
       }

@@ -85,26 +85,29 @@ var exprSanitizeMultiProcessParam ExprSanitize = func(output, expr string) strin
 }
 
 func parseMultiValue(output, expr string) string {
-	builder := strings.Builder{}
+	if strings.Contains(expr, "'$1'") {
+		expr = strings.ReplaceAll(expr, "'$1'", "'"+output+"'")
+	}
 	sOutout := strings.Split(output, ",")
 	if len(sOutout) == 1 {
 		return sanitizeSingleValue(expr, sOutout)
 	}
-	return sanitizeMultiValue(sOutout, expr, builder)
+	return sanitizeMultiValue(sOutout, expr)
 }
 
-func sanitizeMultiValue(sOutout []string, expr string, builder strings.Builder) string {
+func sanitizeMultiValue(sOutout []string, expr string) string {
+	builderOne := strings.Builder{}
 	for index, val := range sOutout {
 		if index != 0 {
 			if index > 0 {
-				builder.WriteString(",")
+				builderOne.WriteString(",")
 			}
 		}
 		if len(val) > 0 {
-			builder.WriteString("'" + val + "'")
+			builderOne.WriteString("'" + val + "'")
 		}
 	}
-	return strings.ReplaceAll(expr, "$1", builder.String())
+	return strings.ReplaceAll(expr, "$1", builderOne.String())
 }
 
 func sanitizeSingleValue(expr string, sOutout []string) string {
