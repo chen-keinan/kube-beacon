@@ -2,9 +2,8 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/chen-keinan/beacon/internal/common"
+	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/mapstructure"
-	"strings"
 )
 
 //Audit data model
@@ -37,7 +36,7 @@ type AuditBench struct {
 	DefaultValue         string   `mapstructure:"default_value" json:"default_value"`
 	References           []string `mapstructure:"references" json:"references"`
 	EvalExpr             string   `mapstructure:"eval_expr" json:"eval_expr"`
-	Sanitize             ExprSanitize
+	Sanitize             utils.ExprSanitize
 }
 
 //UnmarshalJSON over unmarshall to add logic
@@ -52,83 +51,13 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 	}
 	switch at.CheckType {
 	case "ownership":
-		at.Sanitize = exprSanitizeOwnership
+		at.Sanitize = utils.ExprSanitizeOwnership
 	case "permission":
-		at.Sanitize = exprSanitizePermission
+		at.Sanitize = utils.ExprSanitizePermission
 	case "process_param":
-		at.Sanitize = exprSanitizeProcessParam
+		at.Sanitize = utils.ExprSanitizeProcessParam
 	case "multi_process_param":
-		at.Sanitize = exprSanitizeMultiProcessParam
+		at.Sanitize = utils.ExprSanitizeMultiProcessParam
 	}
 	return nil
-}
-
-//ExprSanitize sanitize expr
-type ExprSanitize func(output, expr string) string
-
-var exprSanitizeOwnership ExprSanitize = func(output, expr string) string {
-	return SanitizeRegExOutPut(output, expr)
-}
-
-var exprSanitizeProcessParam ExprSanitize = func(output, expr string) string {
-	return SanitizeRegExOutPut(output, expr)
-}
-
-var exprSanitizeMultiProcessParam ExprSanitize = func(output, expr string) string {
-	var s string
-	if strings.Contains(output, common.GrepRegex) {
-		if strings.Contains(expr, "'$1'") {
-			expr = strings.ReplaceAll(expr, "'$1'", "$1")
-		}
-		s = "''"
-		return strings.ReplaceAll(expr, "$1", s)
-	}
-	return parseMultiValue(output, expr)
-
-}
-
-func parseMultiValue(output, expr string) string {
-	//add condition value before split to array
-	if strings.Contains(expr, "'$1'") {
-		expr = strings.ReplaceAll(expr, "'$1'", "'"+output+"'")
-	}
-	sOutout := strings.Split(output, ",")
-	if len(sOutout) == 1 {
-		return sanitizeSingleValue(expr, sOutout)
-	}
-	return sanitizeMultiValue(sOutout, expr)
-}
-
-func sanitizeMultiValue(sOutout []string, expr string) string {
-	builderOne := strings.Builder{}
-	for index, val := range sOutout {
-		if index != 0 {
-			if index > 0 {
-				builderOne.WriteString(",")
-			}
-		}
-		if len(val) > 0 {
-			builderOne.WriteString("'" + val + "'")
-		}
-	}
-	return strings.ReplaceAll(expr, "$1", builderOne.String())
-}
-
-func sanitizeSingleValue(expr string, sOutout []string) string {
-	if strings.Contains(expr, "IN") {
-		expr = strings.ReplaceAll(expr, "IN", "==")
-	}
-	return strings.ReplaceAll(expr, "($1)", "'"+sOutout[0]+"'")
-}
-
-var exprSanitizePermission ExprSanitize = func(output, expr string) string {
-	return SanitizeRegExOutPut(output, expr)
-}
-
-//SanitizeRegExOutPut for regex case
-func SanitizeRegExOutPut(output, expr string) string {
-	if strings.Contains(output, common.GrepRegex) {
-		output = ""
-	}
-	return strings.ReplaceAll(expr, "$1", output)
 }
