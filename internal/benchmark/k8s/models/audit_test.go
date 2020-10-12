@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,83 +13,42 @@ const (
 	CheckTypeMultiProcessParam = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":\"ps -ef | grep kube-apiserver |grep 'authorization-mode' | grep -o 'authorization-mode=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'\",\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_process_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"'RBAC' IN ($1)\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
 )
 
-//Test_CheckType_Permission_OK test
-func Test_CheckType_Permission_OK(t *testing.T) {
+//Test_CheckType_Permission test
+func Test_CheckType_Permission(t *testing.T) {
 	ab := Audit{}
 	err := json.Unmarshal([]byte(CheckTypePermission), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
-	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	ti := bench.Sanitize("700", bench.EvalExpr)
-	assert.Equal(t, ti, "700 <= 644")
+	assert.NoError(t, err)
 }
 
-//Test_CheckType_Owner_OK test
-func Test_CheckType_Owner_OK(t *testing.T) {
+//Test_CheckType_Owner
+func Test_CheckType_Owner(t *testing.T) {
 	ab := Audit{}
 	err := json.Unmarshal([]byte(CheckTypeOwner), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
-	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	ti := bench.Sanitize("root:root", bench.EvalExpr)
-	assert.Equal(t, ti, "'root:root' == 'root:root'")
+	assert.NoError(t, err)
 }
 
-//Test_CheckType_ProcessParam_OK test
-func Test_CheckType_ProcessParam_OK(t *testing.T) {
+//Test_CheckType_ProcessParam test
+func Test_CheckType_ProcessParam(t *testing.T) {
 	ab := Audit{}
 	err := json.Unmarshal([]byte(CheckTypeProcessParam), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
-	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	ti := bench.Sanitize("false", bench.EvalExpr)
-	assert.Equal(t, ti, "'false' == 'false'")
+	assert.NoError(t, err)
 }
 
-//Test_CheckType_Multi_ProcessParam_OK test
-func Test_CheckType_Multi_ProcessParam_OK(t *testing.T) {
+//Test_CheckType_Multi_ProcessParam test
+func Test_CheckType_Multi_ProcessParam(t *testing.T) {
 	ab := Audit{}
 	err := json.Unmarshal([]byte(CheckTypeMultiProcessParam), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
-	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	ti := bench.Sanitize("RBAC,bbb", bench.EvalExpr)
-	assert.Equal(t, ti, "'RBAC' IN ('RBAC','bbb')")
-}
-
-//Test_CheckType_Multi_ProcessParam_OK test
-func Test_CheckType_Multi_ProcessParam_RexOK(t *testing.T) {
-	ab := Audit{}
-	err := json.Unmarshal([]byte(CheckTypeMultiProcessParam), &ab)
-	if err != nil {
-		t.Fatal(err)
-	}
-	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	ti := bench.Sanitize(common.GrepRegex, bench.EvalExpr)
-	assert.Equal(t, ti, "'RBAC' IN ('')")
-}
-
-//Test_CheckType_Owner_OK test
-func Test_CheckType_Regex_OK(t *testing.T) {
-	ab := Audit{}
-	err := json.Unmarshal([]byte(CheckTypeOwner), &ab)
-	if err != nil {
-		t.Fatal(err)
-	}
-	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	ti := bench.Sanitize(common.GrepRegex, bench.EvalExpr)
-	assert.Equal(t, ti, "'' == 'root:root'")
-}
-
-//Test_JsonMarshalBad test
-func Test_JsonMarshalBad(t *testing.T) {
-	ab := &AuditBench{}
-	err := ab.UnmarshalJSON([]byte("{bad,wwq}"))
-	if err == nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 }
