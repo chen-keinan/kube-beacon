@@ -189,6 +189,36 @@
               "https://kubernetes.io/docs/admin/kube-apiserver/",
               "https://kubernetes.io/docs/admin/admission-controllers/#alwaysadmit"
             ]
+          },
+          {
+            "name": "1.2.12 Ensure that the admission control plugin AlwaysPullImages is set",
+            "description": "Always pull images.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to include AlwaysPullImages.--enable-admission-plugins=...,AlwaysPullImages,...",
+            "check_type": "multi_process_param",
+            "impact": "Credentials would be required to pull the private images every time. Also, in trusted environments, this might increases load on network, registry, and decreases speed.This setting could impact offline or isolated clusters, which have images pre-loaded and do not have access to a registry to pull in-use images. This setting is not appropriate for clusters which use this configuration.",
+            "eval_expr": "'$1' != '' && 'AlwaysPullImages' IN ($1)",
+            "default_value": "By default, AlwaysPullImages is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/admission-controllers/#alwayspullimages"
+            ]
+          },
+          {
+            "name": "1.2.13 Ensure that the admission control plugin SecurityContextDeny is set if PodSecurityPolicy is not used",
+            "description": "The SecurityContextDeny admission controller can be used to deny pods which make use of some SecurityContext fields which could allow for privilege escalation in the cluster. This should be used where PodSecurityPolicy is not in place within the cluster.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to include SecurityContextDeny, unless PodSecurityPolicy is already in place.\n--enable-admission-plugins=...,SecurityContextDeny,...",
+            "check_type": "multi_process_param",
+            "impact": "This admission controller should only be used where Pod Security Policies cannot be used on the cluster, as it can interact poorly with certain Pod Security Policies",
+            "eval_expr": "'SecurityContextDeny' IN ($1) && !('PodSecurityPolicy' IN ($1))",
+            "default_value": "By default, SecurityContextDeny is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/admission-controllers/#securitycontextdeny 3. https://kubernetes.io/docs/user-guide/pod-security-policy/#working-with-rbac"
+            ]
           }
         ]
       }
