@@ -298,6 +298,144 @@
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/"
             ]
+          },
+          {
+            "name": "1.2.19 Ensure that the --insecure-port argument is set to 0",
+            "description": "Do not bind to insecure port.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'insecure-port' | grep -o 'insecure-port=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.\n--insecure-port=0",
+            "check_type": "process_param",
+            "impact": "All components that use the API must connect via the secured port, authenticate themselves, and be authorized to use the API.\nThis includes:\n• kube-controller-manager\n• kube-proxy\n• kube-scheduler\n• kubelets",
+            "eval_expr": "'$1' == '0'",
+            "default_value": "By default, the insecure port is set to 8080.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/"
+            ]
+          },
+          {
+            "name": "1.2.20 Ensure that the --secure-port argument is not set to 0",
+            "description": "Do not disable the secure port.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'secure-port' | grep -o 'secure-port=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and either remove the --secure-port parameter or set it to a different (non-zero) desired port.\n",
+            "check_type": "process_param",
+            "impact": "You need to set the API Server up with the right TLS certificates.",
+            "eval_expr": "$1 > 0 && $1 < 65535",
+            "default_value": "By default, port 6443 is used as the secure port.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/"
+            ]
+          },
+          {
+            "name": "1.2.21 Ensure that the --profiling argument is set to false",
+            "description": "Disable profiling, if not needed.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'profiling' | grep -o 'profiling=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.\n--profiling=false\n",
+            "check_type": "process_param",
+            "impact": "Profiling information would not be available.",
+            "eval_expr": "'$1' == 'false'",
+            "default_value": "By default, profiling is enabled.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://github.com/kubernetes/community/blob/master/contributors/devel/profiling.md"
+            ]
+          },
+          {
+            "name": "1.2.22 Ensure that the --audit-log-path argument is set",
+            "description": "Enable auditing on the Kubernetes API Server and set the desired audit log path.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'audit-log-path' | grep -o 'audit-log-path=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-path parameter to a suitable path and file where you would like audit logs to be written, for example:\n--audit-log-path=/var/log/apiserver/audit.log",
+            "check_type": "process_param",
+            "impact": "None",
+            "eval_expr": "'$1' == '/var/log/apiserver/audit.log'",
+            "default_value": "By default, auditing is not enabled.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/concepts/cluster-administration/audit/",
+              "https://github.com/kubernetes/features/issues/22"
+            ]
+          },
+          {
+            "name": "1.2.23 Ensure that the --audit-log-maxage argument is set to 30 or as appropriate",
+            "description": "Retain the logs for at least 30 days or as appropriate.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'audit-log-maxage' | grep -o 'audit-log-maxage=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxage parameter to 30 or as an appropriate number of days:\n--audit-log-maxage=30",
+            "check_type": "process_param",
+            "impact": "None",
+            "eval_expr": "'$1' == '30'",
+            "default_value": "By default, auditing is not enabled.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/concepts/cluster-administration/audit/",
+              "https://github.com/kubernetes/features/issues/22"
+            ]
+          },
+          {
+            "name": "1.2.24 Ensure that the --audit-log-maxbackup argument is set to 10 or as appropriate",
+            "description": "Retain 10 or an appropriate number of old log files.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'audit-log-maxbackup' | grep -o 'audit-log-maxbackup=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxbackup parameter to 10 or to an appropriate value.\n--audit-log-maxbackup=10",
+            "check_type": "process_param",
+            "impact": "None",
+            "eval_expr": "'$1' == '10'",
+            "default_value": "By default, auditing is not enabled.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/concepts/cluster-administration/audit/",
+              "https://github.com/kubernetes/features/issues/22"
+            ]
+          },
+          {
+            "name": "1.2.25 Ensure that the --audit-log-maxsize argument is set to 100 or as appropriate",
+            "description": "Rotate log files on reaching 100 MB or as appropriate.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'audit-log-maxsize' | grep -o 'audit-log-maxsize=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxsize parameter to an appropriate size in MB. For example, to set it as 100 MB:\n--audit-log-maxsize=100",
+            "check_type": "process_param",
+            "impact": "None",
+            "eval_expr": "'$1' == '100'",
+            "default_value": "By default, auditing is not enabled.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/concepts/cluster-administration/audit/",
+              "https://github.com/kubernetes/features/issues/22"
+            ]
+          },
+          {
+            "name": "1.2.26 Ensure that the --request-timeout argument is set as appropriate",
+            "description": "Set global request timeout for API server requests as appropriate.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'request-timeout' | grep -o 'request-timeout=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml and set the below parameter as appropriate and if needed. For example,\n--request-timeout=300s",
+            "check_type": "process_param",
+            "impact": "None",
+            "eval_expr": "'$1' == '300s'",
+            "default_value": "By default, --request-timeout is set to 60 seconds.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://github.com/kubernetes/kubernetes/pull/51415"
+            ]
+          },
+          {
+            "name": "1.2.27 Ensure that the --service-account-lookup argument is set to true",
+            "description": "Validate service account before validating token.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'service-account-lookup' | grep -o 'service-account-lookup=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.\n--service-account-lookup=true\nAlternatively, you can delete the --service-account-lookup parameter from this file so that the default takes effect.",
+            "check_type": "process_param",
+            "impact": "None",
+            "eval_expr": "'$1' == 'true'",
+            "default_value": "By default, --service-account-lookup argument is set to true.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://github.com/kubernetes/kubernetes/issues/24167",
+              "https://en.wikipedia.org/wiki/Time_of_check_to_time_of_use"
+            ]
           }
         ]
       }
