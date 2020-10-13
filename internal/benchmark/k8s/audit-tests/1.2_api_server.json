@@ -236,6 +236,68 @@
               "https://kubernetes.io/docs/admin/admission-controllers/#serviceaccount",
               "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service- account/"
             ]
+          },
+          {
+            "name": "1.2.15 Ensure that the admission control plugin NamespaceLifecycle is set",
+            "description": "Reject creating objects in a namespace that is undergoing termination.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'disable-admission-plugins' | grep -o 'disable-admission-plugins=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --disable-admission-plugins parameter to ensure it does not include NamespaceLifecycle.\n",
+            "check_type": "multi_process_param",
+            "impact": "None",
+            "eval_expr": "'$1' != '' && !('NamespaceLifecycle' IN ($1))",
+            "default_value": "By default, NamespaceLifecycle is set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/admission-controllers/#namespacelifecycle"
+            ]
+          },
+          {
+            "name": "1.2.16 Ensure that the admission control plugin PodSecurityPolicy is set",
+            "description": "Reject creating pods that do not match Pod Security Policies.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'disable-admission-plugins' | grep -o 'disable-admission-plugins=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the documentation and create Pod Security Policy objects as per your environment. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to a value that includes PodSecurityPolicy:\n--enable-admission-plugins=...,PodSecurityPolicy,...",
+            "check_type": "multi_process_param",
+            "impact": "The policy objects must be created and granted before pod creation would be allowed.",
+            "eval_expr": "'$1' != '' && ('PodSecurityPolicy' IN ($1))",
+            "default_value": "By default, PodSecurityPolicy is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/admission-controllers/#podsecuritypolicy",
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod-security-policies"
+            ]
+          },
+          {
+            "name": "1.2.17 Ensure that the admission control plugin NodeRestriction is set",
+            "description": "Limit the Node and Pod objects that a kubelet could modify.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'disable-admission-plugins' | grep -o 'disable-admission-plugins=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and configure NodeRestriction plug-in on kubelets. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to a value that includes NodeRestriction.\n--enable-admission-plugins=...,NodeRestriction,...",
+            "check_type": "multi_process_param",
+            "impact": "None",
+            "eval_expr": "'$1' != '' && ('NodeRestriction' IN ($1))",
+            "default_value": "By default, NodeRestriction is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://kubernetes.io/docs/admin/admission-controllers/#noderestriction",
+              "https://kubernetes.io/docs/admin/authorization/node/",
+              "https://acotten.com/post/kube17-security"
+            ]
+          },
+          {
+            "name": "1.2.18 Ensure that the --insecure-bind-address argument is not set",
+            "description": "Do not bind the insecure API service.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'insecure-bind-address' | grep -o 'disable-admission-plugins='",
+            "remediation": "Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and remove the --insecure-bind-address parameter.",
+            "check_type": "process_param",
+            "impact": "Connections to the API server will require valid authentication credentials.",
+            "eval_expr": "'$1' != ''",
+            "default_value": "By default, the insecure bind address is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/"
+            ]
           }
         ]
       }
