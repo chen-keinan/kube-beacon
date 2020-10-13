@@ -41,18 +41,22 @@ func (bk K8sAudit) Run(args []string) int {
 
 func (bk K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
-		for index, val := range at.AuditCommand {
+		resArr := make([]string, 0)
+		for _, val := range at.AuditCommand {
 			result, err := shell.NewShellExec().Exec(val)
 			if err != nil {
 				fmt.Printf("Failed to execute command %s", err.Error())
 				continue
 			}
-			match, err := bk.evalExpression(result.Stdout, index+1, at)
-			if err != nil {
-				fmt.Println(err.Error())
-			} else {
-				bk.printTestResults(match, at)
-			}
+			resArr = append(resArr, result.Stdout)
+		}
+		combResult := make([]string, 0)
+		MapResult := make(map[string]int)
+		match, err := bk.evalExpression(resArr, len(resArr), combResult, 0, at, len(resArr), MapResult)
+		if err != nil {
+			fmt.Println(err.Error())
+		} else {
+			bk.printTestResults(match, at)
 		}
 	}
 }
@@ -66,23 +70,35 @@ func (bk K8sAudit) printTestResults(match bool, at models.AuditBench) {
 	}
 }
 
-func (bk K8sAudit) evalExpression(result string, index int, at models.AuditBench) (bool, error) {
-	match := 0
-	validOutPutCount := 0
-	outputs := strings.Split(result, "\n")
+func (bk K8sAudit) evalExpression(resArr []string, index int, combArr []string, count int, at models.AuditBench, origSize int, resMap map[string]int) (bool, error) {
+	bk.ValidMultiExpr(resArr, index, combArr, count, at, origSize, resMap)
+	return resMap["match"] == resMap["total"], nil
+}
+
+//ValidMultiExpr validate multi expr recursive
+func (bk K8sAudit) ValidMultiExpr(resArr []string, index int, combArr []string, count int, at models.AuditBench, origSize int, resMap map[string]int) {
+	if len(resArr) == 0 {
+		return
+	}
+	outputs := strings.Split(resArr[count], "\n")
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
 		}
-		validOutPutCount++
-		expr := at.Sanitize(o, index, at.EvalExpr)
-		count, err := bk.evalCommandExpr(at, expr)
-		if err != nil {
-			return false, fmt.Errorf(err.Error())
+		combArr = append(combArr, o)
+		bk.ValidMultiExpr(resArr[count+1:index], index-1, combArr, count, at, origSize, resMap)
+		if origSize == len(combArr) {
+			expr := at.Sanitize(combArr, at.EvalExpr)
+			resMap["total"]++
+			count, err := bk.evalCommandExpr(at, expr)
+			if err != nil {
+				fmt.Println(err)
+			}
+			resMap["match"] += count
 		}
-		match += count
+		combArr = combArr[:len(combArr)-1]
 	}
-	return match == validOutPutCount, nil
+
 }
 
 func (bk K8sAudit) evalCommandExpr(at models.AuditBench, expr string) (int, error) {

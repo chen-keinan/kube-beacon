@@ -8,20 +8,22 @@ import (
 )
 
 //ExprSanitize sanitize expr
-type ExprSanitize func(output string, index int, expr string) string
+type ExprSanitize func(output []string, expr string) string
 
 //ExprSanitizeMultiProcessParam check type
-var ExprSanitizeMultiProcessParam ExprSanitize = func(output string, index int, expr string) string {
+var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr string) string {
 	var value string
 	builder := strings.Builder{}
 	sExpr := separateExpr(expr)
 	for _, exp := range sExpr {
-		if exp.Type == common.SingleValue {
-			value = sanitizeRegExOutPut(output, index, exp.Expr)
-		} else {
-			value = parseMultiValue(output, index, exp.Expr)
+		for i, output := range outputArr {
+			if exp.Type == common.SingleValue {
+				value = sanitizeRegExOutPut(output, i+1, exp.Expr)
+			} else {
+				value = parseMultiValue(output, i+1, exp.Expr)
+			}
+			builder.WriteString(value)
 		}
-		builder.WriteString(value)
 	}
 	return builder.String()
 }
