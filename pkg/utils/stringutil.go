@@ -20,16 +20,18 @@ var ExprSanitizeProcessParam ExprSanitize = func(output, expr string) string {
 
 //ExprSanitizeMultiProcessParam check type
 var ExprSanitizeMultiProcessParam ExprSanitize = func(output, expr string) string {
-	var s string
-	if strings.Contains(output, common.GrepRegex) {
-		if strings.Contains(expr, "'$1'") {
-			expr = strings.ReplaceAll(expr, "'$1'", "$1")
+	var value string
+	builder := strings.Builder{}
+	sExpr := separateExpr(expr)
+	for _, exp := range sExpr {
+		if exp.Type == common.SingleValue {
+			value = sanitizeRegExOutPut(output, exp.Expr)
+		} else {
+			value = parseMultiValue(output, exp.Expr)
 		}
-		s = "''"
-		return strings.ReplaceAll(expr, "$1", s)
+		builder.WriteString(value)
 	}
-	return parseMultiValue(output, expr)
-
+	return builder.String()
 }
 
 func parseMultiValue(output, expr string) string {
@@ -39,7 +41,7 @@ func parseMultiValue(output, expr string) string {
 	}
 	sOutout := strings.Split(output, ",")
 	if len(sOutout) == 1 {
-		return sanitizeSingleValue(expr, sOutout)
+		return sanitizeSingleValue(expr, sOutout[0])
 	}
 	return sanitizeMultiValue(sOutout, expr)
 }
@@ -59,11 +61,14 @@ func sanitizeMultiValue(sOutout []string, expr string) string {
 	return strings.ReplaceAll(expr, "$1", builderOne.String())
 }
 
-func sanitizeSingleValue(expr string, sOutout []string) string {
+func sanitizeSingleValue(expr string, sOutout string) string {
 	if strings.Contains(expr, "IN") {
 		expr = strings.ReplaceAll(expr, "IN", "==")
 	}
-	return strings.ReplaceAll(expr, "($1)", "'"+sOutout[0]+"'")
+	if sOutout == common.GrepRegex {
+		sOutout = ""
+	}
+	return strings.ReplaceAll(expr, "($1)", "'"+sOutout+"'")
 }
 
 //ExprSanitizePermission check type
@@ -77,4 +82,26 @@ func sanitizeRegExOutPut(output, expr string) string {
 		output = ""
 	}
 	return strings.ReplaceAll(expr, "$1", output)
+}
+
+func separateExpr(expr string) []Expr {
+	exprList := make([]Expr, 0)
+	split := strings.Split(expr, ";")
+	for _, s := range split {
+		if len(s) == 0 {
+			continue
+		}
+		if strings.Contains(s, "IN") {
+			exprList = append(exprList, Expr{Type: common.MultiValue, Expr: s})
+		} else {
+			exprList = append(exprList, Expr{Type: common.SingleValue, Expr: s})
+		}
+	}
+	return exprList
+}
+
+//Expr data
+type Expr struct {
+	Type string
+	Expr string
 }

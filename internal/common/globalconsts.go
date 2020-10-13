@@ -7,4 +7,8 @@ const (
 	APIServer = "1.2_api_server.json"
 	//GrepRegex for tests
 	GrepRegex = "[^\"]\\S*'"
+	//MultiValue for tests
+	MultiValue = "MultiValue"
+	//SingleValue for tests
+	SingleValue = "SingleValue"
 )

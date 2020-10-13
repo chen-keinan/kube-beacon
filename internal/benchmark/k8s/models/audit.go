@@ -29,7 +29,7 @@ type AuditBench struct {
 	Name                 string   `mapstructure:"name" json:"name"`
 	ProfileApplicability string   `mapstructure:"profile_applicability" json:"profile_applicability"`
 	Description          string   `mapstructure:"description" json:"description"`
-	AuditCommand         string   `mapstructure:"audit" json:"audit"`
+	AuditCommand         []string `mapstructure:"audit" json:"audit"`
 	CheckType            string   `mapstructure:"check_type" json:"check_type"`
 	Remediation          string   `mapstructure:"remediation" json:"remediation"`
 	Impact               string   `mapstructure:"impact" json:"impact"`
@@ -56,7 +56,7 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 		at.Sanitize = utils.ExprSanitizePermission
 	case "process_param":
 		at.Sanitize = utils.ExprSanitizeProcessParam
-	case "multi_process_param":
+	case "multi_param":
 		at.Sanitize = utils.ExprSanitizeMultiProcessParam
 	}
 	return nil

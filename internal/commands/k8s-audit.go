@@ -41,7 +41,7 @@ func (bk K8sAudit) Run(args []string) int {
 
 func (bk K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
-		result, err := shell.NewShellExec().Exec(at.AuditCommand)
+		result, err := shell.NewShellExec().Exec(at.AuditCommand[0])
 		if err != nil {
 			fmt.Printf("Failed to execute command %s", err.Error())
 			continue
