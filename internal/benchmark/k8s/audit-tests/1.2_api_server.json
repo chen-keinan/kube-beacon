@@ -106,7 +106,7 @@
             "remediation": "Follow the Kubernetes documentation and setup the TLS connection between the apiserver and kubelets. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the -- kubelet-certificate-authority parameter to the path to the cert file for the certificate authority. --kubelet-certificate-authority=<ca-string>",
             "check_type": "process_param",
             "impact": "You require TLS to be configured on apiserver as well as kubelets.",
-            "eval_expr": "'$1' == '/etc/kubernetes/pki/ca.crt'",
+            "eval_expr": "'$1' != ''",
             "default_value": "By default, --kubelet-certificate-authority argument is not set.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-apiserver/",
@@ -512,6 +512,54 @@
               "https://kubernetes.io/docs/admin/kube-apiserver/",
               "http://rootsquash.com/2016/05/10/securing-the-kubernetes-api/",
               "https://github.com/kelseyhightower/docker-kubernetes-tls-guide"
+            ]
+          },
+          {
+            "name": "1.2.31 Ensure that the --client-ca-file argument is set as appropriate",
+            "description": "Setup TLS connection on the API server.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'client-ca-file' | grep -o 'client-ca-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and set up the TLS connection on the apiserver. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the client certificate authority file.\n--client-ca-file=<path/to/client-ca-file>",
+            "check_type": "process_param",
+            "impact": "TLS and client certificate authentication must be configured for your Kubernetes cluster deployment.",
+            "eval_expr": "'$1' == '/etc/kubernetes/pki/ca.crt'",
+            "default_value": "By default, --client-ca-file argument is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "http://rootsquash.com/2016/05/10/securing-the-kubernetes-api/",
+              "https://github.com/kelseyhightower/docker-kubernetes-tls-guide"
+            ]
+          },
+          {
+            "name": "1.2.32 Ensure that the --etcd-cafile argument is set as appropriate",
+            "description": "etcd should be configured to make use of TLS encryption for client connections.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'etcd-cafile' | grep -o 'etcd-cafile=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and set up the TLS connection between the apiserver and etcd. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the etcd certificate authority file parameter.\n--etcd-cafile=<path/to/ca-file>",
+            "check_type": "process_param",
+            "impact": "TLS and client certificate authentication must be configured for etcd.",
+            "eval_expr": "'$1' == '/etc/kubernetes/pki/etcd/ca.crt'",
+            "default_value": "By default, --etcd-cafile is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://coreos.com/etcd/docs/latest/op-guide/security.html"
+            ]
+          },
+          {
+            "name": "1.2.33 Ensure that the --encryption-provider-config argument is set as appropriate",
+            "description": "Encrypt etcd key-value store.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'encryption-provider-config' | grep -o 'encryption-provider-config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and configure a EncryptionConfig file. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the --encryption-provider-config parameter to the path of that file:\n--encryption-provider-config=</path/to/EncryptionConfig/File>",
+            "check_type": "process_param",
+            "impact": "TLS and client certificate authentication must be configured for etcd.",
+            "eval_expr": "'$1' == '/etc/kubernetes/encryption.yaml'",
+            "default_value": "By default, --encryption-provider-config is not set.",
+            "references": [
+              "https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/",
+              "https://acotten.com/post/kube17-security",
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "https://github.com/kubernetes/features/issues/92"
             ]
           }
         ]
