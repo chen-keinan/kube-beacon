@@ -22,7 +22,7 @@ func Test_EvalVarSingleIn(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	match, err := kb.evalExpression([]string{"aaa"}, bench)
+	match, err := kb.evalExpression("aaa", 1, bench)
 	assert.True(t, match)
 	assert.NoError(t, err)
 }
@@ -36,7 +36,7 @@ func Test_EvalVarSingleNotInGood(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	match, mErr := kb.evalExpression([]string{"ttt,aaa"}, bench)
+	match, mErr := kb.evalExpression("ttt,aaa", 1, bench)
 	assert.True(t, match)
 	assert.NoError(t, mErr)
 }
@@ -50,7 +50,7 @@ func Test_EvalVarSingleNotInBad(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	match, mErr := kb.evalExpression([]string{"RBAC,aaa"}, bench)
+	match, mErr := kb.evalExpression("RBAC,aaa", 1, bench)
 	assert.False(t, match)
 	assert.NoError(t, mErr)
 }
@@ -64,7 +64,7 @@ func Test_EvalVarSingleNotInSingleValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	match, mErr := kb.evalExpression([]string{"aaa"}, bench)
+	match, mErr := kb.evalExpression("aaa", 1, bench)
 	assert.True(t, match)
 	assert.NoError(t, mErr)
 }
@@ -78,7 +78,7 @@ func Test_EvalVarMultiExprSingleValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	match, mErr := kb.evalExpression([]string{"AlwaysAdmit"}, bench)
+	match, mErr := kb.evalExpression("AlwaysAdmit", 1, bench)
 	assert.False(t, match)
 	assert.NoError(t, mErr)
 }
@@ -92,7 +92,7 @@ func Test_EvalVarMultiExprMultiValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	match, mErr := kb.evalExpression([]string{"bbb,aaa"}, bench)
+	match, mErr := kb.evalExpression("bbb,aaa", 1, bench)
 	assert.True(t, match)
 	assert.NoError(t, mErr)
 }
@@ -106,7 +106,7 @@ func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	match, mErr := kb.evalExpression([]string{common.GrepRegex}, bench)
+	match, mErr := kb.evalExpression(common.GrepRegex, 1, bench)
 	assert.False(t, match)
 	assert.NoError(t, mErr)
 }
@@ -120,7 +120,7 @@ func Test_EvalVarComparator(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	match, mErr := kb.evalExpression([]string{"1204"}, bench)
+	match, mErr := kb.evalExpression("1204", 1, bench)
 	assert.True(t, match)
 	assert.NoError(t, mErr)
 }

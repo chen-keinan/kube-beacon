@@ -1,47 +1,41 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/chen-keinan/beacon/internal/common"
+	"strconv"
 	"strings"
 )
 
 //ExprSanitize sanitize expr
-type ExprSanitize func(output, expr string) string
-
-//ExprSanitizeOwnership check type
-var ExprSanitizeOwnership ExprSanitize = func(output, expr string) string {
-	return sanitizeRegExOutPut(output, expr)
-}
-
-//ExprSanitizeProcessParam check type
-var ExprSanitizeProcessParam ExprSanitize = func(output, expr string) string {
-	return sanitizeRegExOutPut(output, expr)
-}
+type ExprSanitize func(output string, index int, expr string) string
 
 //ExprSanitizeMultiProcessParam check type
-var ExprSanitizeMultiProcessParam ExprSanitize = func(output, expr string) string {
+var ExprSanitizeMultiProcessParam ExprSanitize = func(output string, index int, expr string) string {
 	var value string
 	builder := strings.Builder{}
 	sExpr := separateExpr(expr)
 	for _, exp := range sExpr {
 		if exp.Type == common.SingleValue {
-			value = sanitizeRegExOutPut(output, exp.Expr)
+			value = sanitizeRegExOutPut(output, index, exp.Expr)
 		} else {
-			value = parseMultiValue(output, exp.Expr)
+			value = parseMultiValue(output, index, exp.Expr)
 		}
 		builder.WriteString(value)
 	}
 	return builder.String()
 }
 
-func parseMultiValue(output, expr string) string {
+func parseMultiValue(output string, index int, expr string) string {
 	//add condition value before split to array
-	if strings.Contains(expr, "'$1'") {
-		expr = strings.ReplaceAll(expr, "'$1'", "'"+output+"'")
+	variable := fmt.Sprintf("'$%s'", strconv.Itoa(index))
+	if strings.Contains(expr, variable) {
+		fOutPut := fmt.Sprintf("'%s'", output)
+		expr = strings.ReplaceAll(expr, variable, fOutPut)
 	}
 	sOutout := strings.Split(output, ",")
 	if len(sOutout) == 1 {
-		return sanitizeSingleValue(expr, sOutout[0])
+		return sanitizeSingleValue(expr, index, sOutout[0])
 	}
 	return sanitizeMultiValue(sOutout, expr)
 }
@@ -61,27 +55,25 @@ func sanitizeMultiValue(sOutout []string, expr string) string {
 	return strings.ReplaceAll(expr, "$1", builderOne.String())
 }
 
-func sanitizeSingleValue(expr string, sOutout string) string {
+func sanitizeSingleValue(expr string, index int, sOutout string) string {
+	variable := fmt.Sprintf("($%s)", strconv.Itoa(index))
+	fOutPut := fmt.Sprintf("'%s'", sOutout)
 	if strings.Contains(expr, "IN") {
 		expr = strings.ReplaceAll(expr, "IN", "==")
 	}
 	if sOutout == common.GrepRegex {
-		sOutout = ""
+		fOutPut = "''"
 	}
-	return strings.ReplaceAll(expr, "($1)", "'"+sOutout+"'")
-}
-
-//ExprSanitizePermission check type
-var ExprSanitizePermission ExprSanitize = func(output, expr string) string {
-	return sanitizeRegExOutPut(output, expr)
+	return strings.ReplaceAll(expr, variable, fOutPut)
 }
 
 //sanitizeRegExOutPut for regex case
-func sanitizeRegExOutPut(output, expr string) string {
+func sanitizeRegExOutPut(output string, index int, expr string) string {
 	if strings.Contains(output, common.GrepRegex) {
 		output = ""
 	}
-	return strings.ReplaceAll(expr, "$1", output)
+	varaible := fmt.Sprintf("$%s", strconv.Itoa(index))
+	return strings.ReplaceAll(expr, varaible, output)
 }
 
 func separateExpr(expr string) []Expr {

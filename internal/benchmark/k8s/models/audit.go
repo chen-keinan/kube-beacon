@@ -50,12 +50,6 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	switch at.CheckType {
-	case "ownership":
-		at.Sanitize = utils.ExprSanitizeOwnership
-	case "permission":
-		at.Sanitize = utils.ExprSanitizePermission
-	case "process_param":
-		at.Sanitize = utils.ExprSanitizeProcessParam
 	case "multi_param":
 		at.Sanitize = utils.ExprSanitizeMultiProcessParam
 	}

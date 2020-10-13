@@ -10,7 +10,7 @@ import (
 func Test_CheckType_Permission_OK(t *testing.T) {
 	evalExpr := "$1 <= 644"
 	bench := ExprSanitizeMultiProcessParam
-	ti := bench("700", evalExpr)
+	ti := bench("700", 1, evalExpr)
 	assert.Equal(t, ti, "700 <= 644")
 }
 
@@ -18,7 +18,7 @@ func Test_CheckType_Permission_OK(t *testing.T) {
 func Test_CheckType_Owner_OK(t *testing.T) {
 	evalExpr := "'$1' == 'root:root';"
 	bench := ExprSanitizeMultiProcessParam
-	ti := bench("root:root", evalExpr)
+	ti := bench("root:root", 1, evalExpr)
 	assert.Equal(t, ti, "'root:root' == 'root:root'")
 }
 
@@ -26,7 +26,7 @@ func Test_CheckType_Owner_OK(t *testing.T) {
 func Test_CheckType_ProcessParam_OK(t *testing.T) {
 	evalExpr := "'$1' == 'false';"
 	bench := ExprSanitizeMultiProcessParam
-	ti := bench("false", evalExpr)
+	ti := bench("false", 1, evalExpr)
 	assert.Equal(t, ti, "'false' == 'false'")
 }
 
@@ -34,7 +34,7 @@ func Test_CheckType_ProcessParam_OK(t *testing.T) {
 func Test_CheckType_Multi_ProcessParam_OK(t *testing.T) {
 	evalExpr := "'RBAC' IN ($1);"
 	bench := ExprSanitizeMultiProcessParam
-	ti := bench("RBAC,bbb", evalExpr)
+	ti := bench("RBAC,bbb", 1, evalExpr)
 	assert.Equal(t, ti, "'RBAC' IN ('RBAC','bbb')")
 }
 
@@ -42,7 +42,7 @@ func Test_CheckType_Multi_ProcessParam_OK(t *testing.T) {
 func Test_CheckType_Multi_ProcessParam_RexOK(t *testing.T) {
 	evalExpr := "'RBAC' IN ($1);"
 	bench := ExprSanitizeMultiProcessParam
-	ti := bench(common.GrepRegex, evalExpr)
+	ti := bench(common.GrepRegex, 1, evalExpr)
 	assert.Equal(t, ti, "'RBAC' == ''")
 }
 
@@ -50,7 +50,7 @@ func Test_CheckType_Multi_ProcessParam_RexOK(t *testing.T) {
 func Test_CheckType_Regex_OK(t *testing.T) {
 	evalExpr := "'$1' == 'root:root';"
 	bench := ExprSanitizeMultiProcessParam
-	ti := bench(common.GrepRegex, evalExpr)
+	ti := bench(common.GrepRegex, 1, evalExpr)
 	assert.Equal(t, ti, "'' == 'root:root'")
 }
 
@@ -58,7 +58,7 @@ func Test_CheckType_Regex_OK(t *testing.T) {
 func Test_CheckType_Regex_MultiParamType(t *testing.T) {
 	evalExpr := "'$1' != 'root:root'; && 'root:root' IN ($1);"
 	bench := ExprSanitizeMultiProcessParam
-	ti := bench("root:root", evalExpr)
+	ti := bench("root:root", 1, evalExpr)
 	assert.Equal(t, ti, "'root:root' != 'root:root' && 'root:root' == 'root:root'")
 }
 
@@ -66,6 +66,6 @@ func Test_CheckType_Regex_MultiParamType(t *testing.T) {
 func Test_CheckType_Regex_MultiParamTypeManyValues(t *testing.T) {
 	evalExpr := "'$1' != 'root:root'; && 'root:root' IN ($1);"
 	bench := ExprSanitizeMultiProcessParam
-	ti := bench("root:root,abc", evalExpr)
+	ti := bench("root:root,abc", 1, evalExpr)
 	assert.Equal(t, ti, "'root:root,abc' != 'root:root' && 'root:root' IN ('root:root','abc')")
 }

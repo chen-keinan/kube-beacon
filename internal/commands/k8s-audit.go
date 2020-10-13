@@ -41,17 +41,18 @@ func (bk K8sAudit) Run(args []string) int {
 
 func (bk K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
-		result, err := shell.NewShellExec().Exec(at.AuditCommand[0])
-		if err != nil {
-			fmt.Printf("Failed to execute command %s", err.Error())
-			continue
-		}
-		outputs := strings.Split(result.Stdout, "\n")
-		match, err := bk.evalExpression(outputs, at)
-		if err != nil {
-			fmt.Println(err.Error())
-		} else {
-			bk.printTestResults(match, at)
+		for index, val := range at.AuditCommand {
+			result, err := shell.NewShellExec().Exec(val)
+			if err != nil {
+				fmt.Printf("Failed to execute command %s", err.Error())
+				continue
+			}
+			match, err := bk.evalExpression(result.Stdout, index+1, at)
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				bk.printTestResults(match, at)
+			}
 		}
 	}
 }
@@ -65,15 +66,17 @@ func (bk K8sAudit) printTestResults(match bool, at models.AuditBench) {
 	}
 }
 
-func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) (bool, error) {
+func (bk K8sAudit) evalExpression(result string, index int, at models.AuditBench) (bool, error) {
 	match := 0
 	validOutPutCount := 0
+	outputs := strings.Split(result, "\n")
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
 		}
 		validOutPutCount++
-		count, err := bk.evalCommandExpr(at, o)
+		expr := at.Sanitize(o, index, at.EvalExpr)
+		count, err := bk.evalCommandExpr(at, expr)
 		if err != nil {
 			return false, fmt.Errorf(err.Error())
 		}
@@ -82,8 +85,8 @@ func (bk K8sAudit) evalExpression(outputs []string, at models.AuditBench) (bool,
 	return match == validOutPutCount, nil
 }
 
-func (bk K8sAudit) evalCommandExpr(at models.AuditBench, o string) (int, error) {
-	expr := at.Sanitize(o, at.EvalExpr)
+func (bk K8sAudit) evalCommandExpr(at models.AuditBench, expr string) (int, error) {
+
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
 		return 0, fmt.Errorf("failed to build evaluation command expr for\n %s", at.Name)
