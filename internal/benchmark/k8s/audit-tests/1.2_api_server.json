@@ -481,6 +481,38 @@
               "https://kubernetes.io/docs/admin/kube-apiserver/",
               "https://coreos.com/etcd/docs/latest/op-guide/security.html"
             ]
+          },
+          {
+            "name": "1.2.30 Ensure that the --tls-cert-file arguments are set as appropriate",
+            "description": "Setup TLS connection on the API server.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'tls-cert-file' | grep -o 'tls-cert-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and set up the TLS connection on the apiserver. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the TLS certificate and private key file parameters.\n --tls-cert-file=<path/to/tls-certificate-file>",
+            "check_type": "process_param",
+            "impact": "TLS and client certificate authentication must be configured for your Kubernetes cluster deployment.",
+            "eval_expr": "'$1' == '/etc/kubernetes/pki/apiserver.crt'",
+            "default_value": "By default, --tls-cert-file argument is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "http://rootsquash.com/2016/05/10/securing-the-kubernetes-api/",
+              "https://github.com/kelseyhightower/docker-kubernetes-tls-guide"
+            ]
+          },
+          {
+            "name": "1.2.30 Ensure that the --tls-private-key-file arguments are set as appropriate",
+            "description": "Setup TLS connection on the API server.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": "ps -ef | grep kube-apiserver |grep 'tls-private-key-file' | grep -o 'tls-private-key-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+            "remediation": "Follow the Kubernetes documentation and set up the TLS connection on the apiserver. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the TLS certificate and private key file parameters.\n --tls-private-key-file=<path/to/tls-key-file>",
+            "check_type": "process_param",
+            "impact": "TLS and client certificate authentication must be configured for your Kubernetes cluster deployment.",
+            "eval_expr": "'$1' == '/etc/kubernetes/pki/apiserver.key'",
+            "default_value": "By default, --tls-private-key-file argument is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-apiserver/",
+              "http://rootsquash.com/2016/05/10/securing-the-kubernetes-api/",
+              "https://github.com/kelseyhightower/docker-kubernetes-tls-guide"
+            ]
           }
         ]
       }
