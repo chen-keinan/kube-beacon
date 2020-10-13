@@ -70,3 +70,11 @@ func Test_CheckType_Regex_MultiParamTypeManyValues(t *testing.T) {
 	ti := bench([]string{"root:root,abc"}, evalExpr)
 	assert.Equal(t, ti, "'root:root,abc' != 'root:root' && 'root:root' IN ('root:root','abc')")
 }
+
+//Test_CheckType_Regex_DiffParamTypeManyValues test
+func Test_CheckType_Regex_DiffParamTypeManyValues(t *testing.T) {
+	evalExpr := "'$2' == 'kkk'; && '$1' != 'root:root'; && 'root:root' IN ($1);"
+	bench := ExprSanitizeMultiProcessParam
+	ti := bench([]string{"root:root,abc", "kkk"}, evalExpr)
+	assert.Equal(t, ti, "'kkk' == 'kkk' && 'root:root,abc' != 'root:root' && 'root:root' IN ('root:root','abc')")
+}

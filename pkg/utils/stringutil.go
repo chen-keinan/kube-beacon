@@ -17,13 +17,17 @@ var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr s
 	sExpr := separateExpr(expr)
 	for _, exp := range sExpr {
 		for i, output := range outputArr {
+			if !strings.Contains(exp.Expr, "$") {
+				continue
+			}
 			if exp.Type == common.SingleValue {
 				value = sanitizeRegExOutPut(output, i+1, exp.Expr)
 			} else {
 				value = parseMultiValue(output, i+1, exp.Expr)
 			}
-			builder.WriteString(value)
+			exp.Expr = value
 		}
+		builder.WriteString(value)
 	}
 	return builder.String()
 }
