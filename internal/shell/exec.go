@@ -12,12 +12,19 @@ const ShellToUse = "bash"
 var shellExec *CommandExec
 var shellExecSync sync.Once
 
+//Executor defines the interface for shell command executor
+//exec.go
+//go:generate mockgen -destination=../mocks/mock_Executor.go -package=mocks . Executor
+type Executor interface {
+	Exec(command string) (*CommandResult, error)
+}
+
 //CommandExec object
 type CommandExec struct {
 }
 
 //NewShellExec return new instance of shell executor
-func NewShellExec() *CommandExec {
+func NewShellExec() Executor {
 	shellExecSync.Do(func() {
 		shellExec = &CommandExec{}
 	})

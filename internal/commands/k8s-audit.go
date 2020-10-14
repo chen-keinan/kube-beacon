@@ -33,6 +33,7 @@ func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
 
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
+	Command shell.Executor
 }
 
 //Help return benchmark command help
@@ -63,7 +64,7 @@ func (bk K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
 		resArr := make([]string, 0)
 		for _, val := range at.AuditCommand {
-			result, err := shell.NewShellExec().Exec(val)
+			result, err := bk.Command.Exec(val)
 			if err != nil {
 				fmt.Printf("Failed to execute command %s", err.Error())
 				continue

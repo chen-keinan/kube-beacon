@@ -3,6 +3,7 @@ package startup
 import (
 	"fmt"
 	"github.com/chen-keinan/beacon/internal/commands"
+	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/cli"
 	"os"
@@ -34,10 +35,10 @@ func InitCLI(sa SanitizeArgs) {
 	app.Args = sa(os.Args[1:])
 	app.Commands = map[string]cli.CommandFactory{
 		"audit": func() (cli.Command, error) {
-			return &commands.K8sAudit{}, nil
+			return &commands.K8sAudit{Command: shell.NewShellExec()}, nil
 		},
 		"a": func() (cli.Command, error) {
-			return &commands.K8sAudit{}, nil
+			return &commands.K8sAudit{Command: shell.NewShellExec()}, nil
 		},
 	}
 	status, err := app.Run()
