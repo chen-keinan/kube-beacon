@@ -21,9 +21,9 @@ var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr s
 				continue
 			}
 			if exp.Type == common.SingleValue {
-				value = sanitizeRegExOutPut(output, i+1, exp.Expr)
+				value = sanitizeRegExOutPut(output, i, exp.Expr)
 			} else {
-				value = parseMultiValue(output, i+1, exp.Expr)
+				value = parseMultiValue(output, i, exp.Expr)
 			}
 			exp.Expr = value
 		}
@@ -43,10 +43,10 @@ func parseMultiValue(output string, index int, expr string) string {
 	if len(sOutout) == 1 {
 		return sanitizeSingleValue(expr, index, sOutout[0])
 	}
-	return sanitizeMultiValue(sOutout, expr)
+	return sanitizeMultiValue(sOutout, index, expr)
 }
 
-func sanitizeMultiValue(sOutout []string, expr string) string {
+func sanitizeMultiValue(sOutout []string, index int, expr string) string {
 	builderOne := strings.Builder{}
 	for index, val := range sOutout {
 		if index != 0 {
@@ -58,7 +58,7 @@ func sanitizeMultiValue(sOutout []string, expr string) string {
 			builderOne.WriteString("'" + val + "'")
 		}
 	}
-	return strings.ReplaceAll(expr, "$1", builderOne.String())
+	return strings.ReplaceAll(expr, fmt.Sprintf("$%d", index), builderOne.String())
 }
 
 func sanitizeSingleValue(expr string, index int, sOutout string) string {
