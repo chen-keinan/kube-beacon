@@ -7,7 +7,7 @@ require (
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/packr/v2 v2.8.0 // indirect
-	github.com/golang/mock v1.4.4 // indirect
+	github.com/golang/mock v1.4.4
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/magiconair/properties v1.8.0 // indirect
@@ -21,6 +21,6 @@ require (
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
 	golang.org/x/sync v0.0.0-20201008141435-b3e1573b7520 // indirect
-	golang.org/x/sys v0.0.0-20201013132646-2da7054afaeb // indirect
+	golang.org/x/sys v0.0.0-20201014080544-cc95f250f6bc // indirect
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 )

@@ -20,8 +20,8 @@ type Category struct {
 
 //SubCategory data model
 type SubCategory struct {
-	Name       string       `json:"name"`
-	AuditTests []AuditBench `json:"audit_tests"`
+	Name       string        `json:"name"`
+	AuditTests []*AuditBench `json:"audit_tests"`
 }
 
 //AuditBench data model
@@ -37,6 +37,13 @@ type AuditBench struct {
 	References           []string `mapstructure:"references" json:"references"`
 	EvalExpr             string   `mapstructure:"eval_expr" json:"eval_expr"`
 	Sanitize             utils.ExprSanitize
+	TestResult           *AuditResult
+}
+
+//AuditResult data
+type AuditResult struct {
+	NumOfExec    int
+	NumOfSuccess int
 }
 
 //UnmarshalJSON over unmarshall to add logic
@@ -53,5 +60,6 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 	case "multi_param":
 		at.Sanitize = utils.ExprSanitizeMultiProcessParam
 	}
+	at.TestResult = &AuditResult{}
 	return nil
 }

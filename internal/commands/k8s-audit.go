@@ -11,6 +11,26 @@ import (
 	"strings"
 )
 
+//ValidateExprData expr data
+type ValidateExprData struct {
+	index     int
+	resultArr []string
+	atb       *models.AuditBench
+	origSize  int
+	Total     int
+	Match     int
+}
+
+//NextValidExprData return the next recursive ValidExprData
+func (ve ValidateExprData) NextValidExprData() ValidateExprData {
+	return ValidateExprData{resultArr: ve.resultArr[1:ve.index], index: ve.index - 1, atb: ve.atb, origSize: ve.origSize}
+}
+
+// NewValidExprData return new instance of ValidExprData
+func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
+	return ValidateExprData{resultArr: arr, index: len(arr), atb: at, origSize: len(arr)}
+}
+
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
 }
@@ -50,19 +70,14 @@ func (bk K8sAudit) runTests(ac models.Category) {
 			}
 			resArr = append(resArr, result.Stdout)
 		}
-		combResult := make([]string, 0)
-		MapResult := make(map[string]int)
-		match, err := bk.evalExpression(resArr, len(resArr), combResult, 0, at, len(resArr), MapResult)
-		if err != nil {
-			fmt.Println(err.Error())
-		} else {
-			bk.printTestResults(match, at)
-		}
+		data := NewValidExprData(resArr, at)
+		bk.evalExpression(data, make([]string, 0))
+		bk.printTestResults(data.atb)
 	}
 }
 
-func (bk K8sAudit) printTestResults(match bool, at models.AuditBench) {
-	if match {
+func (bk K8sAudit) printTestResults(at *models.AuditBench) {
+	if at.TestResult.NumOfSuccess == at.TestResult.NumOfExec {
 		fmt.Print(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
 	} else {
 		fmt.Print(emoji.Sprintf(":cross_mark: %s\n", at.Name))
@@ -70,38 +85,32 @@ func (bk K8sAudit) printTestResults(match bool, at models.AuditBench) {
 	}
 }
 
-func (bk K8sAudit) evalExpression(resArr []string, index int, combArr []string, count int, at models.AuditBench, origSize int, resMap map[string]int) (bool, error) {
-	bk.ValidMultiExpr(resArr, index, combArr, count, at, origSize, resMap)
-	return resMap["match"] == resMap["total"], nil
-}
-
-//ValidMultiExpr validate multi expr recursive
-func (bk K8sAudit) ValidMultiExpr(resArr []string, index int, combArr []string, count int, at models.AuditBench, origSize int, resMap map[string]int) {
-	if len(resArr) == 0 {
+func (bk K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
+	if len(ved.resultArr) == 0 {
 		return
 	}
-	outputs := strings.Split(resArr[count], "\n")
+	outputs := strings.Split(ved.resultArr[0], "\n")
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
 		}
 		combArr = append(combArr, o)
-		bk.ValidMultiExpr(resArr[count+1:index], index-1, combArr, count, at, origSize, resMap)
-		if origSize == len(combArr) {
-			expr := at.Sanitize(combArr, at.EvalExpr)
-			resMap["total"]++
-			count, err := bk.evalCommandExpr(at, expr)
+		bk.evalExpression(ved.NextValidExprData(), combArr)
+		if ved.origSize == len(combArr) {
+			expr := ved.atb.Sanitize(combArr, ved.atb.EvalExpr)
+			ved.atb.TestResult.NumOfExec++
+			count, err := bk.evalCommandExpr(ved.atb, expr)
 			if err != nil {
 				fmt.Println(err)
 			}
-			resMap["match"] += count
+			ved.atb.TestResult.NumOfSuccess += count
 		}
 		combArr = combArr[:len(combArr)-1]
 	}
 
 }
 
-func (bk K8sAudit) evalCommandExpr(at models.AuditBench, expr string) (int, error) {
+func (bk K8sAudit) evalCommandExpr(at *models.AuditBench, expr string) (int, error) {
 
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
