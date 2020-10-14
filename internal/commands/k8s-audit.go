@@ -8,6 +8,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/kyokomi/emoji"
+	"strconv"
 	"strings"
 )
 
@@ -63,8 +64,9 @@ func (bk K8sAudit) Run(args []string) int {
 func (bk K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
 		resArr := make([]string, 0)
-		for _, val := range at.AuditCommand {
-			result, err := bk.Command.Exec(val)
+		for index, val := range at.AuditCommand {
+			cmd := bk.UpdateCommand(at, index, val, resArr)
+			result, err := bk.Command.Exec(cmd)
 			if err != nil {
 				fmt.Printf("Failed to execute command %s", err.Error())
 				continue
@@ -75,6 +77,22 @@ func (bk K8sAudit) runTests(ac models.Category) {
 		bk.evalExpression(data, make([]string, 0))
 		bk.printTestResults(data.atb)
 	}
+}
+
+//UpdateCommand update the cmd command with params values
+func (bk K8sAudit) UpdateCommand(at *models.AuditBench, index int, val string, resArr []string) string {
+	params := at.CommandParams[index]
+	if len(params) > 0 {
+		for _, param := range params {
+			x, err := strconv.Atoi(param)
+			if err != nil {
+				fmt.Printf("failed to translate param %s to number", param)
+				continue
+			}
+			return strings.ReplaceAll(val, fmt.Sprintf("#%d", x), resArr[x])
+		}
+	}
+	return val
 }
 
 func (bk K8sAudit) printTestResults(at *models.AuditBench) {

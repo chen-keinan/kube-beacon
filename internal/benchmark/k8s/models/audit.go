@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/mapstructure"
+	"strings"
 )
 
 //Audit data model
@@ -38,6 +39,7 @@ type AuditBench struct {
 	EvalExpr             string   `mapstructure:"eval_expr" json:"eval_expr"`
 	Sanitize             utils.ExprSanitize
 	TestResult           *AuditResult
+	CommandParams        map[int][]string
 }
 
 //AuditResult data
@@ -61,5 +63,22 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 		at.Sanitize = utils.ExprSanitizeMultiProcessParam
 	}
 	at.TestResult = &AuditResult{}
+	for index, command := range at.AuditCommand {
+		at.CommandParams = make(map[int][]string)
+		findIndex(command, "#", index, at.CommandParams)
+	}
 	return nil
+}
+
+// find all params in command to be replace with output
+func findIndex(s, c string, commandIndex int, locations map[int][]string) {
+	b := strings.Index(s, c)
+	if b == -1 {
+		return
+	}
+	if locations[commandIndex] == nil {
+		locations[commandIndex] = make([]string, 0)
+	}
+	locations[commandIndex] = append(locations[commandIndex], s[b+1:b+2])
+	findIndex(s[b+2:], c, commandIndex, locations)
 }
