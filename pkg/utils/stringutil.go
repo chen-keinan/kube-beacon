@@ -37,7 +37,7 @@ func parseMultiValue(output string, index int, expr string) string {
 	variable := fmt.Sprintf("'$%s'", strconv.Itoa(index))
 	if strings.Contains(expr, variable) {
 		fOutPut := fmt.Sprintf("'%s'", output)
-		expr = strings.ReplaceAll(expr, variable, fOutPut)
+		return strings.ReplaceAll(expr, variable, fOutPut)
 	}
 	sOutout := strings.Split(output, ",")
 	if len(sOutout) == 1 {

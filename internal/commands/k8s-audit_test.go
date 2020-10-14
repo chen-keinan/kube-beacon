@@ -17,6 +17,8 @@ const CheckTypeMultiExprEmptyProcessParam = "{\"benchmark_type\":\"k8s\",\"categ
 const CheckTypeComparator = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"1.2.20 Ensure that the --secure-port argument is not set to 0\",\"description\":\"Do not disable the secure port.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"ps -ef | grep kube-apiserver |grep 'secure-port' | grep -o 'secure-port=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and either remove the --secure-port parameter or set it to a different (non-zero) desired port.\\n\",\"check_type\":\"multi_param\",\"impact\":\"You need to set the API Server up with the right TLS certificates.\",\"eval_expr\":\"$0 > 0; && $0 < 65535;\",\"default_value\":\"By default, port 6443 is used as the secure port.\",\"references\":[\"https://kubernetes.io/docs/admin/kube-apiserver/\"]}]}}]}"
 const CheckMultiParamOK = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"'$0' == '$1';\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
 const CheckMultiParamNOK = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"'$0' != '$1';\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
+const CheckMultiParamNOKWithIN = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"!('$0' IN ($1));\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
+const CheckMultiParamOKWithIN = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"'$0' IN ($1);\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
 
 //Test_EvalVarSingleIn text
 func Test_EvalVarSingleIn(t *testing.T) {
@@ -116,7 +118,7 @@ func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-//Test_EvalVarMultiExprMultiEmptyValue test
+//Test_EvalVarComparator test
 func Test_EvalVarComparator(t *testing.T) {
 	ab := models.Audit{}
 	err := json.Unmarshal([]byte(CheckTypeComparator), &ab)
@@ -130,7 +132,7 @@ func Test_EvalVarComparator(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-//Test_MultiCommandParams test
+//Test_MultiCommandParams_OK test
 func Test_MultiCommandParams_OK(t *testing.T) {
 	ab := models.Audit{}
 	err := json.Unmarshal([]byte(CheckMultiParamOK), &ab)
@@ -148,10 +150,46 @@ func Test_MultiCommandParams_OK(t *testing.T) {
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
 }
 
-//Test_EvalVarMultiExprMultiEmptyValue test
+//Test_MultiCommandParams_OK_With_IN test
+func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
+	ab := models.Audit{}
+	err := json.Unmarshal([]byte(CheckMultiParamOKWithIN), &ab)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
+	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk,aaa"}, nil).Times(1)
+	kb := K8sAudit{Command: executor}
+	kb.runTests(ab.Categories[0])
+	assert.NoError(t, err)
+	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+}
+
+//Test_MultiCommandParams_NOK test
 func Test_MultiCommandParams_NOK(t *testing.T) {
 	ab := models.Audit{}
 	err := json.Unmarshal([]byte(CheckMultiParamNOK), &ab)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
+	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
+	kb := K8sAudit{Command: executor}
+	kb.runTests(ab.Categories[0])
+	assert.NoError(t, err)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+}
+
+//Test_MultiCommandParams_NOK test
+func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
+	ab := models.Audit{}
+	err := json.Unmarshal([]byte(CheckMultiParamNOKWithIN), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
