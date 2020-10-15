@@ -32,5 +32,10 @@ build_travis:
 	go get -u github.com/gobuffalo/packr/packr
 	packr
 	GOOS=linux GOARCH=amd64 go build -v cmd/beacon/beacon.go;
+build_remote:
+	go get -u github.com/gobuffalo/packr/packr
+	packr
+	GOOS=linux GOARCH=amd64 go build -v -gcflags='-N -l' cmd/beacon/beacon.go
+	mv beacon ~/vagrant_file/.
 
 .PHONY: install-req fmt test lint build ci build-binaries tidy imports

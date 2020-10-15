@@ -32,7 +32,7 @@ func InitCLI(sa SanitizeArgs) {
 	app := cli.NewCLI("beacon", "1.0.0")
 	// init cli folder and templates
 	StartCli()
-	app.Args = sa(os.Args[1:])
+	app.Args = []string{"a"}
 	app.Commands = map[string]cli.CommandFactory{
 		"audit": func() (cli.Command, error) {
 			return &commands.K8sAudit{Command: shell.NewShellExec()}, nil

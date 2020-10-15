@@ -66,6 +66,9 @@ func (bk K8sAudit) runTests(ac models.Category) {
 		resArr := make([]string, 0)
 		for index, val := range at.AuditCommand {
 			cmd := bk.UpdateCommand(at, index, val, resArr)
+			if cmd == "" {
+				continue
+			}
 			result, err := bk.Command.Exec(cmd)
 			if err != nil {
 				fmt.Printf("Failed to execute command %s", err.Error())
@@ -74,7 +77,12 @@ func (bk K8sAudit) runTests(ac models.Category) {
 			resArr = append(resArr, result.Stdout)
 		}
 		data := NewValidExprData(resArr, at)
-		bk.evalExpression(data, make([]string, 0))
+		if len(at.AuditCommand) == len(resArr) {
+			bk.evalExpression(data, make([]string, 0))
+		} else {
+			at.TestResult.NumOfExec = 1
+			at.TestResult.NumOfSuccess = 0
+		}
 		bk.printTestResults(data.atb)
 	}
 }
@@ -89,7 +97,11 @@ func (bk K8sAudit) UpdateCommand(at *models.AuditBench, index int, val string, r
 				fmt.Printf("failed to translate param %s to number", param)
 				continue
 			}
-			return strings.ReplaceAll(val, fmt.Sprintf("#%d", x), resArr[x])
+			n := resArr[x]
+			if n == "[^\"]\\S*'\n" || n == "" {
+				return ""
+			}
+			return strings.ReplaceAll(val, fmt.Sprintf("#%d", x), n)
 		}
 	}
 	return val

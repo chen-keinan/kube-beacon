@@ -63,8 +63,8 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 		at.Sanitize = utils.ExprSanitizeMultiProcessParam
 	}
 	at.TestResult = &AuditResult{}
+	at.CommandParams = make(map[int][]string)
 	for index, command := range at.AuditCommand {
-		at.CommandParams = make(map[int][]string)
 		findIndex(command, "#", index, at.CommandParams)
 	}
 	return nil
