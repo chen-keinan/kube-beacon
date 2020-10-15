@@ -18,7 +18,12 @@ var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr s
 	for _, exp := range sExpr {
 		for i, output := range outputArr {
 			if !strings.Contains(exp.Expr, "$") {
-				continue
+				if i > 0 {
+					break
+				} else {
+					value = exp.Expr
+					break
+				}
 			}
 			if exp.Type == common.SingleValue {
 				value = sanitizeRegExOutPut(output, i, exp.Expr)

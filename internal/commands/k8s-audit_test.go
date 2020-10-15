@@ -20,6 +20,7 @@ const CheckMultiParamNOK = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\
 const CheckMultiParamNOKWithIN = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"!('$0' IN ($1));\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
 const CheckMultiParamPass1stResultToNext = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"1.2.34 Ensure that encryption providers are appropriately configured\",\"description\":\"Where etcd encryption is used, appropriate providers should be configured.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb\",\"ccc #1\"],\"remediation\":\"Follow the Kubernetes documentation and configure a EncryptionConfig file. In this file, choose aescbc, kms or secretbox as the encryption provider.\",\"check_type\":\"multi_param\",\"impact\":\"None\",\"eval_expr\":\"'$0' == '$1'; && (('$2' == '- aescbc:'; && $3 == '- kms:';)  || $4 == '- secretbox:';)\",\"default_value\":\"By default, no encryption provider is set.\",\"references\":[\"aaa\",\"bbb\",\"ccc #1\"]}]}}]}"
 const CheckMultiParamOKWithIN = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"'$0' IN ($1);\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
+const CheckMultiParamComplex = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"1.2.34 Ensure that encryption providers are appropriately configured\",\"description\":\"Where etcd encryption is used, appropriate providers should be configured.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb\",\"ccc\",\"ddd\",\"eee\"],\"remediation\":\"Follow the Kubernetes documentation and configure a EncryptionConfig file. In this file, choose aescbc, kms or secretbox as the encryption provider.\",\"check_type\":\"multi_param\",\"impact\":\"None\",\"eval_expr\":\"'$0' == '$1'; && (('$2' == 'aescbc:'; && '$3' == 'kms';)  || '$4' == 'secretbox';)\",\"default_value\":\"By default, no encryption provider is set.\",\"references\":[\"https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/\",\"https://acotten.com/post/kube17-security\",\"https://kubernetes.io/docs/admin/kube-apiserver/\",\"https://github.com/kubernetes/features/issues/92\",\"https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#providers\"]}]}}]}"
 
 //Test_EvalVarSingleIn text
 func Test_EvalVarSingleIn(t *testing.T) {
@@ -222,4 +223,25 @@ func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+}
+
+//Test_MultiCommandParams_NOK test
+func Test_MultiCommandParamsComplex(t *testing.T) {
+	ab := models.Audit{}
+	err := json.Unmarshal([]byte(CheckMultiParamComplex), &ab)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "/etc/kubernetes/pki/encry.yaml"}, nil).Times(1)
+	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "/etc/kubernetes/pki/encry.yaml"}, nil).Times(1)
+	executor.EXPECT().Exec("ccc").Return(&shell.CommandResult{Stdout: "aescbc"}, nil).Times(1)
+	executor.EXPECT().Exec("ddd").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
+	executor.EXPECT().Exec("eee").Return(&shell.CommandResult{Stdout: "secretbox"}, nil).Times(1)
+	kb := K8sAudit{Command: executor}
+	kb.runTests(ab.Categories[0])
+	assert.NoError(t, err)
+	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
 }

@@ -641,14 +641,14 @@
             "audit": [
               "ps -ef | grep kube-apiserver |grep 'encryption-provider-config' | grep -o 'encryption-provider-config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
               "sudo awk -v FS=\"encryption-provider-config=\" 'NF>1{print $2}'  /etc/kubernetes/manifests/kube-apiserver.yaml",
-              "grep -e aescbc #1",
-              "grep -e kms #1",
-              "grep -e secretbox #1"
+              "grep -e aescbc #1 | grep -o 'aescbc[^\"]\\S*'",
+              "grep -e kms #1 | grep -o 'kms[^\"]\\S*'",
+              "grep -e secretbox #1 | grep -o 'secretbox[^\"]\\S*'"
             ],
             "remediation": "Follow the Kubernetes documentation and configure a EncryptionConfig file. In this file, choose aescbc, kms or secretbox as the encryption provider.",
             "check_type": "multi_param",
             "impact": "None",
-            "eval_expr": "'$0' == '$1'; && (('$2' == '- aescbc:'; && $3 == '- kms:';)  || $4 == '- secretbox:';)",
+            "eval_expr": "'$0' == '$1'; && (('$2' == 'aescbc:'; && '$3' == 'kms:';)  || '$4' == 'secretbox:';)",
             "default_value": "By default, no encryption provider is set.",
             "references": [
               "https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/",

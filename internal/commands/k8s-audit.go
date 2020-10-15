@@ -69,9 +69,10 @@ func (bk K8sAudit) runTests(ac models.Category) {
 			if cmd == "" {
 				continue
 			}
-			result, err := bk.Command.Exec(cmd)
-			if err != nil {
-				fmt.Printf("Failed to execute command %s", err.Error())
+			result, _ := bk.Command.Exec(cmd)
+			if result.Stderr != "" {
+				resArr = append(resArr, "")
+				fmt.Printf("Failed to execute command %s", result.Stderr)
 				continue
 			}
 			resArr = append(resArr, result.Stdout)
@@ -98,8 +99,14 @@ func (bk K8sAudit) UpdateCommand(at *models.AuditBench, index int, val string, r
 				continue
 			}
 			n := resArr[x]
-			if n == "[^\"]\\S*'\n" || n == "" {
+			switch {
+			case n == "[^\"]\\S*'\n" || n == "":
 				return ""
+			case strings.Contains(n, "\n"):
+				nl := n[len(n)-1:]
+				if nl == "\n" {
+					n = strings.Trim(n, "\n")
+				}
 			}
 			return strings.ReplaceAll(val, fmt.Sprintf("#%d", x), n)
 		}
