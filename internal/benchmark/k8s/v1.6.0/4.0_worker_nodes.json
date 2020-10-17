@@ -11,13 +11,12 @@
             "description": "Ensure that the kubelet service file has permissions of 644 or more restrictive.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": [
-              "export kubelet_service_config=/etc/systemd/system/kubelet.service.d/10- kubeadm.conf",
               "stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
             ],
             "remediation": "Run the below command (based on the file location on your system) on the each worker node. For example,\nchmod 755 /etc/systemd/system/kubelet.service.d/10-kubeadm.conf\n",
             "check_type": "multi_param",
             "impact": "None",
-            "eval_expr": "$1 <= 644;",
+            "eval_expr": "$0 <= 644;",
             "default_value": "By default, the kubelet service file has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kubelet/",
@@ -30,13 +29,12 @@
             "description": "Ensure that the kubelet service file ownership is set to root:root.",
             "profile_applicability": "Level 1 - Master Node",
             "audit": [
-              "export kubelet_service_config=/etc/systemd/system/kubelet.service.d/10- kubeadm.conf",
               "stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
             ],
             "remediation": "Run the below command (based on the file location on your system) on the each worker node. For example,\nchown root:root /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
             "check_type": "multi_param",
             "impact": "None",
-            "eval_expr": "$1 == 'root:root';",
+            "eval_expr": "$0 == 'root:root';",
             "default_value": "By default, kubelet service file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kubelet/",
