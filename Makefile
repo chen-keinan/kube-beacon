@@ -20,9 +20,12 @@ tidy:
 test:
 	#@go get github.com/golang/mock/mockgen@latest
 	#@go install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
+	gopherbadger -md="README.md,coverage.md" -manualcov=65
+	mv coverage_badge.png ./pkg/images/coverage_badge.png
+	rm coverage.md
 	@go generate ./...
-	$(GOTEST) ./... -coverprofile fmtcoverage.html fmt
-	go tool cover -html=fmtcoverage.html -o coverage.html
+	$(GOTEST) ./... -coverprofile coverage.md fmt
+	go tool cover -html=fmtcoverage.html -o coverage.md
 build:
 	go get -u github.com/gobuffalo/packr/packr
 	packr

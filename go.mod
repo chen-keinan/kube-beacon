@@ -4,10 +4,13 @@ go 1.14
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
+	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/packr/v2 v2.8.0 // indirect
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/mock v1.4.4
+	github.com/jpoles1/gopherbadger v2.4.0+incompatible // indirect
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/mitchellh/cli v1.1.2

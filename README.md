@@ -9,7 +9,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/chen-keinan/beacon)](https://goreportcard.com/report/github.com/chen-keinan/beacon)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/chen-keinan/beacon/blob/main/LICENSE)
 [![Build Status](https://travis-ci.org/chen-keinan/beacon.svg?branch=main)](https://travis-ci.org/chen-keinan/beacon)
-
+![Go Coverage](./pkg/images/coverage_badge.png?raw=true)
 
 #### The Following diagram describe the kubernetes services which take part in beacon audit   
 ![k8s arch](./pkg/images/k8s_arch.png?raw=true)
