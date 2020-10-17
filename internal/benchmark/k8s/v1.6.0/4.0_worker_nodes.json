@@ -9,7 +9,7 @@
           {
             "name": "4.1.1 Ensure that the kubelet service file permissions are set to 644 or more restrictive",
             "description": "Ensure that the kubelet service file has permissions of 644 or more restrictive.",
-            "profile_applicability": "Level 1 - Master Node",
+            "profile_applicability": "Level 1 - Worker Node",
             "audit": [
               "stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
             ],
@@ -27,14 +27,14 @@
           {
             "name": "4.1.2 Ensure that the kubelet service file ownership is set to root:root",
             "description": "Ensure that the kubelet service file ownership is set to root:root.",
-            "profile_applicability": "Level 1 - Master Node",
+            "profile_applicability": "Level 1 - Worker Node",
             "audit": [
-              "stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+              "stat -c %U:%G /etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
             ],
             "remediation": "Run the below command (based on the file location on your system) on the each worker node. For example,\nchown root:root /etc/systemd/system/kubelet.service.d/10-kubeadm.conf",
             "check_type": "multi_param",
             "impact": "None",
-            "eval_expr": "$0 == 'root:root';",
+            "eval_expr": "'$0' == 'root:root';",
             "default_value": "By default, kubelet service file ownership is set to root:root.",
             "references": [
               "https://kubernetes.io/docs/admin/kubelet/",
@@ -45,7 +45,7 @@
           {
             "name": "4.1.3 If proxy kubeconfig file exists ensure permissions are set to 644 or more restrictive",
             "description": "If kube-proxy is running, and if it is using a file-based kubeconfig file, ensure that the proxy kubeconfig file has permissions of 644 or more restrictive.",
-            "profile_applicability": "Level 1 - Master Node",
+            "profile_applicability": "Level 1 - Worker Node",
             "audit": [
               "ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
               "stat -c %a #0"
@@ -57,6 +57,89 @@
             "default_value": "By default, proxy file has permissions of 640.",
             "references": [
               "https://kubernetes.io/docs/admin/kube-proxy/"
+            ]
+          },
+          {
+            "name": "4.1.4 If proxy kubeconfig file exists ensure ownership is set to root:root",
+            "description": "If kube-proxy is running, ensure that the file ownership of its kubeconfig file is set to root:root.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "stat -c %U:%G #0"
+            ],
+            "remediation": "Run the below command (based on the file location on your system) on the each worker node. For example,\nchown root:root <proxy kubeconfig file>",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "'$1' == 'root:root';",
+            "default_value": "By default, proxy file ownership is set to root:root.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-proxy/"
+            ]
+          },
+          {
+            "name": "4.1.5 Ensure that the --kubeconfig kubelet.conf file permissions are set to 644 or more restrictive",
+            "description": "Ensure that the kubelet.conf file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+            ],
+            "remediation": "Remediation:\nRun the below command (based on the file location on your system) on the each worker node. For example,\nchmod 644 /etc/kubernetes/kubelet.conf",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "$0 <= 644;",
+            "default_value": "By default, kubelet.conf file has permissions of 640.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/"
+            ]
+          },
+          {
+            "name": "4.1.6 Ensure that the --kubeconfig kubelet.conf file ownership is set to root:root",
+            "description": "Ensure that the kubelet.conf file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "stat -c %U:%G /etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+            ],
+            "remediation": "Run the below command (based on the file location on your system) on the each worker node. For example,\nchown root:root /etc/kubernetes/kubelet.conf",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "'$0' == 'root:root';",
+            "default_value": "By default, kubelet.conf file ownership is set to root:root.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/"
+            ]
+          },
+          {
+            "name": "4.1.7 Ensure that the certificate authorities file permissions are set to 644 or more restrictive",
+            "description": "Ensure that the certificate authorities file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "stat -c %a #0"
+            ],
+            "remediation": "Run the following command to modify the file permissions of the --client-ca-file chmod 644 <filename>",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "$1 <= 644;",
+            "default_value": "By default no --client-ca-file is specified.",
+            "references": [
+              "https://kubernetes.io/docs/admin/authentication/#x509-client-certs"
+            ]
+          },
+          {
+            "name": "4.1.8 Ensure that the client certificate authorities file ownership is set to root:root",
+            "description": "Ensure that the certificate authorities file ownership is set to root:root.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "stat -c %U:%G #0"
+            ],
+            "remediation": "Remediation:\nRun the following command to modify the ownership of the --client-ca-file. chown root:root <filename>",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "'$1' <= 'root:root';",
+            "default_value": "By default no --client-ca-file is specified.",
+            "references": [
+              "https://kubernetes.io/docs/admin/authentication/#x509-client-certs"
             ]
           }
         ]
