@@ -129,7 +129,7 @@
             "remediation": "Edit the Controller Manager pod specification file /etc/kubernetes/manifests/kube- controller-manager.yaml on the master node and ensure the correct value for the -- bind-address parameter",
             "check_type": "multi_param",
             "impact": "None",
-            "eval_expr": "'$0' != '127.0.0.1'; && '$0' == '$1';",
+            "eval_expr": "'$0' == '127.0.0.1'; && '$0' == '$1';",
             "default_value": "By default, the --bind-address parameter is set to 0.0.0.0",
             "references": [
               "https://kubernetes.io/docs/reference/command-line-tools-reference/kube- controller-manager/"

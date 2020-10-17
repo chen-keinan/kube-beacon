@@ -24,7 +24,6 @@ func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
 	}
 	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.APIServer, Data: a})
 	cm, err := box.FindString(common.ControllerManager)
-	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.ControllerManager, Data: cm})
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}

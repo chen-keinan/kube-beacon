@@ -5,7 +5,7 @@ $ cd $GOPATH/src/github.com/go-delve/delve
 $ make install
 
 ### export dlv bin path
-export export PATH=$PATH:/home/vagrant/go/bin
+export PATH=$PATH:/home/vagrant/go/bin
 
 ### compile binary with debug params
 GOOS=linux GOARCH=amd64 go build -v -gcflags='-N -l' cmd/beacon/beacon.go
