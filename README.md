@@ -11,7 +11,7 @@
 [![Build Status](https://travis-ci.org/chen-keinan/beacon.svg?branch=main)](https://travis-ci.org/chen-keinan/beacon)
 
 
-#### The Following diagram describe the kubernetes services which beacon service check   
+#### The Following diagram describe the kubernetes services which take part in beacon audit   
 ![k8s arch](./pkg/images/k8s_arch.png?raw=true)
 
 #### kubernetes cluster audit scan output: 
