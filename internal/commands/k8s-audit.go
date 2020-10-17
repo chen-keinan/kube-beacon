@@ -65,7 +65,7 @@ func (bk K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
 		resArr := make([]string, 0)
 		for index, val := range at.AuditCommand {
-			cmd := bk.UpdateCommand(at, index, val, resArr)
+			cmd := bk.UpdateCommandParams(at, index, val, resArr)
 			if cmd == "" {
 				continue
 			}
@@ -88,8 +88,8 @@ func (bk K8sAudit) runTests(ac models.Category) {
 	}
 }
 
-//UpdateCommand update the cmd command with params values
-func (bk K8sAudit) UpdateCommand(at *models.AuditBench, index int, val string, resArr []string) string {
+//UpdateCommandParams update the cmd command with params values
+func (bk K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val string, resArr []string) string {
 	params := at.CommandParams[index]
 	if len(params) > 0 {
 		for _, param := range params {

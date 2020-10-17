@@ -2,30 +2,22 @@ package commands
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/chen-keinan/beacon/internal/benchmark/k8s/models"
 	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
+	"os"
 	"testing"
 )
-
-const CheckTypeMultiProcessParam = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"ps -ef | grep kube-apiserver |grep 'authorization-mode' | grep -o 'authorization-mode=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"!('RBAC' IN ($0));\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
-const CheckTypeMultiExprProcessParam = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"1.2.11 Ensure that the admission control plugin AlwaysAdmit is not set\",\"description\":\"Do not allow all requests.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and either remove the --enable-admission-plugins parameter, or set it to a value that does not include AlwaysAdmit.\",\"check_type\":\"multi_param\",\"impact\":\"Only requests explicitly allowed by the admissions control plugins would be served.\",\"eval_expr\":\"'$0' != ''; && !('AlwaysAdmit' IN ($0));\",\"default_value\":\"AlwaysAdmit is not in the list of default admission plugins.\",\"references\":[\"https://kubernetes.io/docs/admin/kube-apiserver/\",\"https://kubernetes.io/docs/admin/admission-controllers/#alwaysadmit\"]}]}}]}"
-const CheckTypeMultiExprEmptyProcessParam = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"1.2.14 Ensure that the admission control plugin ServiceAccount is set\",\"description\":\"Automate service accounts management.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"ps -ef | grep kube-apiserver |grep 'disable-admission-plugins' | grep -o 'disable-admission-plugins=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'\"],\"remediation\":\"Follow the documentation and create ServiceAccount objects as per your environment. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and ensure that the --disable-admission-plugins parameter is set to a value that does not include ServiceAccount.\",\"check_type\":\"multi_param\",\"impact\":\"None\",\"eval_expr\":\"'$0' != ''; && !('ServiceAccount' IN ($0));\",\"default_value\":\"By default, ServiceAccount is set.\",\"references\":[\"https://kubernetes.io/docs/admin/kube-apiserver/\",\"https://kubernetes.io/docs/admin/admission-controllers/#serviceaccount\",\"https://kubernetes.io/docs/tasks/configure-pod-container/configure-service- account/\"]}]}}]}"
-const CheckTypeComparator = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"1.2.20 Ensure that the --secure-port argument is not set to 0\",\"description\":\"Do not disable the secure port.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"ps -ef | grep kube-apiserver |grep 'secure-port' | grep -o 'secure-port=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and either remove the --secure-port parameter or set it to a different (non-zero) desired port.\\n\",\"check_type\":\"multi_param\",\"impact\":\"You need to set the API Server up with the right TLS certificates.\",\"eval_expr\":\"$0 > 0; && $0 < 65535;\",\"default_value\":\"By default, port 6443 is used as the secure port.\",\"references\":[\"https://kubernetes.io/docs/admin/kube-apiserver/\"]}]}}]}"
-const CheckMultiParamOK = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"'$0' == '$1';\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
-const CheckMultiParamNOK = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"'$0' != '$1';\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
-const CheckMultiParamNOKWithIN = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"!('$0' IN ($1));\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
-const CheckMultiParamPass1stResultToNext = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"1.2.34 Ensure that encryption providers are appropriately configured\",\"description\":\"Where etcd encryption is used, appropriate providers should be configured.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb\",\"ccc #1\"],\"remediation\":\"Follow the Kubernetes documentation and configure a EncryptionConfig file. In this file, choose aescbc, kms or secretbox as the encryption provider.\",\"check_type\":\"multi_param\",\"impact\":\"None\",\"eval_expr\":\"'$0' == '$1'; && (('$2' == '- aescbc:'; && $3 == '- kms:';)  || $4 == '- secretbox:';)\",\"default_value\":\"By default, no encryption provider is set.\",\"references\":[\"aaa\",\"bbb\",\"ccc #1\"]}]}}]}"
-const CheckMultiParamOKWithIN = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"Ensure that the --authorization-mode argument includes RBAC (Automated)\",\"description\":\"Turn on Role Based Access Control.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb #0\"],\"remediation\":\"Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to a value that includes RBAC, for example:--authorization-mode=Node,RBAC\",\"check_type\":\"multi_param\",\"impact\":\"When RBAC is enabled you will need to ensure that appropriate RBAC settings (including Roles, RoleBindings and ClusterRoleBindings) are configured to allow appropriate access.\",\"eval_expr\":\"'$0' IN ($1);\",\"default_value\":\"By default, RBAC authorization is not enabled.\",\"references\":[\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\"]}]}}]}"
-const CheckMultiParamComplex = "{\"benchmark_type\":\"k8s\",\"categories\":[{\"name\":\"Control Plane Components\",\"sub_category\":{\"name\":\"API Server\",\"audit_tests\":[{\"name\":\"1.2.34 Ensure that encryption providers are appropriately configured\",\"description\":\"Where etcd encryption is used, appropriate providers should be configured.\",\"profile_applicability\":\"Level 1 - Master Node\",\"audit\":[\"aaa\",\"bbb\",\"ccc\",\"ddd\",\"eee\"],\"remediation\":\"Follow the Kubernetes documentation and configure a EncryptionConfig file. In this file, choose aescbc, kms or secretbox as the encryption provider.\",\"check_type\":\"multi_param\",\"impact\":\"None\",\"eval_expr\":\"'$0' == '$1'; && (('$2' == 'aescbc:'; && '$3' == 'kms';)  || '$4' == 'secretbox';)\",\"default_value\":\"By default, no encryption provider is set.\",\"references\":[\"https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/\",\"https://acotten.com/post/kube17-security\",\"https://kubernetes.io/docs/admin/kube-apiserver/\",\"https://github.com/kubernetes/features/issues/92\",\"https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#providers\"]}]}}]}"
 
 //Test_EvalVarSingleIn text
 func Test_EvalVarSingleIn(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckTypeMultiProcessParam), &ab)
+	err := json.Unmarshal(readTestData("CheckTypeMultiProcessInClause.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +31,7 @@ func Test_EvalVarSingleIn(t *testing.T) {
 //Test_EvalVarSingleNotInGood text
 func Test_EvalVarSingleNotInGood(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckTypeMultiProcessParam), &ab)
+	err := json.Unmarshal(readTestData("CheckTypeMultiProcessInClause.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +45,7 @@ func Test_EvalVarSingleNotInGood(t *testing.T) {
 //Test_EvalVarSingleNotInBad text
 func Test_EvalVarSingleNotInBad(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckTypeMultiProcessParam), &ab)
+	err := json.Unmarshal(readTestData("CheckTypeMultiProcessInClause.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +59,7 @@ func Test_EvalVarSingleNotInBad(t *testing.T) {
 //Test_EvalVarSingleNotInSingleValue test
 func Test_EvalVarSingleNotInSingleValue(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckTypeMultiProcessParam), &ab)
+	err := json.Unmarshal(readTestData("CheckTypeMultiProcessInClause.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +73,7 @@ func Test_EvalVarSingleNotInSingleValue(t *testing.T) {
 //Test_EvalVarMultiExprSingleValue test
 func Test_EvalVarMultiExprSingleValue(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckTypeMultiExprProcessParam), &ab)
+	err := json.Unmarshal(readTestData("CheckTypeMultiExprProcessParam.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +87,7 @@ func Test_EvalVarMultiExprSingleValue(t *testing.T) {
 //Test_EvalVarMultiExprSingleValue test
 func Test_EvalVarMultiExprMultiValue(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckTypeMultiExprProcessParam), &ab)
+	err := json.Unmarshal(readTestData("CheckTypeMultiExprProcessParam.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +101,7 @@ func Test_EvalVarMultiExprMultiValue(t *testing.T) {
 //Test_EvalVarMultiExprMultiEmptyValue test
 func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckTypeMultiExprEmptyProcessParam), &ab)
+	err := json.Unmarshal(readTestData("CheckTypeMultiExprEmptyProcessParam.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -123,7 +115,7 @@ func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 //Test_EvalVarComparator test
 func Test_EvalVarComparator(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckTypeComparator), &ab)
+	err := json.Unmarshal(readTestData("CheckTypeComparator.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -137,7 +129,7 @@ func Test_EvalVarComparator(t *testing.T) {
 //Test_MultiCommandParams_OK test
 func Test_MultiCommandParams_OK(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckMultiParamOK), &ab)
+	err := json.Unmarshal(readTestData("CheckMultiParamOK.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,7 +147,7 @@ func Test_MultiCommandParams_OK(t *testing.T) {
 //Test_MultiCommandParams_OK_With_IN test
 func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckMultiParamOKWithIN), &ab)
+	err := json.Unmarshal(readTestData("CheckMultiParamOKWithIN.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -173,7 +165,7 @@ func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
 //Test_MultiCommandParams_NOK test
 func Test_MultiCommandParams_NOK(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckMultiParamNOK), &ab)
+	err := json.Unmarshal(readTestData("CheckMultiParamNOK.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +183,7 @@ func Test_MultiCommandParams_NOK(t *testing.T) {
 //Test_MultiCommandParams_NOK test
 func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckMultiParamNOKWithIN), &ab)
+	err := json.Unmarshal(readTestData("CheckMultiParamNOKWithIN.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -209,7 +201,7 @@ func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 //Test_MultiCommandParams_NOK test
 func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckMultiParamPass1stResultToNext), &ab)
+	err := json.Unmarshal(readTestData("CheckMultiParamPass1stResultToNext.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -228,7 +220,7 @@ func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 //Test_MultiCommandParams_NOK test
 func Test_MultiCommandParamsComplex(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal([]byte(CheckMultiParamComplex), &ab)
+	err := json.Unmarshal(readTestData("CheckMultiParamComplex.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -244,4 +236,17 @@ func Test_MultiCommandParamsComplex(t *testing.T) {
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+}
+
+func readTestData(fileName string, t *testing.T) []byte {
+	f, err := os.Open(fmt.Sprintf("./fixtures/%s", fileName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+	return b
 }

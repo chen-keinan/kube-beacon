@@ -12,7 +12,7 @@ import (
 //GenerateK8sBenchmarkFiles use packr to load benchmark audit test json
 func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
 	fileInfo := make([]utils.FilesInfo, 0)
-	box := packr.NewBox("./../benchmark/k8s/audit-tests")
+	box := packr.NewBox("./../benchmark/k8s/v1.6.0/")
 	s, err := box.FindString(common.MasterNodeConfigurationFiles)
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
@@ -23,6 +23,12 @@ func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
 	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.APIServer, Data: a})
+	cm, err := box.FindString(common.ControllerManager)
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.ControllerManager, Data: cm})
+	if err != nil {
+		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.ControllerManager, Data: cm})
 	return fileInfo
 }
 

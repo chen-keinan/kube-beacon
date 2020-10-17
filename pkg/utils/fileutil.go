@@ -33,7 +33,7 @@ func CreateHomeFolderIfNotExist() error {
 
 //GetBenchmarkFolder return benchmark folder
 func GetBenchmarkFolder() string {
-	return filepath.Join(GetHomeFolder(), "benchmarks")
+	return filepath.Join(GetHomeFolder(), "benchmarks/v1.6.0/")
 }
 
 //CreateBenchmarkFolderIfNotExist create beacon benchmark folder if not exist

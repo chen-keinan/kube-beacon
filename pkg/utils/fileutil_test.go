@@ -28,7 +28,7 @@ func Test_CreateHomeFolderIfNotExist(t *testing.T) {
 //Test_GetBenchmarkFolder test
 func Test_GetBenchmarkFolder(t *testing.T) {
 	a := GetBenchmarkFolder()
-	assert.True(t, strings.HasSuffix(a, ".beacon/benchmarks"))
+	assert.True(t, strings.HasSuffix(a, ".beacon/benchmarks/v1.6.0"))
 }
 
 //Test_CreateBenchmarkFolderIfNotExist test

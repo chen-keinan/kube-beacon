@@ -18,8 +18,8 @@ require (
 	github.com/spf13/cobra v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.6.1
-	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
+	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/sync v0.0.0-20201008141435-b3e1573b7520 // indirect
-	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211 // indirect
+	golang.org/x/sys v0.0.0-20201017003518-b09fb700fbb7 // indirect
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 )
