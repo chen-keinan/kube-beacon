@@ -13,21 +13,36 @@ import (
 func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
 	fileInfo := make([]utils.FilesInfo, 0)
 	box := packr.NewBox("./../benchmark/k8s/v1.6.0/")
-	s, err := box.FindString(common.MasterNodeConfigurationFiles)
+	// Add Master Node Configuration tests
+	mnc, err := box.FindString(common.MasterNodeConfigurationFiles)
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
-	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.MasterNodeConfigurationFiles, Data: s})
-	a, err := box.FindString(common.APIServer)
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.MasterNodeConfigurationFiles, Data: mnc})
+	// Add API Server tests
+	aps, err := box.FindString(common.APIServer)
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
-	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.APIServer, Data: a})
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.APIServer, Data: aps})
+	// Add Controller Manager tests
 	cm, err := box.FindString(common.ControllerManager)
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
 	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.ControllerManager, Data: cm})
+	// Add Scheduler tests
+	sc, err := box.FindString(common.Scheduler)
+	if err != nil {
+		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.Scheduler, Data: sc})
+	// Add Etcd tests
+	etcd, err := box.FindString(common.Etcd)
+	if err != nil {
+		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.Etcd, Data: etcd})
 	return fileInfo
 }
 
