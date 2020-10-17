@@ -131,7 +131,7 @@
             "profile_applicability": "Level 1 - Worker Node",
             "audit": [
               "ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
-              "stat -c %U:%G #0"
+              "sudo stat -c %U:%G #0"
             ],
             "remediation": "Remediation:\nRun the following command to modify the ownership of the --client-ca-file. chown root:root <filename>",
             "check_type": "multi_param",
@@ -140,6 +140,57 @@
             "default_value": "By default no --client-ca-file is specified.",
             "references": [
               "https://kubernetes.io/docs/admin/authentication/#x509-client-certs"
+            ]
+          },
+          {
+            "name": "4.1.9 Ensure that the kubelet --config configuration file has permissions set to 644 or more restrictive ",
+            "description": "Ensure that if the kubelet refers to a configuration file with the --config argument, that file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "sudo stat -c %a /var/lib/kubelet/config.yaml"
+            ],
+            "remediation": "Remediation:\nRun the following command (using the config file location identied in the Audit step)\nchmod 644 /var/lib/kubelet/config.yaml",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "$0 <= 644;",
+            "default_value": "By default, the /var/lib/kubelet/config.yaml file as set up by kubeadm has permissions of 644.",
+            "references": [
+              "https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/"
+            ]
+          },
+          {
+            "name": "4.1.10 Ensure that the kubelet --config configuration file ownership is set to root:root",
+            "description": "Ensure that if the kubelet refers to a configuration file with the --config argument, that file is owned by root:root.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "sudo stat -c %U:%G /var/lib/kubelet/config.yaml"
+            ],
+            "remediation": "Run the following command (using the config file location identied in the Audit step)\nchown root:root /etc/kubernetes/kubelet.conf",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "'$1' <= 'root:root';",
+            "default_value": "By default, /var/lib/kubelet/config.yaml file as set up by kubeadm is owned by root:root.",
+            "references": [
+              "https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/"
+            ]
+          },
+          {
+            "name": "4.2.1 Ensure that the --anonymous-auth argument is set to false",
+            "description": "Disable anonymous requests to the Kubelet server.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep -A5 'authentication' #0 | grep -A1 'anonymous'| grep  -o 'enabled:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --anonymous-auth' | grep -o ' --anonymous-auth=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "Run the following command (using the config file location identied in the Audit step)\nchown root:root /etc/kubernetes/kubelet.conf",
+            "check_type": "multi_param",
+            "impact": "Anonymous requests will be rejected.",
+            "eval_expr": "'$1' == 'false'; || '$2' == 'false';",
+            "default_value": "By default, anonymous access is enabled.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/",
+              "https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubelet-authentication"
             ]
           }
         ]
