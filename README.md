@@ -1,5 +1,5 @@
 # Beacon Project
-#### beacon is a GO base audit scanner who perform audit check on a deployed kubernetes cluster and output a security report.
+#### Beacon is a GO base audit scanner who perform audit check on a deployed kubernetes cluster and output a security report.
 #### The audit tests are the full implementation of [CIS Kubernetes Benchmark specification](https://www.cisecurity.org/benchmark/kubernetes/) <br>
 
 #### Audit checks are performed  on master and worker nodes and the output audit report include :
