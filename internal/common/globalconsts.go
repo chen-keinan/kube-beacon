@@ -11,6 +11,10 @@ const (
 	Scheduler = "1.4_scheduler.json"
 	//Etcd file name
 	Etcd = "2.0_etcd.json"
+	//WorkerNodes file name
+	WorkerNodes = "4.0_worker_nodes.json"
+	//ControlPlaneConfiguration file name
+	ControlPlaneConfiguration = "3.0_control_plane_configuration.json"
 	//GrepRegex for tests
 	GrepRegex = "[^\"]\\S*'"
 	//MultiValue for tests

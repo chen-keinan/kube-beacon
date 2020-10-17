@@ -37,12 +37,24 @@ func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
 	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.Scheduler, Data: sc})
-	// Add Etcd tests
+	// Add Control Plane Configuration tests
 	etcd, err := box.FindString(common.Etcd)
 	if err != nil {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
 	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.Etcd, Data: etcd})
+	// Add Etcd tests
+	cpc, err := box.FindString(common.ControlPlaneConfiguration)
+	if err != nil {
+		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.ControlPlaneConfiguration, Data: cpc})
+	// Add Worker Nodes tests
+	wn, err := box.FindString(common.WorkerNodes)
+	if err != nil {
+		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.WorkerNodes, Data: wn})
 	return fileInfo
 }
 

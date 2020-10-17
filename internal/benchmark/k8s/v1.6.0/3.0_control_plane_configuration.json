@@ -1,0 +1,72 @@
+{
+  "benchmark_type": "k8s",
+  "categories": [
+    {
+      "name": "Control Plane Components",
+      "sub_category": {
+        "name": "Control Plane Configuration",
+        "audit_tests": [
+          {
+            "name": "3.1.1 Client certificate authentication should not be used for users",
+            "description": "Kubernetes provides the option to use client certificates for user authentication. However as there is no way to revoke these certificates when a user leaves an organization or loses their credential, they are not suitable for this purpose.\nIt is not possible to fully disable client certificate use within a cluster as it is used for component to component authentication.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": [
+              "ps -ef | grep etcd |grep 'oidc-username-claim' | grep -o 'oidc-username-claim=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo awk -v FS=\"oidc-username-claim=\" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml"
+            ],
+            "remediation": "Alternative mechanisms provided by Kubernetes such as the use of OIDC should be implemented in place of client certificates.",
+            "check_type": "multi_param",
+            "impact": "External mechanisms for authentication generally require additional software to be deployed.",
+            "eval_expr": "'$0' != ''; && '$0' == '$1';",
+            "default_value": "Client certificate authentication is enabled by default.",
+            "references": [
+              "https://kubernetes.io/docs/reference/command-line-tools-reference/kube- scheduler/"
+            ]
+          },
+          {
+            "name": "3.2.1 Ensure that a minimal audit policy is created",
+            "description": "Kubernetes can audit the details of requests made to the API server. The --audit-policy- file flag must be set for this logging to be enabled.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": [
+              "ps -ef | grep kube-apiserver |grep 'audit-policy-file' | grep -o 'audit-policy-file=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "Create an audit policy file for your cluster.",
+            "check_type": "multi_param",
+            "impact": "Audit logs will be created on the master nodes, which will consume disk space. Care should be taken to avoid generating too large volumes of log information as this could impact the available of the cluster nodes.",
+            "eval_expr": "'$0' != '';",
+            "default_value": "Unless the --audit-policy-file flag is specified, no auditing will be carried out.",
+            "references": [
+              "https://kubernetes.io/docs/tasks/debug-application-cluster/audit/"
+            ]
+          },
+          {
+            "name": "3.2.2 Ensure that the audit policy covers key security concerns",
+            "description": "Ensure that the audit policy created for the cluster covers key security concerns.",
+            "profile_applicability": "Level 1 - Master Node",
+            "audit": [
+              "ps -ef | grep kube-apiserver |grep 'audit-policy-file' | grep -o 'audit-policy-file=[^\\\"]\\\\S*' | awk -F \\\"=\\\" '{print $2}' |awk 'FNR <= 1'",
+              "grep -A10 'level: Metadata'  #0 | grep 'secrets'",
+              "grep -A10 'level: Metadata'  #0 | grep 'configmaps'",
+              "grep -A10 'level: Metadata'  #0 | grep 'tokenreviews'",
+              "grep -A10 'level: Metadata'  #0 | grep 'pods/exec'",
+              "grep -A10 'level: Metadata'  #0 | grep 'pods/portforward'",
+              "grep -A10 'level: Metadata'  #0 | grep 'pods/proxy'",
+              "grep -A10 'level: Metadata'  #0 | grep 'services/proxy'"
+            ],
+            "remediation": "Consider modification of the audit policy in use on the cluster to include these items, at a minimum.:Access to Secrets managed by the cluster. Care should be taken to only log Metadata for requests to Secrets, ConfigMaps, and TokenReviews, in order to avoid the risk of logging sensitive data.\n• Modification of pod and deployment objects.\n• Use of pods/exec, pods/portforward, pods/proxy and services/proxy.",
+            "check_type": "multi_param",
+            "impact": "Increasing audit logging will consume resources on the nodes or other log destination.",
+            "eval_expr": "'$0' != ''; && '$1' != ''; && '$2' != ''; && '$3' != ''; && '$4' != ''; && '$5' != ''; && '$6' != ''; && '$7' != '';",
+            "default_value": "By default Kubernetes clusters do not log audit information.",
+            "references": [
+              "https://github.com/k8scop/k8s-security- dashboard/blob/master/configs/kubernetes/adv-audit.yaml",
+              "https://kubernetes.io/docs/tasks/debug-application-cluster/audit/#audit-policy",
+              "https://github.com/falcosecurity/falco/blob/master/examples/k8s_audit_config/audit-policy.yaml",
+              "https://github.com/kubernetes/kubernetes/blob/master/cluster/gce/gci/configure-helper.sh#L735"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

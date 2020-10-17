@@ -17,6 +17,8 @@ func Test_CreateBenchmarkFilesIfNotExist(t *testing.T) {
 	assert.Equal(t, bFiles[2].Name, common.ControllerManager)
 	assert.Equal(t, bFiles[3].Name, common.Scheduler)
 	assert.Equal(t, bFiles[4].Name, common.Etcd)
+	assert.Equal(t, bFiles[5].Name, common.ControlPlaneConfiguration)
+	assert.Equal(t, bFiles[6].Name, common.WorkerNodes)
 	err := utils.CreateBenchmarkFolderIfNotExist()
 	assert.NoError(t, err)
 	// save benchmark files to folder
@@ -29,6 +31,8 @@ func Test_CreateBenchmarkFilesIfNotExist(t *testing.T) {
 	assert.Equal(t, bFiles[2].Name, common.ControllerManager)
 	assert.Equal(t, bFiles[3].Name, common.Scheduler)
 	assert.Equal(t, bFiles[4].Name, common.Etcd)
+	assert.Equal(t, bFiles[5].Name, common.ControlPlaneConfiguration)
+	assert.Equal(t, bFiles[6].Name, common.WorkerNodes)
 	assert.NoError(t, err)
 	err = os.RemoveAll(utils.GetBenchmarkFolder())
 	assert.NoError(t, err)
