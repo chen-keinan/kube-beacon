@@ -13,6 +13,7 @@ require (
 	github.com/jpoles1/gopherbadger v2.4.0+incompatible // indirect
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible
+	github.com/magiconair/properties v1.8.1
 	github.com/mitchellh/cli v1.1.2
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/open-policy-agent/opa v0.23.2 // indirect

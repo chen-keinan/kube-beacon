@@ -43,3 +43,24 @@ func readTestData(fileName string, t *testing.T) []byte {
 	f.Close()
 	return b
 }
+
+//Test_AuditIndexWithParams test
+func Test_AuditIndexWithParams(t *testing.T) {
+	commands := []string{"aaa", "bbb #0", "ccc #0 #1"}
+	commandParams := make(map[int][]string)
+	for index, command := range commands {
+		findIndex(command, "#", index, commandParams)
+	}
+	assert.Equal(t, commandParams[1], []string{"0"})
+	assert.Equal(t, commandParams[2], []string{"0", "1"})
+}
+
+//Test_AuditIndexWithParams test
+func Test_AuditIndexWithNoParams(t *testing.T) {
+	commands := []string{"aaa", "bbb", "ccc"}
+	commandParams := make(map[int][]string)
+	for index, command := range commands {
+		findIndex(command, "#", index, commandParams)
+	}
+	assert.True(t, len(commandParams) == 0)
+}
