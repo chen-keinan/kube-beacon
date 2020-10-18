@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"github.com/Knetic/govaluate"
 	"github.com/chen-keinan/beacon/internal/benchmark/k8s/models"
+	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/kyokomi/emoji"
 	"strconv"
 	"strings"
 )
+
+var log = logger.GetLog()
 
 //ValidateExprData expr data
 type ValidateExprData struct {
@@ -72,7 +75,7 @@ func (bk K8sAudit) runTests(ac models.Category) {
 			result, _ := bk.Command.Exec(cmd)
 			if result.Stderr != "" {
 				resArr = append(resArr, "")
-				fmt.Printf("Failed to execute command %s", result.Stderr)
+				log.Console(fmt.Sprintf("Failed to execute command %s", result.Stderr))
 				continue
 			}
 			resArr = append(resArr, result.Stdout)
@@ -95,7 +98,7 @@ func (bk K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val str
 		for _, param := range params {
 			x, err := strconv.Atoi(param)
 			if err != nil {
-				fmt.Printf("failed to translate param %s to number", param)
+				log.Console(fmt.Sprintf("failed to translate param %s to number", param))
 				continue
 			}
 			n := resArr[x]
@@ -116,10 +119,9 @@ func (bk K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val str
 
 func (bk K8sAudit) printTestResults(at *models.AuditBench) {
 	if at.TestResult.NumOfSuccess == at.TestResult.NumOfExec {
-		fmt.Print(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
+		log.Console(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
 	} else {
-		fmt.Print(emoji.Sprintf(":cross_mark: %s\n", at.Name))
-
+		log.Console(emoji.Sprintf(":cross_mark: %s\n", at.Name))
 	}
 }
 
@@ -139,7 +141,7 @@ func (bk K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
 			ved.atb.TestResult.NumOfExec++
 			count, err := bk.evalCommandExpr(ved.atb, expr)
 			if err != nil {
-				fmt.Println(err)
+				log.Console(err.Error())
 			}
 			ved.atb.TestResult.NumOfSuccess += count
 		}

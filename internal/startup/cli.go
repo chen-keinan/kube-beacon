@@ -1,14 +1,16 @@
 package startup
 
 import (
-	"fmt"
 	"github.com/chen-keinan/beacon/internal/commands"
+	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/cli"
 	"os"
 	"strings"
 )
+
+var log = logger.GetLog()
 
 //StartCli init beacon cli , folder , templates and etc
 func StartCli() {
@@ -43,7 +45,7 @@ func InitCLI(sa SanitizeArgs) {
 	}
 	status, err := app.Run()
 	if err != nil {
-		fmt.Println(err)
+		log.Console(err.Error())
 	}
 	os.Exit(status)
 }
