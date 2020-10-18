@@ -11,9 +11,6 @@ var log = logger.GetLog()
 //GenerateAuditReport generate failed audit report
 func GenerateAuditReport(adts []*models.AuditBench) {
 	table := uitable.New()
-	log.Console("")
-	log.Console("")
-	log.Console("")
 	for _, failedAudit := range adts {
 		table.MaxColWidth = 100
 		table.Wrap = true // wrap columns
