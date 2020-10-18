@@ -320,6 +320,99 @@
               "https://kubernetes.io/docs/admin/kubelet/",
               "https://github.com/kubernetes/kubernetes/issues/22063"
             ]
+          },
+          {
+            "name": "4.2.9 Ensure that the --event-qps argument is set to 0 or a level which ensures appropriate event capture",
+            "description": "Security relevant information should be captured. The --event-qps flag on the Kubelet can be used to limit the rate at which events are gathered. Setting this too low could result in relevant events not being logged, however the unlimited setting of 0 could result in a denial of service on the kubelet.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'event-qps' #0 |grep 'event-qps:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --event-qps' | grep -o ' --event-qps=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set eventRecordQPS: to an appropriate level. If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.",
+            "check_type": "multi_param",
+            "impact": "Setting this parameter to 0 could result in a denial of service condition due to excessive events being created. The cluster's event processing and storage systems should be scaled to handle expected event loads.",
+            "eval_expr": "('$1' != '0'; && '$2' == ''; ) || '$2' != '0';",
+            "default_value": "By default, --event-qps argument is set to 5.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/",
+              "https://github.com/kubernetes/kubernetes/blob/master/pkg/kubelet/apis/kubeletconfig/v1beta1/types.go"
+            ]
+          },
+          {
+            "name": "4.2.10 Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate",
+            "description": "Setup TLS connection on the Kubelets.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'tlsCertFile' #0 |grep 'tlsCertFile:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'tlsPrivateKeyFile' #0 |grep 'tlsPrivateKeyFile:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --tls-cert-file' | grep -o ' --tls-cert-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --tls-private-key-file' | grep -o ' --tls-private-key-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set tlsCertFile to the location of the certificate file to use to identify this Kubelet, and tlsPrivateKeyFile to the location of the corresponding private key file.\nIf using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameters in KUBELET_CERTIFICATE_ARGS variable. --tls-cert-file=<path/to/tls-certificate-file> --tls-private-key-file=<path/to/tls-key-file>",
+            "check_type": "multi_param",
+            "impact": "",
+            "eval_expr": "('$1' != ''; && '$2' != '';) || ('$3' != ''; && '$4' != '';)",
+            "default_value": "",
+            "references": [
+            ]
+          },
+          {
+            "name": "4.2.11 Ensure that the --rotate-certificates argument is not set to false",
+            "description": "Enable kubelet client certificate rotation.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'rotateCertificates' #0 |grep 'rotateCertificates:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --rotate-certificates' | grep -o ' --rotate-certificates=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to add the line rotateCertificates: true or remove it altogether to use the default value.\nIf using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and remove --rotate-certificates=false argument from the KUBELET_CERTIFICATE_ARGS\n 209 | P a g e\nvariable.",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "('$1' == ''; || '$1' == 'true'; ) || '$2' == 'true';",
+            "default_value": "By default, kubelet client certificate rotation is enabled.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/",
+              "https://github.com/kubernetes/kubernetes/blob/master/pkg/kubelet/apis/kubeletconfig/v1beta1/types.go"
+            ]
+          },
+          {
+            "name": "4.2.12 Verify that the RotateKubeletServerCertificate argument is set to true",
+            "description": "Enable kubelet server certificate rotation.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep 'RotateKubeletServerCertificate' | grep -o 'RotateKubeletServerCertificate=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "Edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_CERTIFICATE_ARGS variable.\n--feature-gates=RotateKubeletServerCertificate=true",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "'$0' == 'true';",
+            "default_value": "By default, kubelet server certificate rotation is disabled.",
+            "references": [
+              "https://github.com/kubernetes/kubernetes/pull/45059",
+              "https://kubernetes.io/docs/admin/kubelet-tls-bootstrapping/#kubelet-configuration"
+            ]
+          },
+          {
+            "name": "4.2.13 Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers",
+            "description": "Ensure that the Kubelet is configured to only use strong cryptographic ciphers.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'TLSCipherSuites' #0 |grep 'TLSCipherSuites:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep 'TLSCipherSuites' | grep -o 'TLSCipherSuites=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set TLSCipherSuites: to TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\n,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256 or to a subset of these values.\nIf using executable arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the --tls-cipher-suites parameter as follows, or to a subset of these values.\n--tls-cipher- suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM _SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM _SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM _SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256",
+            "check_type": "multi_param",
+            "impact": "Kubelet clients that cannot support modern cryptographic ciphers will not be able to make connections to the Kubelet API.",
+            "eval_expr": "'$0' IN (`TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`,`TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` ,`TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305`,`TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384` ,`TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305`,`TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`,`TLS_RSA_WITH_AES_256_GCM_SHA384`,`TLS_RSA_WITH_AES_128_GCM_SHA256`); || '$1' IN (`TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`,`TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` ,`TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305`,`TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384` ,`TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305`,`TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`,`TLS_RSA_WITH_AES_256_GCM_SHA384`,`TLS_RSA_WITH_AES_128_GCM_SHA256`); ",
+            "default_value": "By default the Kubernetes API server supports a wide range of TLS ciphers",
+            "references": [
+              "https://github.com/kubernetes/kubernetes/pull/45059",
+              "https://kubernetes.io/docs/admin/kubelet-tls-bootstrapping/#kubelet-configuration"
+            ]
           }
         ]
       }
