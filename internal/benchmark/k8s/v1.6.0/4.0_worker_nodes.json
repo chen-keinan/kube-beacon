@@ -192,6 +192,61 @@
               "https://kubernetes.io/docs/admin/kubelet/",
               "https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubelet-authentication"
             ]
+          },
+          {
+            "name": "4.2.2 Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+            "description": "Do not allow all requests. Enable explicit authorization.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep -A5 'authorization' #0 | grep  'mode:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --authorization-mode' | grep -o ' --authorization-mode=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set authorization: mode to Webhook.\nIf using executable arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_AUTHZ_ARGS variable.\n--authorization-mode=Webhook",
+            "check_type": "multi_param",
+            "impact": "Unauthorized requests will be denied.",
+            "eval_expr": "'$1' != 'AlwaysAllow'; && '$2' != 'AlwaysAllow';",
+            "default_value": "By default, --authorization-mode argument is set to AlwaysAllow.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/",
+              "https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubelet-authentication"
+            ]
+          },
+          {
+            "name": "4.2.3 Ensure that the --client-ca-file argument is set as appropriate",
+            "description": "Enable Kubelet authentication using certificates.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep -A10 'authentication' #0 |grep -A1 'x509' |grep 'clientCAFile:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --client-ca-file' | grep -o ' --client-ca-file=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set authentication: x509: clientCAFile to the location of the client CA file.\nIf using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_AUTHZ_ARGS variable.\n--client-ca-file=<path/to/client-ca-file>",
+            "check_type": "multi_param",
+            "impact": "You require TLS to be configured on apiserver as well as kubelets.",
+            "eval_expr": "'$1' != ''; || '$2' != '';",
+            "default_value": "By default, --client-ca-file argument is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/",
+              "https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet-authentication-authorization/,"
+            ]
+          },
+          {
+            "name": "4.2.4 Verify that the --read-only-port argument is set to 0",
+            "description": "Disable the read-only port.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --read-only-port' | grep -o ' --read-only-port=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'readOnlyPort' #0 |grep 'readOnlyPort:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set readOnlyPort to 0.\nIf using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.\n--read-only-port=0",
+            "check_type": "multi_param",
+            "impact": "Removal of the read-only port will require that any service which made use of it will need to be re-configured to use the main Kubelet API.",
+            "eval_expr": "'$0' 0= ''; || '$1' == '0';",
+            "default_value": "By default, --read-only-port is set to 10255/TCP. However, if a config file is specified by -- config the default value for readOnlyPort is 0.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/"
+            ]
           }
         ]
       }
