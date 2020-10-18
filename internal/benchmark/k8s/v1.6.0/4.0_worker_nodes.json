@@ -242,10 +242,83 @@
             "remediation": "If using a Kubelet config file, edit the file to set readOnlyPort to 0.\nIf using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.\n--read-only-port=0",
             "check_type": "multi_param",
             "impact": "Removal of the read-only port will require that any service which made use of it will need to be re-configured to use the main Kubelet API.",
-            "eval_expr": "'$0' 0= ''; || '$1' == '0';",
+            "eval_expr": "'$0' != ''; || '$1' == '0';",
             "default_value": "By default, --read-only-port is set to 10255/TCP. However, if a config file is specified by -- config the default value for readOnlyPort is 0.",
             "references": [
               "https://kubernetes.io/docs/admin/kubelet/"
+            ]
+          },
+          {
+            "name": "4.2.5 Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
+            "description": "Do not disable timeouts on streaming connections.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'streamingConnectionIdleTimeout' #0 |grep 'streamingConnectionIdleTimeout:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --streamingConnectionIdleTimeout' | grep -o ' --streamingConnectionIdleTimeout=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set streamingConnectionIdleTimeout to a value other than 0.\nIf using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.\n--streaming-connection-idle-timeout=5m",
+            "check_type": "multi_param",
+            "impact": "Long-lived connections could be interrupted.",
+            "eval_expr": "'$1' != '0'; && '$2' != '0s';",
+            "default_value": "By default, --streaming-connection-idle-timeout is set to 4 hours.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/",
+              "https://github.com/kubernetes/kubernetes/pull/18552"
+            ]
+          },
+          {
+            "name": "4.2.6 Ensure that the --protect-kernel-defaults argument is set to true",
+            "description": "Protect tuned kernel parameters from overriding kubelet default kernel parameter values.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'protectKernelDefaults' #0 |grep 'protectKernelDefaults:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --protect-kernel-defaults' | grep -o ' --protect-kernel-defaults=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set protectKernelDefaults: true.\nIf using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.\n--protect-kernel-defaults=true",
+            "check_type": "multi_param",
+            "impact": "You would have to re-tune kernel parameters to match kubelet parameters.",
+            "eval_expr": "'$1' == 'true'; || '$2' == 'true';",
+            "default_value": "By default, --protect-kernel-defaults is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/",
+              "https://github.com/kubernetes/kubernetes/pull/18552"
+            ]
+          },
+          {
+            "name": "4.2.7 Ensure that the --make-iptables-util-chains argument is set to true",
+            "description": "Allow Kubelet to manage iptables.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "sudo grep 'makeIPTablesUtilChains' #0 |grep 'makeIPTablesUtilChains:[^\"]\\S*'| awk -F \":\" '{print $2}' |awk 'FNR <= 1'",
+              "ps -ef | grep kubelet |grep ' --make-iptables-util-chains' | grep -o ' --make-iptables-util-chains=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "If using a Kubelet config file, edit the file to set makeIPTablesUtilChains: true.\nIf using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and remove the --make-iptables-util-chains argument from the KUBELET_SYSTEM_PODS_ARGS variable.",
+            "check_type": "multi_param",
+            "impact": "Kubelet would manage the iptables on the system and keep it in sync. If you are using any other iptables management solution, then there might be some conflicts",
+            "eval_expr": "('$1' != 'false'; && '$2' == ''; ) || '$2' == 'true';",
+            "default_value": "By default, --make-iptables-util-chains argument is set to true.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/"
+            ]
+          },
+          {
+            "name": "4.2.8 Ensure that the --hostname-override argument is not set",
+            "description": "Do not override node hostnames.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "ps -ef | grep kubelet |grep ' --hostname-override' | grep -o ' --hostname-override=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "Edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and remove the --hostname-override argument from the KUBELET_SYSTEM_PODS_ARGS variable.",
+            "check_type": "multi_param",
+            "impact": "Some cloud providers may require this flag to ensure that hostname matches names issued by the cloud provider. In these environments, this recommendation should not apply.",
+            "eval_expr": "'$0' == '';",
+            "default_value": "By default, --hostname-override argument is not set.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kubelet/",
+              "https://github.com/kubernetes/kubernetes/issues/22063"
             ]
           }
         ]
