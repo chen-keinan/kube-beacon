@@ -30,10 +30,11 @@ func StartCli() {
 
 //InitCLI initialize beacon cli
 func InitCLI(sa SanitizeArgs) {
+	args := sa(os.Args[1:])
 	app := cli.NewCLI("beacon", "1.0.0")
 	// init cli folder and templates
 	StartCli()
-	app.Args = []string{"a"}
+	app.Args = []string{"a", args[0]}
 	app.Commands = map[string]cli.CommandFactory{
 		"audit": func() (cli.Command, error) {
 			return commands.NewK8sAudit(), nil
@@ -52,6 +53,9 @@ func InitCLI(sa SanitizeArgs) {
 //ArgsSanitizer sanitize CLI arguments
 var ArgsSanitizer SanitizeArgs = func(str []string) []string {
 	args := make([]string, 0)
+	if len(str) == 0 {
+		args = append(args, "")
+	}
 	for _, arg := range str {
 		arg = strings.Replace(arg, "--", "", -1)
 		arg = strings.Replace(arg, "-", "", -1)

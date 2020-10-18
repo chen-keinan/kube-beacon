@@ -40,6 +40,7 @@ func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
 type K8sAudit struct {
 	Command     shell.Executor
 	FailedTests []*models.AuditBench
+	args        []string
 }
 
 //NewK8sAudit new audit object
@@ -54,6 +55,7 @@ func (bk K8sAudit) Help() string {
 
 //Run execute benchmark command
 func (bk *K8sAudit) Run(args []string) int {
+	bk.args = args
 	audit := models.Audit{}
 	auditFiles, err := utils.GetK8sBenchAuditFiles()
 	if err != nil {
@@ -69,6 +71,7 @@ func (bk *K8sAudit) Run(args []string) int {
 		}
 	}
 	reports.GenerateAuditReport(bk.FailedTests)
+
 	return 0
 }
 
@@ -95,7 +98,18 @@ func (bk *K8sAudit) runTests(ac models.Category) {
 			at.TestResult.NumOfExec = 1
 			at.TestResult.NumOfSuccess = 0
 		}
-		bk.printTestResults(data.atb)
+		if len(bk.args) == 1 && bk.args[0] != "report" {
+			bk.printTestResults(data.atb)
+		} else {
+			bk.AddFailedMessages(data)
+		}
+	}
+}
+
+//AddFailedMessages add failed audit test to report data
+func (bk *K8sAudit) AddFailedMessages(data ValidateExprData) {
+	if data.atb.TestResult.NumOfSuccess != data.atb.TestResult.NumOfExec {
+		bk.FailedTests = append(bk.FailedTests, data.atb)
 	}
 }
 
@@ -130,7 +144,6 @@ func (bk *K8sAudit) printTestResults(at *models.AuditBench) {
 		log.Console(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
 	} else {
 		log.Console(emoji.Sprintf(":cross_mark: %s\n", at.Name))
-		bk.FailedTests = append(bk.FailedTests, at)
 	}
 }
 
@@ -160,7 +173,6 @@ func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
 }
 
 func (bk *K8sAudit) evalCommandExpr(at *models.AuditBench, expr string) (int, error) {
-
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
 		return 0, fmt.Errorf("failed to build evaluation command expr for\n %s", at.Name)

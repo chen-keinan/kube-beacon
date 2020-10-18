@@ -11,6 +11,7 @@ require (
 	github.com/gobuffalo/packr/v2 v2.8.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/mock v1.4.4
+	github.com/gosuri/uitable v0.0.4
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jpoles1/gopherbadger v2.4.0+incompatible // indirect
 	github.com/karrick/godirwalk v1.16.1 // indirect

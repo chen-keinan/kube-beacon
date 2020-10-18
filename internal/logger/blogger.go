@@ -21,7 +21,13 @@ func GetLog() *BLogger {
 }
 
 //Console print to console
-func (BLogger BLogger) Console(str string) {
+func (BLogger *BLogger) Console(str string) {
 	log.SetFlags(0)
 	log.Print(str)
+}
+
+//Table print to console
+func (BLogger *BLogger) Table(v interface{}) {
+	log.SetFlags(0)
+	log.Print(v)
 }
