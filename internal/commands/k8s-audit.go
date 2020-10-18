@@ -6,6 +6,7 @@ import (
 	"github.com/Knetic/govaluate"
 	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/models"
+	"github.com/chen-keinan/beacon/internal/reports"
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/kyokomi/emoji"
@@ -37,7 +38,13 @@ func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
 
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
-	Command shell.Executor
+	Command     shell.Executor
+	FailedTests []*models.AuditBench
+}
+
+//NewK8sAudit new audit object
+func NewK8sAudit() *K8sAudit {
+	return &K8sAudit{FailedTests: make([]*models.AuditBench, 0), Command: shell.NewShellExec()}
 }
 
 //Help return benchmark command help
@@ -46,7 +53,7 @@ func (bk K8sAudit) Help() string {
 }
 
 //Run execute benchmark command
-func (bk K8sAudit) Run(args []string) int {
+func (bk *K8sAudit) Run(args []string) int {
 	audit := models.Audit{}
 	auditFiles, err := utils.GetK8sBenchAuditFiles()
 	if err != nil {
@@ -61,10 +68,11 @@ func (bk K8sAudit) Run(args []string) int {
 			bk.runTests(ac)
 		}
 	}
+	reports.GenerateAuditReport(bk.FailedTests)
 	return 0
 }
 
-func (bk K8sAudit) runTests(ac models.Category) {
+func (bk *K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
 		resArr := make([]string, 0)
 		for index, val := range at.AuditCommand {
@@ -92,7 +100,7 @@ func (bk K8sAudit) runTests(ac models.Category) {
 }
 
 //UpdateCommandParams update the cmd command with params values
-func (bk K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val string, resArr []string) string {
+func (bk *K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val string, resArr []string) string {
 	params := at.CommandParams[index]
 	if len(params) > 0 {
 		for _, param := range params {
@@ -117,15 +125,16 @@ func (bk K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val str
 	return val
 }
 
-func (bk K8sAudit) printTestResults(at *models.AuditBench) {
+func (bk *K8sAudit) printTestResults(at *models.AuditBench) {
 	if at.TestResult.NumOfSuccess == at.TestResult.NumOfExec {
 		log.Console(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
 	} else {
 		log.Console(emoji.Sprintf(":cross_mark: %s\n", at.Name))
+		bk.FailedTests = append(bk.FailedTests, at)
 	}
 }
 
-func (bk K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
+func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
 	if len(ved.resultArr) == 0 {
 		return
 	}
@@ -150,7 +159,7 @@ func (bk K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
 
 }
 
-func (bk K8sAudit) evalCommandExpr(at *models.AuditBench, expr string) (int, error) {
+func (bk *K8sAudit) evalCommandExpr(at *models.AuditBench, expr string) (int, error) {
 
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
@@ -168,6 +177,6 @@ func (bk K8sAudit) evalCommandExpr(at *models.AuditBench, expr string) (int, err
 }
 
 //Synopsis for help
-func (bk K8sAudit) Synopsis() string {
+func (bk *K8sAudit) Synopsis() string {
 	return bk.Help()
 }

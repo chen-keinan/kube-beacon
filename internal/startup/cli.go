@@ -3,7 +3,6 @@ package startup
 import (
 	"github.com/chen-keinan/beacon/internal/commands"
 	"github.com/chen-keinan/beacon/internal/logger"
-	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/cli"
 	"os"
@@ -37,10 +36,10 @@ func InitCLI(sa SanitizeArgs) {
 	app.Args = []string{"a"}
 	app.Commands = map[string]cli.CommandFactory{
 		"audit": func() (cli.Command, error) {
-			return &commands.K8sAudit{Command: shell.NewShellExec()}, nil
+			return commands.NewK8sAudit(), nil
 		},
 		"a": func() (cli.Command, error) {
-			return &commands.K8sAudit{Command: shell.NewShellExec()}, nil
+			return commands.NewK8sAudit(), nil
 		},
 	}
 	status, err := app.Run()
