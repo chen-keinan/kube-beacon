@@ -3,9 +3,9 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chen-keinan/beacon/internal/benchmark/k8s/models"
 	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/internal/mocks"
+	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
