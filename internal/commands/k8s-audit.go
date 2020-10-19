@@ -123,17 +123,19 @@ func (bk *K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val st
 				log.Console(fmt.Sprintf("failed to translate param %s to number", param))
 				continue
 			}
-			n := resArr[x]
-			switch {
-			case n == "[^\"]\\S*'\n" || n == "":
-				return ""
-			case strings.Contains(n, "\n"):
-				nl := n[len(n)-1:]
-				if nl == "\n" {
-					n = strings.Trim(n, "\n")
+			if x < len(resArr) {
+				n := resArr[x]
+				switch {
+				case n == "[^\"]\\S*'\n" || n == "":
+					return ""
+				case strings.Contains(n, "\n"):
+					nl := n[len(n)-1:]
+					if nl == "\n" {
+						n = strings.Trim(n, "\n")
+					}
 				}
+				return strings.ReplaceAll(val, fmt.Sprintf("#%d", x), n)
 			}
-			return strings.ReplaceAll(val, fmt.Sprintf("#%d", x), n)
 		}
 	}
 	return val

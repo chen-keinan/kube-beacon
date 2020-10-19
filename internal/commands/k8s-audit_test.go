@@ -238,6 +238,23 @@ func Test_MultiCommandParamsComplex(t *testing.T) {
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
 }
 
+//Test_MultiCommandParams_NOK test
+func Test_MultiCommandParamsComplexOposite(t *testing.T) {
+	ab := models.Audit{}
+	err := json.Unmarshal(readTestData("CheckInClauseOpposite.json", t), &ab)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "a\nb"}, nil).Times(1)
+	kb := K8sAudit{Command: executor}
+	kb.runTests(ab.Categories[0])
+	assert.NoError(t, err)
+	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+}
+
 func readTestData(fileName string, t *testing.T) []byte {
 	f, err := os.Open(fmt.Sprintf("./fixtures/%s", fileName))
 	if err != nil {

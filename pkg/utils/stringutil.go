@@ -94,7 +94,7 @@ func separateExpr(expr string) []Expr {
 		if len(s) == 0 {
 			continue
 		}
-		if strings.Contains(s, "IN") {
+		if strings.Contains(s, "IN") && strings.Contains(s, "$") {
 			exprList = append(exprList, Expr{Type: common.MultiValue, Expr: s})
 		} else {
 			exprList = append(exprList, Expr{Type: common.SingleValue, Expr: s})
