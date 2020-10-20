@@ -14,7 +14,7 @@ func Test_StartCli(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, len(files), 7)
+	assert.Equal(t, len(files), 8)
 	assert.Equal(t, files[0].Name, common.MasterNodeConfigurationFiles)
 	assert.Equal(t, files[1].Name, common.APIServer)
 	assert.Equal(t, files[2].Name, common.ControllerManager)
@@ -22,4 +22,5 @@ func Test_StartCli(t *testing.T) {
 	assert.Equal(t, files[4].Name, common.Etcd)
 	assert.Equal(t, files[5].Name, common.ControlPlaneConfiguration)
 	assert.Equal(t, files[6].Name, common.WorkerNodes)
+	assert.Equal(t, files[7].Name, common.Policies)
 }

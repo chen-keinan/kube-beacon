@@ -79,20 +79,9 @@ func (bk *K8sAudit) Run(args []string) int {
 func (bk *K8sAudit) runTests(ac models.Category) {
 	for _, at := range ac.SubCategory.AuditTests {
 		resArr := make([]string, 0)
-		for index, val := range at.AuditCommand {
-			cmd := bk.UpdateCommandParams(at, index, val, resArr)
-			if cmd == "" {
-				emptyValue := bk.addDummyCommandResponse(at, index)
-				resArr = append(resArr, emptyValue)
-				continue
-			}
-			result, _ := bk.Command.Exec(cmd)
-			if result.Stderr != "" {
-				resArr = append(resArr, "")
-				log.Console(fmt.Sprintf("Failed to execute command %s", result.Stderr))
-				continue
-			}
-			resArr = append(resArr, result.Stdout)
+		for index := range at.AuditCommand {
+			res := bk.execCommand(at, index, resArr, make([]IndexValue, 0))
+			resArr = append(resArr, res)
 		}
 		data := NewValidExprData(resArr, at)
 		bk.evalExpression(data, make([]string, 0))
@@ -125,32 +114,71 @@ func (bk *K8sAudit) AddFailedMessages(data ValidateExprData) {
 	}
 }
 
-//UpdateCommandParams update the cmd command with params values
-func (bk *K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val string, resArr []string) string {
-	params := at.CommandParams[index]
-	if len(params) > 0 {
-		for _, param := range params {
-			x, err := strconv.Atoi(param)
+//IndexValue hold command index and result
+type IndexValue struct {
+	index int
+	value string
+}
+
+func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []string, newRes []IndexValue) string {
+	cmd := at.AuditCommand[index]
+	paramArr, ok := at.CommandParams[index]
+	if ok {
+		for _, param := range paramArr {
+			parmNum, err := strconv.Atoi(param)
 			if err != nil {
-				log.Console(fmt.Sprintf("failed to translate param %s to number", param))
+				log.Console(fmt.Sprintf("failed to convert param for command %s", cmd))
 				continue
 			}
-			if x < len(resArr) {
-				n := resArr[x]
-				switch {
-				case n == "[^\"]\\S*'\n" || n == "" || n == common.NotValidString:
-					return ""
-				case strings.Contains(n, "\n"):
-					nl := n[len(n)-1:]
-					if nl == "\n" {
-						n = strings.Trim(n, "\n")
-					}
+			if parmNum < len(prevResult) {
+				n := prevResult[parmNum]
+				if n == "[^\"]\\S*'\n" || n == "" || n == common.NotValidString {
+					n = bk.addDummyCommandResponse(at, index)
 				}
-				return strings.ReplaceAll(val, fmt.Sprintf("#%d", x), n)
+				newRes = append(newRes, IndexValue{index: parmNum, value: n})
 			}
 		}
+		commandRes := make([]string, 0)
+		bk.execCommandWithParams(newRes, len(newRes), make([]IndexValue, 0), len(newRes), cmd, &commandRes)
+		sb := strings.Builder{}
+		for _, cr := range commandRes {
+			sb.WriteString(fmt.Sprintf("%s\n", cr))
+		}
+		return sb.String()
 	}
-	return val
+	result, _ := bk.Command.Exec(cmd)
+	if result.Stderr != "" {
+		log.Console(fmt.Sprintf("Failed to execute command %s", result.Stderr))
+	}
+	return result.Stdout
+
+}
+
+func (bk *K8sAudit) execCommandWithParams(arr []IndexValue, index int, prevResHolder []IndexValue, origSize int, val string, resArr *[]string) {
+	if len(arr) == 0 {
+		return
+	}
+	sArr := strings.Split(arr[0].value, "\n")
+	for _, a := range sArr {
+		prevResHolder = append(prevResHolder, IndexValue{index: arr[0].index, value: a})
+		bk.execCommandWithParams(arr[1:index], index-1, prevResHolder, origSize, val, resArr)
+		if len(prevResHolder) == origSize {
+			for _, param := range prevResHolder {
+				if param.value == common.NotValidString || param.value == common.NotValidNumber || param.value == "" {
+					*resArr = append(*resArr, param.value)
+					break
+				}
+				cmd := strings.ReplaceAll(val, fmt.Sprintf("#%d", param.index), param.value)
+				result, _ := bk.Command.Exec(cmd)
+				if result.Stderr != "" {
+					*resArr = append(*resArr, "")
+					log.Console(fmt.Sprintf("Failed to execute command %s", result.Stderr))
+				}
+				*resArr = append(*resArr, result.Stdout)
+			}
+		}
+		prevResHolder = prevResHolder[:len(prevResHolder)-1]
+	}
 }
 
 func (bk *K8sAudit) printTestResults(at *models.AuditBench) {

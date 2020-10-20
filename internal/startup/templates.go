@@ -55,6 +55,11 @@ func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
 		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
 	}
 	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.WorkerNodes, Data: wn})
+	p, err := box.FindString(common.Policies)
+	if err != nil {
+		panic(fmt.Sprintf("faild to load k8s benchmarks audit tests %s", err.Error()))
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.Policies, Data: p})
 	return fileInfo
 }
 

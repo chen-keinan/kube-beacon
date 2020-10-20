@@ -15,6 +15,8 @@ const (
 	WorkerNodes = "4.0_worker_nodes.json"
 	//ControlPlaneConfiguration file name
 	ControlPlaneConfiguration = "3.0_control_plane_configuration.json"
+	//Policies file name
+	Policies = "5.0_policies.json"
 	//GrepRegex for tests
 	GrepRegex = "[^\"]\\S*'"
 	//MultiValue for tests
