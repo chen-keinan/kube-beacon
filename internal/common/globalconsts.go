@@ -21,4 +21,8 @@ const (
 	MultiValue = "MultiValue"
 	//SingleValue for tests
 	SingleValue = "SingleValue"
+	//NotValidString value
+	NotValidString = "NotValid"
+	//NotValidNumber value
+	NotValidNumber = "10000"
 )

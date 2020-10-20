@@ -14,7 +14,7 @@ type ExprSanitize func(output []string, expr string) string
 var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr string) string {
 	var value string
 	builder := strings.Builder{}
-	sExpr := separateExpr(expr)
+	sExpr := SeparateExpr(expr)
 	for _, exp := range sExpr {
 		for i, output := range outputArr {
 			if !strings.Contains(exp.Expr, "$") {
@@ -87,7 +87,8 @@ func sanitizeRegExOutPut(output string, index int, expr string) string {
 	return strings.ReplaceAll(expr, varaible, output)
 }
 
-func separateExpr(expr string) []Expr {
+//SeparateExpr separate expression to single and multi blocks
+func SeparateExpr(expr string) []Expr {
 	exprList := make([]Expr, 0)
 	split := strings.Split(expr, ";")
 	for _, s := range split {

@@ -180,7 +180,7 @@ func Test_MultiCommandParams_NOK(t *testing.T) {
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
 }
 
-//Test_MultiCommandParams_NOK test
+//Test_MultiCommandParams_NOKWith_IN test
 func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 	ab := models.Audit{}
 	err := json.Unmarshal(readTestData("CheckMultiParamNOKWithIN.json", t), &ab)
@@ -198,7 +198,7 @@ func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
 }
 
-//Test_MultiCommandParams_NOK test
+//Test_MultiCommandParamsPass1stResultToNext test
 func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 	ab := models.Audit{}
 	err := json.Unmarshal(readTestData("CheckMultiParamPass1stResultToNext.json", t), &ab)
@@ -217,7 +217,7 @@ func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
 }
 
-//Test_MultiCommandParams_NOK test
+//Test_MultiCommandParamsComplex test
 func Test_MultiCommandParamsComplex(t *testing.T) {
 	ab := models.Audit{}
 	err := json.Unmarshal(readTestData("CheckMultiParamComplex.json", t), &ab)
@@ -238,21 +238,56 @@ func Test_MultiCommandParamsComplex(t *testing.T) {
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
 }
 
-//Test_MultiCommandParams_NOK test
-func Test_MultiCommandParamsComplexOposite(t *testing.T) {
+//Test_MultiCommandParamsComplexOppositeEmptyReturn test
+func Test_MultiCommandParamsComplexOppositeEmptyReturn(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckInClauseOpposite.json", t), &ab)
+	err := json.Unmarshal(readTestData("CheckInClauseOppositeEmptyReturn.json", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	executor := mocks.NewMockExecutor(ctrl)
-	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "a\nb"}, nil).Times(1)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
 	kb := K8sAudit{Command: executor}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+}
+
+//Test_MultiCommandParamsComplexOppositeWithNumber test
+func Test_MultiCommandParamsComplexOppositeWithNumber(t *testing.T) {
+	ab := models.Audit{}
+	err := json.Unmarshal(readTestData("CheckInClauseOppositeWithNum.json", t), &ab)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
+	kb := K8sAudit{Command: executor}
+	kb.runTests(ab.Categories[0])
+	assert.NoError(t, err)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+}
+
+//Test_MultiCommand4_2_13 test
+func Test_MultiCommand4_2_13(t *testing.T) {
+	ab := models.Audit{}
+	err := json.Unmarshal(readTestData("CheckInClause4.2.13.json", t), &ab)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
+	executor.EXPECT().Exec("ps -ef | grep kubelet |grep 'TLSCipherSuites' | grep -o 'TLSCipherSuites=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
+	kb := K8sAudit{Command: executor}
+	kb.runTests(ab.Categories[0])
+	assert.NoError(t, err)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
 }
 
 func readTestData(fileName string, t *testing.T) []byte {

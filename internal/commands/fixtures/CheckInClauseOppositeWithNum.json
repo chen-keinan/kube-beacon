@@ -1,0 +1,30 @@
+{
+  "benchmark_type": "k8s",
+  "categories": [
+    {
+      "name": "Control Plane Components",
+      "sub_category": {
+        "name": "API Server",
+        "audit_tests": [
+          {
+            "name": "4.1.3 If proxy kubeconfig file exists ensure permissions are set to 644 or more restrictive",
+            "description": "If kube-proxy is running, and if it is using a file-based kubeconfig file, ensure that the proxy kubeconfig file has permissions of 644 or more restrictive.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "aaa",
+              "bbb #0"
+            ],
+            "remediation": "Run the below command (based on the file location on your system) on the each worker node. For example,\nchmod 644 <proxy kubeconfig file>",
+            "check_type": "multi_param",
+            "impact": "None",
+            "eval_expr": "$1 <= 644;",
+            "default_value": "By default, proxy file has permissions of 640.",
+            "references": [
+              "https://kubernetes.io/docs/admin/kube-proxy/"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

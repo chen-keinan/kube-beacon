@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Knetic/govaluate"
+	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/reports"
@@ -81,6 +82,8 @@ func (bk *K8sAudit) runTests(ac models.Category) {
 		for index, val := range at.AuditCommand {
 			cmd := bk.UpdateCommandParams(at, index, val, resArr)
 			if cmd == "" {
+				emptyValue := bk.addDummyCommandResponse(at, index)
+				resArr = append(resArr, emptyValue)
 				continue
 			}
 			result, _ := bk.Command.Exec(cmd)
@@ -92,18 +95,27 @@ func (bk *K8sAudit) runTests(ac models.Category) {
 			resArr = append(resArr, result.Stdout)
 		}
 		data := NewValidExprData(resArr, at)
-		if len(at.AuditCommand) == len(resArr) {
-			bk.evalExpression(data, make([]string, 0))
-		} else {
-			at.TestResult.NumOfExec = 1
-			at.TestResult.NumOfSuccess = 0
-		}
+		bk.evalExpression(data, make([]string, 0))
 		if len(bk.args) == 1 && bk.args[0] != "report" {
 			bk.printTestResults(data.atb)
 		} else {
 			bk.AddFailedMessages(data)
 		}
 	}
+}
+
+func (bk *K8sAudit) addDummyCommandResponse(at *models.AuditBench, index int) string {
+	spExpr := utils.SeparateExpr(at.EvalExpr)
+	for _, expr := range spExpr {
+		if expr.Type == common.SingleValue {
+			if !strings.Contains(expr.Expr, fmt.Sprintf("'$%d'", index)) {
+				if strings.Contains(expr.Expr, fmt.Sprintf("$%d", index)) {
+					return common.NotValidNumber
+				}
+			}
+		}
+	}
+	return common.NotValidString
 }
 
 //AddFailedMessages add failed audit test to report data
@@ -126,7 +138,7 @@ func (bk *K8sAudit) UpdateCommandParams(at *models.AuditBench, index int, val st
 			if x < len(resArr) {
 				n := resArr[x]
 				switch {
-				case n == "[^\"]\\S*'\n" || n == "":
+				case n == "[^\"]\\S*'\n" || n == "" || n == common.NotValidString:
 					return ""
 				case strings.Contains(n, "\n"):
 					nl := n[len(n)-1:]
