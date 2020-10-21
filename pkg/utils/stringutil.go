@@ -25,11 +25,7 @@ var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr s
 					break
 				}
 			}
-			if exp.Type == common.SingleValue {
-				value = sanitizeRegExOutPut(output, i, exp.Expr)
-			} else {
-				value = parseMultiValue(output, i, exp.Expr)
-			}
+			value = exp.EvaFunc(output, i, exp.Expr)
 			exp.Expr = value
 		}
 		builder.WriteString(value)
@@ -37,7 +33,7 @@ var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr s
 	return builder.String()
 }
 
-func parseMultiValue(output string, index int, expr string) string {
+var parseMultiValue EvalFunction = func(output string, index int, expr string) string {
 	//add condition value before split to array
 	variable := fmt.Sprintf("'$%s'", strconv.Itoa(index))
 	if strings.Contains(expr, variable) {
@@ -78,8 +74,8 @@ func sanitizeSingleValue(expr string, index int, sOutout string) string {
 	return strings.ReplaceAll(expr, variable, fOutPut)
 }
 
-//sanitizeRegExOutPut for regex case
-func sanitizeRegExOutPut(output string, index int, expr string) string {
+//parseSingleValue for regex case
+var parseSingleValue EvalFunction = func(output string, index int, expr string) string {
 	if strings.Contains(output, common.GrepRegex) {
 		output = ""
 	}
@@ -96,16 +92,20 @@ func SeparateExpr(expr string) []Expr {
 			continue
 		}
 		if strings.Contains(s, "IN") && strings.Contains(s, "$") {
-			exprList = append(exprList, Expr{Type: common.MultiValue, Expr: s})
+			exprList = append(exprList, Expr{Type: common.MultiValue, Expr: s, EvaFunc: parseMultiValue})
 		} else {
-			exprList = append(exprList, Expr{Type: common.SingleValue, Expr: s})
+			exprList = append(exprList, Expr{Type: common.SingleValue, Expr: s, EvaFunc: parseSingleValue})
 		}
 	}
 	return exprList
 }
 
+//EvalFunction evaluate command result with expression
+type EvalFunction func(output string, index int, expr string) string
+
 //Expr data
 type Expr struct {
-	Type string
-	Expr string
+	Type    string
+	Expr    string
+	EvaFunc EvalFunction
 }
