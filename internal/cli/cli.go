@@ -57,8 +57,7 @@ var ArgsSanitizer SanitizeArgs = func(str []string) []string {
 	for _, arg := range str {
 		arg = strings.Replace(arg, "--", "", -1)
 		arg = strings.Replace(arg, "-", "", -1)
-		c := arg[0:1]
-		args = append(args, c)
+		args = append(args, arg)
 	}
 	return args
 }

@@ -78,3 +78,12 @@ func Test_CheckType_Regex_DiffParamTypeManyValues(t *testing.T) {
 	ti := bench([]string{"root:root,abc", "kkk"}, evalExpr)
 	assert.Equal(t, ti, "'kkk' == 'kkk' && 'root:root,abc' != 'root:root' && 'root:root' IN ('root:root','abc')")
 }
+
+func Test_ExcludeAuditTest(t *testing.T) {
+	et := ExcludeAuditTest([]string{"1.2.4"}, "1.2.5")
+	assert.True(t, et)
+	et = ExcludeAuditTest([]string{"1.2.4"}, "1.2.4")
+	assert.False(t, et)
+	et = ExcludeAuditTest([]string{}, "1.2.4")
+	assert.False(t, et)
+}

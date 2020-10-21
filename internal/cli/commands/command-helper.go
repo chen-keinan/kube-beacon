@@ -4,6 +4,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/kyokomi/emoji"
+	"strings"
 )
 
 func printTestResults(at *models.AuditBench) {
@@ -23,7 +24,7 @@ func AddFailedMessages(data ValidateExprData) []*models.AuditBench {
 	return av
 }
 
-// check weather are exist in array of args
+// check weather are exist in array of specificTests
 func isArgsExist(args []string, name string) bool {
 	for _, n := range args {
 		if n == name {
@@ -33,10 +34,21 @@ func isArgsExist(args []string, name string) bool {
 	return false
 }
 
-//getResultProcessingFunction return processing function by args
+//getResultProcessingFunction return processing function by specificTests
 func getResultProcessingFunction(args []string) ResultProcessor {
 	if isArgsExist(args, common.Report) {
 		return reportResultProcessor
 	}
 	return simpleResultProcessor
+}
+
+//getSpecificTestsToExecute return processing function by specificTests
+func getSpecificTestsToExecute(args []string) []string {
+	for _, n := range args {
+		if strings.HasPrefix(n, "s=") {
+			values := strings.ReplaceAll(n, "s=", "")
+			return strings.Split(values, ";")
+		}
+	}
+	return []string{}
 }

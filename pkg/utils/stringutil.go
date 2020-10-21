@@ -113,3 +113,16 @@ type Expr struct {
 	Expr               string
 	EvaExprBuilderFunc EvaExprBuilderFunc
 }
+
+//ExcludeAuditTest return true if test is not included in specific tests to run
+func ExcludeAuditTest(tests []string, name string) bool {
+	if len(tests) == 0 {
+		return false
+	}
+	for _, t := range tests {
+		if strings.Contains(name, t) {
+			return false
+		}
+	}
+	return true
+}

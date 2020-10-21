@@ -45,3 +45,11 @@ func Test_GetProcessingFunction(t *testing.T) {
 func GetFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }
+
+func Test_getSpecificTestsToExecute(t *testing.T) {
+	test := getSpecificTestsToExecute([]string{"a", "b", "s=1.2.4;1.2.5"})
+	assert.Equal(t, test[0], "1.2.4")
+	assert.Equal(t, test[1], "1.2.5")
+	test = getSpecificTestsToExecute([]string{"a", "b"})
+	assert.True(t, len(test) == 0)
+}

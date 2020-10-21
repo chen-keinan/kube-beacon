@@ -40,7 +40,7 @@ func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
 	Command         shell.Executor
-	args            []string
+	specificTests   []string
 	resultProcessor ResultProcessor
 }
 
@@ -61,7 +61,7 @@ var reportResultProcessor ResultProcessor = func(vd ValidateExprData) []*models.
 
 //NewK8sAudit new audit object
 func NewK8sAudit(args []string) *K8sAudit {
-	return &K8sAudit{Command: shell.NewShellExec(), args: args, resultProcessor: getResultProcessingFunction(args)}
+	return &K8sAudit{Command: shell.NewShellExec(), specificTests: getSpecificTestsToExecute(args), resultProcessor: getResultProcessingFunction(args)}
 }
 
 //Help return benchmark command help
@@ -95,6 +95,9 @@ func (bk *K8sAudit) Run(args []string) int {
 func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
 	auditRes := make([]*models.AuditBench, 0)
 	for _, at := range ac.SubCategory.AuditTests {
+		if utils.ExcludeAuditTest(bk.specificTests, at.Name) {
+			continue
+		}
 		resArr := make([]string, 0)
 		for index := range at.AuditCommand {
 			res := bk.execCommand(at, index, resArr, make([]IndexValue, 0))
