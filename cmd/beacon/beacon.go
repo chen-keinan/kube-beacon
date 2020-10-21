@@ -1,7 +1,9 @@
 package main
 
-import "github.com/chen-keinan/beacon/internal/startup"
+import (
+	"github.com/chen-keinan/beacon/internal/cli"
+)
 
 func main() {
-	startup.InitCLI(startup.ArgsSanitizer)
+	cli.InitCLI(cli.ArgsSanitizer)
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/chen-keinan/beacon/internal/reports"
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/pkg/utils"
-	"github.com/kyokomi/emoji"
 	"strconv"
 	"strings"
 )
@@ -39,14 +38,29 @@ func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
 
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
-	Command     shell.Executor
-	FailedTests []*models.AuditBench
-	args        []string
+	Command         shell.Executor
+	args            []string
+	resultProcessor ResultProcessor
+}
+
+// ResultProcessor process audit results
+type ResultProcessor func(vd ValidateExprData) []*models.AuditBench
+
+// simpleResultProcessor process audit results to stdout print only
+var simpleResultProcessor ResultProcessor = func(vd ValidateExprData) []*models.AuditBench {
+	printTestResults(vd.atb)
+	return []*models.AuditBench{}
+}
+
+// ResultProcessor process audit results to std out and failure results
+var reportResultProcessor ResultProcessor = func(vd ValidateExprData) []*models.AuditBench {
+	// append failed messages
+	return AddFailedMessages(vd)
 }
 
 //NewK8sAudit new audit object
-func NewK8sAudit() *K8sAudit {
-	return &K8sAudit{FailedTests: make([]*models.AuditBench, 0), Command: shell.NewShellExec()}
+func NewK8sAudit(args []string) *K8sAudit {
+	return &K8sAudit{Command: shell.NewShellExec(), args: args, resultProcessor: getResultProcessingFunction(args)}
 }
 
 //Help return benchmark command help
@@ -56,7 +70,7 @@ func (bk K8sAudit) Help() string {
 
 //Run execute benchmark command
 func (bk *K8sAudit) Run(args []string) int {
-	bk.args = args
+	auditRes := make([]*models.AuditBench, 0)
 	audit := models.Audit{}
 	auditFiles, err := utils.GetK8sBenchAuditFiles()
 	if err != nil {
@@ -68,15 +82,17 @@ func (bk *K8sAudit) Run(args []string) int {
 			panic("Failed to unmarshal audit test json file")
 		}
 		for _, ac := range audit.Categories {
-			bk.runTests(ac)
+			ar := bk.runTests(ac)
+			auditRes = append(auditRes, ar...)
 		}
 	}
-	reports.GenerateAuditReport(bk.FailedTests)
-
+	// generate report data
+	reports.GenerateAuditReport(auditRes)
 	return 0
 }
 
-func (bk *K8sAudit) runTests(ac models.Category) {
+func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
+	auditRes := make([]*models.AuditBench, 0)
 	for _, at := range ac.SubCategory.AuditTests {
 		resArr := make([]string, 0)
 		for index := range at.AuditCommand {
@@ -84,13 +100,12 @@ func (bk *K8sAudit) runTests(ac models.Category) {
 			resArr = append(resArr, res)
 		}
 		data := NewValidExprData(resArr, at)
+		// evaluate command result with expression
 		bk.evalExpression(data, make([]string, 0))
-		if len(bk.args) == 1 && bk.args[0] != "report" {
-			bk.printTestResults(data.atb)
-		} else {
-			bk.AddFailedMessages(data)
-		}
+		// continue with result processing
+		auditRes = append(auditRes, bk.resultProcessor(data)...)
 	}
+	return auditRes
 }
 
 func (bk *K8sAudit) addDummyCommandResponse(at *models.AuditBench, index int) string {
@@ -105,13 +120,6 @@ func (bk *K8sAudit) addDummyCommandResponse(at *models.AuditBench, index int) st
 		}
 	}
 	return common.NotValidString
-}
-
-//AddFailedMessages add failed audit test to report data
-func (bk *K8sAudit) AddFailedMessages(data ValidateExprData) {
-	if data.atb.TestResult.NumOfSuccess != data.atb.TestResult.NumOfExec {
-		bk.FailedTests = append(bk.FailedTests, data.atb)
-	}
 }
 
 //IndexValue hold command index and result
@@ -181,14 +189,7 @@ func (bk *K8sAudit) execCommandWithParams(arr []IndexValue, index int, prevResHo
 	}
 }
 
-func (bk *K8sAudit) printTestResults(at *models.AuditBench) {
-	if at.TestResult.NumOfSuccess == at.TestResult.NumOfExec {
-		log.Console(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
-	} else {
-		log.Console(emoji.Sprintf(":cross_mark: %s\n", at.Name))
-	}
-}
-
+//evalExpression expression eval as cartesian product
 func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
 	if len(ved.resultArr) == 0 {
 		return

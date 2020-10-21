@@ -1,8 +1,9 @@
-package startup
+package cli
 
 import (
 	"github.com/chen-keinan/beacon/internal/commands"
 	"github.com/chen-keinan/beacon/internal/logger"
+	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/cli"
 	"os"
@@ -21,8 +22,8 @@ func StartCli() {
 	if err != nil {
 		panic(err)
 	}
-	filesData := GenerateK8sBenchmarkFiles()
-	err = SaveBenchmarkFilesIfNotExist(filesData)
+	filesData := startup.GenerateK8sBenchmarkFiles()
+	err = startup.SaveBenchmarkFilesIfNotExist(filesData)
 	if err != nil {
 		panic(err)
 	}
@@ -34,13 +35,14 @@ func InitCLI(sa SanitizeArgs) {
 	app := cli.NewCLI("beacon", "1.0.0")
 	// init cli folder and templates
 	StartCli()
-	app.Args = []string{"a", args[0]}
+	app.Args = append(app.Args, []string{"a"}...)
+	app.Args = append(app.Args, args...)
 	app.Commands = map[string]cli.CommandFactory{
 		"audit": func() (cli.Command, error) {
-			return commands.NewK8sAudit(), nil
+			return commands.NewK8sAudit(app.Args), nil
 		},
 		"a": func() (cli.Command, error) {
-			return commands.NewK8sAudit(), nil
+			return commands.NewK8sAudit(app.Args), nil
 		},
 	}
 	status, err := app.Run()
