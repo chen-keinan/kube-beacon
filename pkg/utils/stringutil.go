@@ -25,7 +25,7 @@ var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr s
 					break
 				}
 			}
-			value = exp.EvaFunc(output, i, exp.Expr)
+			value = exp.EvaExprBuilderFunc(output, i, exp.Expr)
 			exp.Expr = value
 		}
 		builder.WriteString(value)
@@ -33,23 +33,24 @@ var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr s
 	return builder.String()
 }
 
-var parseMultiValue EvalFunction = func(output string, index int, expr string) string {
+//parseMultiValue build evaluation expresion for expr with IN clause
+var parseMultiValue EvaExprBuilderFunc = func(output string, index int, expr string) string {
 	//add condition value before split to array
 	variable := fmt.Sprintf("'$%s'", strconv.Itoa(index))
 	if strings.Contains(expr, variable) {
 		fOutPut := fmt.Sprintf("'%s'", output)
 		return strings.ReplaceAll(expr, variable, fOutPut)
 	}
-	sOutout := strings.Split(output, ",")
-	if len(sOutout) == 1 {
-		return sanitizeSingleValue(expr, index, sOutout[0])
+	sOutput := strings.Split(output, ",")
+	if len(sOutput) == 1 {
+		return changeExprFromMultiToSingle(expr, index, sOutput[0])
 	}
-	return sanitizeMultiValue(sOutout, index, expr)
+	return sanitizeMultiValue(sOutput, index, expr)
 }
 
-func sanitizeMultiValue(sOutout []string, index int, expr string) string {
+func sanitizeMultiValue(sOutPut []string, index int, expr string) string {
 	builderOne := strings.Builder{}
-	for index, val := range sOutout {
+	for index, val := range sOutPut {
 		if index != 0 {
 			if index > 0 {
 				builderOne.WriteString(",")
@@ -62,7 +63,9 @@ func sanitizeMultiValue(sOutout []string, index int, expr string) string {
 	return strings.ReplaceAll(expr, fmt.Sprintf("$%d", index), builderOne.String())
 }
 
-func sanitizeSingleValue(expr string, index int, sOutout string) string {
+//changeExprFromMultiToSingle it change the expression from multi to single
+// where IN clause has only one param
+func changeExprFromMultiToSingle(expr string, index int, sOutout string) string {
 	variable := fmt.Sprintf("($%s)", strconv.Itoa(index))
 	fOutPut := fmt.Sprintf("'%s'", sOutout)
 	if strings.Contains(expr, "IN") {
@@ -74,8 +77,8 @@ func sanitizeSingleValue(expr string, index int, sOutout string) string {
 	return strings.ReplaceAll(expr, variable, fOutPut)
 }
 
-//parseSingleValue for regex case
-var parseSingleValue EvalFunction = func(output string, index int, expr string) string {
+//parseSingleValue build evaluation expresion for expr for non IN clause
+var parseSingleValue EvaExprBuilderFunc = func(output string, index int, expr string) string {
 	if strings.Contains(output, common.GrepRegex) {
 		output = ""
 	}
@@ -92,20 +95,21 @@ func SeparateExpr(expr string) []Expr {
 			continue
 		}
 		if strings.Contains(s, "IN") && strings.Contains(s, "$") {
-			exprList = append(exprList, Expr{Type: common.MultiValue, Expr: s, EvaFunc: parseMultiValue})
+			exprList = append(exprList, Expr{Type: common.MultiValue, Expr: s, EvaExprBuilderFunc: parseMultiValue})
 		} else {
-			exprList = append(exprList, Expr{Type: common.SingleValue, Expr: s, EvaFunc: parseSingleValue})
+			exprList = append(exprList, Expr{Type: common.SingleValue, Expr: s, EvaExprBuilderFunc: parseSingleValue})
 		}
 	}
 	return exprList
 }
 
-//EvalFunction evaluate command result with expression
-type EvalFunction func(output string, index int, expr string) string
+//EvaExprBuilderFunc build evaluation expresion
+//it replace expression params with audit command result
+type EvaExprBuilderFunc func(output string, index int, expr string) string
 
 //Expr data
 type Expr struct {
-	Type    string
-	Expr    string
-	EvaFunc EvalFunction
+	Type               string
+	Expr               string
+	EvaExprBuilderFunc EvaExprBuilderFunc
 }
