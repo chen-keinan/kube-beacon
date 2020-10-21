@@ -1,2 +1,3 @@
   -a , --audit run benchmark audit tests
   -r , --report run tests and generate failure report
+  -s , specific test execution , example -s=1.2.3
