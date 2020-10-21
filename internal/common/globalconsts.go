@@ -28,5 +28,7 @@ const (
 	//NotValidNumber value
 	NotValidNumber = "10000"
 	//Report arg
-	Report = "report"
+	Report = "r"
+	//Synopsis help
+	Synopsis = "synopsis"
 )

@@ -32,7 +32,7 @@ func Test_isArgsExist(t *testing.T) {
 
 //Test_isArgsExist
 func Test_GetProcessingFunction(t *testing.T) {
-	args := []string{"report"}
+	args := []string{"r"}
 	a := getResultProcessingFunction(args)
 	name := GetFunctionName(a)
 	assert.True(t, strings.Contains(name, "commands.glob..func2"))

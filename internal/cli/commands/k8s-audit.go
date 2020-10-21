@@ -9,6 +9,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/reports"
 	"github.com/chen-keinan/beacon/internal/shell"
+	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"strconv"
 	"strings"
@@ -65,7 +66,7 @@ func NewK8sAudit(args []string) *K8sAudit {
 
 //Help return benchmark command help
 func (bk K8sAudit) Help() string {
-	return "-a , --audit run benchmark audit tests"
+	return startup.GetHelpSynopsis()
 }
 
 //Run execute benchmark command

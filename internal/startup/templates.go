@@ -63,6 +63,17 @@ func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
 	return fileInfo
 }
 
+//GetHelpSynopsis get help synopsis file
+func GetHelpSynopsis() string {
+	box := packr.NewBox("./../cli/commands/help/")
+	// Add Master Node Configuration tests
+	hs, err := box.FindString(common.Synopsis)
+	if err != nil {
+		panic(fmt.Sprintf("faild to load cli help synopsis %s", err.Error()))
+	}
+	return hs
+}
+
 //SaveBenchmarkFilesIfNotExist create benchmark audit file if not exist
 func SaveBenchmarkFilesIfNotExist(filesData []utils.FilesInfo) error {
 	for _, fileData := range filesData {

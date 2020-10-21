@@ -1,0 +1,2 @@
+  -a , --audit run benchmark audit tests
+  -r , --report run tests and generate failure report

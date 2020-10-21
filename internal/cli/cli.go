@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/chen-keinan/beacon/internal/commands"
+	"github.com/chen-keinan/beacon/internal/cli/commands"
 	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/utils"
@@ -35,12 +35,8 @@ func InitCLI(sa SanitizeArgs) {
 	app := cli.NewCLI("beacon", "1.0.0")
 	// init cli folder and templates
 	StartCli()
-	app.Args = append(app.Args, []string{"a"}...)
 	app.Args = append(app.Args, args...)
 	app.Commands = map[string]cli.CommandFactory{
-		"audit": func() (cli.Command, error) {
-			return commands.NewK8sAudit(app.Args), nil
-		},
 		"a": func() (cli.Command, error) {
 			return commands.NewK8sAudit(app.Args), nil
 		},
@@ -61,7 +57,8 @@ var ArgsSanitizer SanitizeArgs = func(str []string) []string {
 	for _, arg := range str {
 		arg = strings.Replace(arg, "--", "", -1)
 		arg = strings.Replace(arg, "-", "", -1)
-		args = append(args, arg)
+		c := arg[0:1]
+		args = append(args, c)
 	}
 	return args
 }
