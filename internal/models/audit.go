@@ -60,7 +60,7 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 	}
 	switch at.CheckType {
 	case "multi_param":
-		at.CmdExprBuilder = utils.UpdateCommandExprParam
+		at.CmdExprBuilder = utils.UpdateCmdExprParam
 	}
 	at.CommandParams = make(map[int][]string)
 	for index, command := range at.AuditCommand {

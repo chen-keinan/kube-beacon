@@ -10,8 +10,8 @@ import (
 //CmdExprBuilder sanitize expr
 type CmdExprBuilder func(output []string, expr string) string
 
-//UpdateCommandExprParam check type
-var UpdateCommandExprParam CmdExprBuilder = func(outputArr []string, expr string) string {
+//UpdateCmdExprParam check type
+var UpdateCmdExprParam CmdExprBuilder = func(outputArr []string, expr string) string {
 	var value string
 	builder := strings.Builder{}
 	sExpr := SeparateExpr(expr)

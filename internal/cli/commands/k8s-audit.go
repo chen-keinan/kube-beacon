@@ -147,7 +147,7 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 				newRes = append(newRes, IndexValue{index: parmNum, value: n})
 			}
 		}
-		commandRes := bk.execCommandWithParams(newRes, len(newRes), make([]IndexValue, 0), cmd, make([]string, 0))
+		commandRes := bk.execCmdWithParams(newRes, len(newRes), make([]IndexValue, 0), cmd, make([]string, 0))
 		sb := strings.Builder{}
 		for _, cr := range commandRes {
 			sb.WriteString(fmt.Sprintf("%s\n", cr))
@@ -162,20 +162,20 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 
 }
 
-func (bk *K8sAudit) execCommandWithParams(arr []IndexValue, index int, prevResHolder []IndexValue, currCommand string, resArr []string) []string {
+func (bk *K8sAudit) execCmdWithParams(arr []IndexValue, index int, prevResHolder []IndexValue, currCommand string, resArr []string) []string {
 	if len(arr) == 0 {
-		return execShellCommand(prevResHolder, resArr, currCommand, bk.Command)
+		return execShellCmd(prevResHolder, resArr, currCommand, bk.Command)
 	}
 	sArr := strings.Split(arr[0].value, "\n")
 	for _, a := range sArr {
 		prevResHolder = append(prevResHolder, IndexValue{index: arr[0].index, value: a})
-		resArr = bk.execCommandWithParams(arr[1:index], index-1, prevResHolder, currCommand, resArr)
+		resArr = bk.execCmdWithParams(arr[1:index], index-1, prevResHolder, currCommand, resArr)
 		prevResHolder = prevResHolder[:len(prevResHolder)-1]
 	}
 	return resArr
 }
 
-func execShellCommand(prevResHolder []IndexValue, resArr []string, currCommand string, se shell.Executor) []string {
+func execShellCmd(prevResHolder []IndexValue, resArr []string, currCommand string, se shell.Executor) []string {
 	for _, param := range prevResHolder {
 		if param.value == common.NotValidString || param.value == common.NotValidNumber || param.value == "" {
 			resArr = append(resArr, param.value)
