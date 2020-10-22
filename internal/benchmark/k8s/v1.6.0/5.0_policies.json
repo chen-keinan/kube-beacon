@@ -35,7 +35,7 @@
             "remediation": "Where possible, remove get, list and watch access to secret objects in the cluster.",
             "check_type": "multi_param",
             "impact": "Care should be taken not to remove access to secrets to system components which require this for their operation",
-            "eval_expr": "('$0' != 'system:kube-controller-manager'; && '$1' == 'yes'; || '$2' == 'yes'; || '$3' == 'yes';) || '$0' == 'system:kube-controller-manager';",
+            "eval_expr": "('$0' != 'system:kube-controller-manager'; && '$1' == 'no'; && '$2' == 'no'; && '$3' == 'no';) || '$0' == 'system:kube-controller-manager';",
             "default_value": "By default a single clusterrolebinding called cluster-admin is provided with the system:masters group as its principal.\n",
             "references": [
             ]
@@ -53,6 +53,22 @@
             "impact": "",
             "eval_expr": "'$0' == '' && '$1' == ''",
             "default_value": "",
+            "references": [
+            ]
+          },
+          {
+            "name": "5.1.4 Minimize access to create pods",
+            "description": "The ability to create pods in a namespace can provide a number of opportunities for privilege escalation, such as assigning privileged service accounts to these pods or mounting hostPaths with access to sensitive data (unless Pod Security Policies are implemented to restrict this access)\nAs such, access to create new pods should be restricted to the smallest possible group of users.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "tf=/dev/stdout && kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind |grep User  > tf && awk '{ print $1 }' tf",
+              "kubectl auth can-i  --all-namespaces --as #0 create pod"
+            ],
+            "remediation": "Where possible, remove create access to pod objects in the cluster.",
+            "check_type": "multi_param",
+            "impact": "Care should be taken not to remove access to pods to system components which require this for their operation",
+            "eval_expr": " '$1' == 'no';",
+            "default_value": "By default in a kubeadm cluster the following list of principals have create privileges on pod objects",
             "references": [
             ]
           }
