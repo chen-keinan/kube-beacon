@@ -37,7 +37,7 @@ type AuditBench struct {
 	DefaultValue         string   `mapstructure:"default_value" json:"default_value"`
 	References           []string `mapstructure:"references" json:"references"`
 	EvalExpr             string   `mapstructure:"eval_expr" json:"eval_expr"`
-	Sanitize             utils.ExprSanitize
+	CmdExprBuilder       utils.CmdExprBuilder
 	TestResult           *AuditResult
 	CommandParams        map[int][]string
 }
@@ -60,7 +60,7 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 	}
 	switch at.CheckType {
 	case "multi_param":
-		at.Sanitize = utils.ExprSanitizeMultiProcessParam
+		at.CmdExprBuilder = utils.UpdateCommandExprParam
 	}
 	at.TestResult = &AuditResult{}
 	at.CommandParams = make(map[int][]string)

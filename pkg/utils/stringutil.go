@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-//ExprSanitize sanitize expr
-type ExprSanitize func(output []string, expr string) string
+//CmdExprBuilder sanitize expr
+type CmdExprBuilder func(output []string, expr string) string
 
-//ExprSanitizeMultiProcessParam check type
-var ExprSanitizeMultiProcessParam ExprSanitize = func(outputArr []string, expr string) string {
+//UpdateCommandExprParam check type
+var UpdateCommandExprParam CmdExprBuilder = func(outputArr []string, expr string) string {
 	var value string
 	builder := strings.Builder{}
 	sExpr := SeparateExpr(expr)
@@ -45,10 +45,10 @@ var parseMultiValue EvaExprBuilderFunc = func(output string, index int, expr str
 	if len(sOutput) == 1 {
 		return changeExprFromMultiToSingle(expr, index, sOutput[0])
 	}
-	return sanitizeMultiValue(sOutput, index, expr)
+	return buildInClauseExpr(sOutput, index, expr)
 }
 
-func sanitizeMultiValue(sOutPut []string, index int, expr string) string {
+func buildInClauseExpr(sOutPut []string, index int, expr string) string {
 	builderOne := strings.Builder{}
 	for index, val := range sOutPut {
 		if index != 0 {

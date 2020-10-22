@@ -17,7 +17,7 @@ func Test_CheckType_Blaa(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NoError(t, err)
-	assert.Nil(t, ab.Categories[0].SubCategory.AuditTests[0].Sanitize)
+	assert.Nil(t, ab.Categories[0].SubCategory.AuditTests[0].CmdExprBuilder)
 }
 
 //Test_CheckType_Multi_ProcessParam test
@@ -28,7 +28,7 @@ func Test_CheckType_Multi_ProcessParam(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NoError(t, err)
-	assert.NotNil(t, ab.Categories[0].SubCategory.AuditTests[0].Sanitize)
+	assert.NotNil(t, ab.Categories[0].SubCategory.AuditTests[0].CmdExprBuilder)
 }
 
 func readTestData(fileName string, t *testing.T) []byte {

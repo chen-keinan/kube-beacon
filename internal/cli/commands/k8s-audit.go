@@ -22,19 +22,18 @@ type ValidateExprData struct {
 	index     int
 	resultArr []string
 	atb       *models.AuditBench
-	origSize  int
 	Total     int
 	Match     int
 }
 
 //NextValidExprData return the next recursive ValidExprData
 func (ve ValidateExprData) NextValidExprData() ValidateExprData {
-	return ValidateExprData{resultArr: ve.resultArr[1:ve.index], index: ve.index - 1, atb: ve.atb, origSize: ve.origSize}
+	return ValidateExprData{resultArr: ve.resultArr[1:ve.index], index: ve.index - 1, atb: ve.atb}
 }
 
 // NewValidExprData return new instance of ValidExprData
 func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
-	return ValidateExprData{resultArr: arr, index: len(arr), atb: at, origSize: len(arr)}
+	return ValidateExprData{resultArr: arr, index: len(arr), atb: at}
 }
 
 //K8sAudit k8s benchmark object
@@ -196,6 +195,13 @@ func (bk *K8sAudit) execCommandWithParams(arr []IndexValue, index int, prevResHo
 //evalExpression expression eval as cartesian product
 func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
 	if len(ved.resultArr) == 0 {
+		expr := ved.atb.CmdExprBuilder(combArr, ved.atb.EvalExpr)
+		ved.atb.TestResult.NumOfExec++
+		count, err := bk.evalCommandExpr(ved.atb, expr)
+		if err != nil {
+			log.Console(err.Error())
+		}
+		ved.atb.TestResult.NumOfSuccess += count
 		return
 	}
 	outputs := strings.Split(ved.resultArr[0], "\n")
@@ -205,15 +211,6 @@ func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
 		}
 		combArr = append(combArr, o)
 		bk.evalExpression(ved.NextValidExprData(), combArr)
-		if ved.origSize == len(combArr) {
-			expr := ved.atb.Sanitize(combArr, ved.atb.EvalExpr)
-			ved.atb.TestResult.NumOfExec++
-			count, err := bk.evalCommandExpr(ved.atb, expr)
-			if err != nil {
-				log.Console(err.Error())
-			}
-			ved.atb.TestResult.NumOfSuccess += count
-		}
 		combArr = combArr[:len(combArr)-1]
 	}
 
