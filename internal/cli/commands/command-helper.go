@@ -7,18 +7,23 @@ import (
 	"strings"
 )
 
-func printTestResults(at *models.AuditBench) {
-	if at.TestResult.NumOfSuccess == at.TestResult.NumOfExec {
+func printTestResults(at *models.AuditBench, NumFailedTest int) {
+	testSucceeded := NumFailedTest == 0
+	at.TestSucceed = testSucceeded
+	if testSucceeded {
 		log.Console(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
 	} else {
 		log.Console(emoji.Sprintf(":cross_mark: %s\n", at.Name))
 	}
+	at.TestSucceed = testSucceeded
 }
 
 //AddFailedMessages add failed audit test to report data
-func AddFailedMessages(data ValidateExprData) []*models.AuditBench {
+func AddFailedMessages(data ValidateExprData, NumFailedTest int) []*models.AuditBench {
 	av := make([]*models.AuditBench, 0)
-	if data.atb.TestResult.NumOfSuccess != data.atb.TestResult.NumOfExec {
+	testSucceeded := NumFailedTest == 0
+	data.atb.TestSucceed = testSucceeded
+	if !testSucceeded {
 		av = append(av, data.atb)
 	}
 	return av

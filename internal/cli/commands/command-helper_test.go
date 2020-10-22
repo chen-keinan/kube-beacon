@@ -11,13 +11,13 @@ import (
 
 //Test_AddFailedMessages text
 func Test_AddFailedMessages(t *testing.T) {
-	atb1 := &models.AuditBench{TestResult: &models.AuditResult{NumOfExec: 1, NumOfSuccess: 0}}
+	atb1 := &models.AuditBench{TestSucceed: false}
 	ve1 := ValidateExprData{atb: atb1}
-	afm := AddFailedMessages(ve1)
+	afm := AddFailedMessages(ve1, 1)
 	assert.True(t, len(afm) == 1)
-	atbr2 := &models.AuditBench{TestResult: &models.AuditResult{NumOfExec: 1, NumOfSuccess: 1}}
+	atbr2 := &models.AuditBench{TestSucceed: true}
 	ve2 := ValidateExprData{atb: atbr2}
-	afm = AddFailedMessages(ve2)
+	afm = AddFailedMessages(ve2, 0)
 	assert.True(t, len(afm) == 0)
 }
 

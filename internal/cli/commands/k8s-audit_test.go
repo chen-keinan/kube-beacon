@@ -23,8 +23,8 @@ func Test_EvalVarSingleIn(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	kb.evalExpression(NewValidExprData([]string{"aaa"}, bench), make([]string, 0))
-	assert.True(t, bench.TestResult.NumOfSuccess == bench.TestResult.NumOfExec)
+	k := kb.evalExpression(NewValidExprData([]string{"aaa"}, bench), make([]string, 0), 0)
+	assert.True(t, k == 0)
 	assert.NoError(t, err)
 }
 
@@ -37,8 +37,8 @@ func Test_EvalVarSingleNotInGood(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	kb.evalExpression(NewValidExprData([]string{"ttt,aaa"}, bench), make([]string, 0))
-	assert.True(t, bench.TestResult.NumOfSuccess == bench.TestResult.NumOfExec)
+	k := kb.evalExpression(NewValidExprData([]string{"ttt,aaa"}, bench), make([]string, 0), 0)
+	assert.True(t, k == 0)
 	assert.NoError(t, err)
 }
 
@@ -51,8 +51,8 @@ func Test_EvalVarSingleNotInBad(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	kb.evalExpression(NewValidExprData([]string{"RBAC,aaa"}, bench), make([]string, 0))
-	assert.False(t, bench.TestResult.NumOfSuccess == bench.TestResult.NumOfExec)
+	k := kb.evalExpression(NewValidExprData([]string{"RBAC,aaa"}, bench), make([]string, 0), 0)
+	assert.True(t, k > 0)
 	assert.NoError(t, err)
 }
 
@@ -65,8 +65,8 @@ func Test_EvalVarSingleNotInSingleValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	kb.evalExpression(NewValidExprData([]string{"aaa"}, bench), make([]string, 0))
-	assert.True(t, bench.TestResult.NumOfSuccess == bench.TestResult.NumOfExec)
+	k := kb.evalExpression(NewValidExprData([]string{"aaa"}, bench), make([]string, 0), 0)
+	assert.True(t, k == 0)
 	assert.NoError(t, err)
 }
 
@@ -79,8 +79,8 @@ func Test_EvalVarMultiExprSingleValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	kb.evalExpression(NewValidExprData([]string{"AlwaysAdmit"}, bench), make([]string, 0))
-	assert.False(t, bench.TestResult.NumOfSuccess == bench.TestResult.NumOfExec)
+	k := kb.evalExpression(NewValidExprData([]string{"AlwaysAdmit"}, bench), make([]string, 0), 0)
+	assert.True(t, k > 0)
 	assert.NoError(t, err)
 }
 
@@ -93,8 +93,8 @@ func Test_EvalVarMultiExprMultiValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	kb.evalExpression(NewValidExprData([]string{"bbb,aaa"}, bench), make([]string, 0))
-	assert.True(t, bench.TestResult.NumOfSuccess == bench.TestResult.NumOfExec)
+	k := kb.evalExpression(NewValidExprData([]string{"bbb,aaa"}, bench), make([]string, 0), 0)
+	assert.True(t, k == 0)
 	assert.NoError(t, err)
 }
 
@@ -107,8 +107,8 @@ func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	kb.evalExpression(NewValidExprData([]string{common.GrepRegex}, bench), make([]string, 0))
-	assert.False(t, bench.TestResult.NumOfSuccess == bench.TestResult.NumOfExec)
+	k := kb.evalExpression(NewValidExprData([]string{common.GrepRegex}, bench), make([]string, 0), 0)
+	assert.True(t, k > 0)
 	assert.NoError(t, err)
 }
 
@@ -121,8 +121,8 @@ func Test_EvalVarComparator(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	kb.evalExpression(NewValidExprData([]string{"1204"}, bench), make([]string, 0))
-	assert.True(t, bench.TestResult.NumOfSuccess == bench.TestResult.NumOfExec)
+	k := kb.evalExpression(NewValidExprData([]string{"1204"}, bench), make([]string, 0), 0)
+	assert.True(t, k == 0)
 	assert.NoError(t, err)
 }
 
@@ -141,7 +141,7 @@ func Test_MultiCommandParams_OK(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 //Test_MultiCommandParams_OK_With_IN test
@@ -159,7 +159,7 @@ func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 //Test_MultiCommandParams_NOK test
@@ -177,7 +177,7 @@ func Test_MultiCommandParams_NOK(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 //Test_MultiCommandParams_NOKWith_IN test
@@ -195,7 +195,7 @@ func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 //Test_MultiCommandParamsPass1stResultToNext test
@@ -214,7 +214,7 @@ func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 //Test_MultiCommandParamsComplex test
@@ -235,7 +235,7 @@ func Test_MultiCommandParamsComplex(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 //Test_MultiCommandParamsComplexOppositeEmptyReturn test
@@ -252,7 +252,7 @@ func Test_MultiCommandParamsComplexOppositeEmptyReturn(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 //Test_MultiCommandParamsComplexOppositeWithNumber test
@@ -269,7 +269,7 @@ func Test_MultiCommandParamsComplexOppositeWithNumber(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 //Test_MultiCommand4_2_13 test
@@ -287,7 +287,7 @@ func Test_MultiCommand4_2_13(t *testing.T) {
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runTests(ab.Categories[0])
 	assert.NoError(t, err)
-	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfExec == ab.Categories[0].SubCategory.AuditTests[0].TestResult.NumOfSuccess)
+	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
 func readTestData(fileName string, t *testing.T) []byte {

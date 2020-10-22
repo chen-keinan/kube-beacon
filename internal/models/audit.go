@@ -38,7 +38,7 @@ type AuditBench struct {
 	References           []string `mapstructure:"references" json:"references"`
 	EvalExpr             string   `mapstructure:"eval_expr" json:"eval_expr"`
 	CmdExprBuilder       utils.CmdExprBuilder
-	TestResult           *AuditResult
+	TestSucceed          bool
 	CommandParams        map[int][]string
 }
 
@@ -62,7 +62,6 @@ func (at *AuditBench) UnmarshalJSON(data []byte) error {
 	case "multi_param":
 		at.CmdExprBuilder = utils.UpdateCommandExprParam
 	}
-	at.TestResult = &AuditResult{}
 	at.CommandParams = make(map[int][]string)
 	for index, command := range at.AuditCommand {
 		findIndex(command, "#", index, at.CommandParams)

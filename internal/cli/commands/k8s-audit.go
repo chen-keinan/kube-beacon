@@ -44,18 +44,18 @@ type K8sAudit struct {
 }
 
 // ResultProcessor process audit results
-type ResultProcessor func(vd ValidateExprData) []*models.AuditBench
+type ResultProcessor func(vd ValidateExprData, NumFailedTest int) []*models.AuditBench
 
 // simpleResultProcessor process audit results to stdout print only
-var simpleResultProcessor ResultProcessor = func(vd ValidateExprData) []*models.AuditBench {
-	printTestResults(vd.atb)
+var simpleResultProcessor ResultProcessor = func(vd ValidateExprData, NumFailedTest int) []*models.AuditBench {
+	printTestResults(vd.atb, NumFailedTest)
 	return []*models.AuditBench{}
 }
 
 // ResultProcessor process audit results to std out and failure results
-var reportResultProcessor ResultProcessor = func(vd ValidateExprData) []*models.AuditBench {
+var reportResultProcessor ResultProcessor = func(vd ValidateExprData, NumFailedTest int) []*models.AuditBench {
 	// append failed messages
-	return AddFailedMessages(vd)
+	return AddFailedMessages(vd, NumFailedTest)
 }
 
 //NewK8sAudit new audit object
@@ -104,9 +104,9 @@ func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
 		}
 		data := NewValidExprData(resArr, at)
 		// evaluate command result with expression
-		bk.evalExpression(data, make([]string, 0))
+		NumFailedTest := bk.evalExpression(data, make([]string, 0), 0)
 		// continue with result processing
-		auditRes = append(auditRes, bk.resultProcessor(data)...)
+		auditRes = append(auditRes, bk.resultProcessor(data, NumFailedTest)...)
 	}
 	return auditRes
 }
@@ -193,16 +193,15 @@ func (bk *K8sAudit) execCommandWithParams(arr []IndexValue, index int, prevResHo
 }
 
 //evalExpression expression eval as cartesian product
-func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
+func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string, testExec int) int {
 	if len(ved.resultArr) == 0 {
 		expr := ved.atb.CmdExprBuilder(combArr, ved.atb.EvalExpr)
-		ved.atb.TestResult.NumOfExec++
-		count, err := bk.evalCommandExpr(ved.atb, expr)
+		testExec++
+		testSucceeded, err := bk.evalCommandExpr(ved.atb, expr)
 		if err != nil {
 			log.Console(err.Error())
 		}
-		ved.atb.TestResult.NumOfSuccess += count
-		return
+		return testExec - testSucceeded
 	}
 	outputs := strings.Split(ved.resultArr[0], "\n")
 	for _, o := range outputs {
@@ -210,10 +209,10 @@ func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string) {
 			continue
 		}
 		combArr = append(combArr, o)
-		bk.evalExpression(ved.NextValidExprData(), combArr)
+		testExec = bk.evalExpression(ved.NextValidExprData(), combArr, testExec)
 		combArr = combArr[:len(combArr)-1]
 	}
-
+	return testExec
 }
 
 func (bk *K8sAudit) evalCommandExpr(at *models.AuditBench, expr string) (int, error) {
