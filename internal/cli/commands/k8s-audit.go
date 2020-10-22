@@ -95,14 +95,14 @@ func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
 		if utils.ExcludeAuditTest(bk.specificTests, at.Name) {
 			continue
 		}
-		resArr := make([]string, 0)
+		cmdTotalRes := make([]string, 0)
 		for index := range at.AuditCommand {
-			res := bk.execCommand(at, index, resArr, make([]IndexValue, 0))
-			resArr = append(resArr, res)
+			res := bk.execCommand(at, index, cmdTotalRes, make([]IndexValue, 0))
+			cmdTotalRes = append(cmdTotalRes, res)
 		}
-		data := NewValidExprData(resArr, at)
+		data := NewValidExprData(cmdTotalRes, at)
 		// evaluate command result with expression
-		NumFailedTest := bk.evalExpression(at, resArr, len(resArr), make([]string, 0), 0)
+		NumFailedTest := bk.evalExpression(at, cmdTotalRes, len(cmdTotalRes), make([]string, 0), 0)
 		// continue with result processing
 		auditRes = append(auditRes, bk.resultProcessor(data, NumFailedTest)...)
 	}
@@ -147,8 +147,7 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 				newRes = append(newRes, IndexValue{index: parmNum, value: n})
 			}
 		}
-		commandRes := make([]string, 0)
-		bk.execCommandWithParams(newRes, len(newRes), make([]IndexValue, 0), len(newRes), cmd, &commandRes)
+		commandRes := bk.execCommandWithParams(newRes, len(newRes), make([]IndexValue, 0), cmd, make([]string, 0))
 		sb := strings.Builder{}
 		for _, cr := range commandRes {
 			sb.WriteString(fmt.Sprintf("%s\n", cr))
@@ -163,31 +162,34 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 
 }
 
-func (bk *K8sAudit) execCommandWithParams(arr []IndexValue, index int, prevResHolder []IndexValue, origSize int, val string, resArr *[]string) {
+func (bk *K8sAudit) execCommandWithParams(arr []IndexValue, index int, prevResHolder []IndexValue, currCommand string, resArr []string) []string {
 	if len(arr) == 0 {
-		return
+		return execShellCommand(prevResHolder, resArr, currCommand, bk.Command)
 	}
 	sArr := strings.Split(arr[0].value, "\n")
 	for _, a := range sArr {
 		prevResHolder = append(prevResHolder, IndexValue{index: arr[0].index, value: a})
-		bk.execCommandWithParams(arr[1:index], index-1, prevResHolder, origSize, val, resArr)
-		if len(prevResHolder) == origSize {
-			for _, param := range prevResHolder {
-				if param.value == common.NotValidString || param.value == common.NotValidNumber || param.value == "" {
-					*resArr = append(*resArr, param.value)
-					break
-				}
-				cmd := strings.ReplaceAll(val, fmt.Sprintf("#%d", param.index), param.value)
-				result, _ := bk.Command.Exec(cmd)
-				if result.Stderr != "" {
-					*resArr = append(*resArr, "")
-					log.Console(fmt.Sprintf("Failed to execute command %s", result.Stderr))
-				}
-				*resArr = append(*resArr, result.Stdout)
-			}
-		}
+		resArr = bk.execCommandWithParams(arr[1:index], index-1, prevResHolder, currCommand, resArr)
 		prevResHolder = prevResHolder[:len(prevResHolder)-1]
 	}
+	return resArr
+}
+
+func execShellCommand(prevResHolder []IndexValue, resArr []string, currCommand string, se shell.Executor) []string {
+	for _, param := range prevResHolder {
+		if param.value == common.NotValidString || param.value == common.NotValidNumber || param.value == "" {
+			resArr = append(resArr, param.value)
+			break
+		}
+		cmd := strings.ReplaceAll(currCommand, fmt.Sprintf("#%d", param.index), param.value)
+		result, _ := se.Exec(cmd)
+		if result.Stderr != "" {
+			resArr = append(resArr, "")
+			log.Console(fmt.Sprintf("Failed to execute command %s", result.Stderr))
+		}
+		resArr = append(resArr, result.Stdout)
+	}
+	return resArr
 }
 
 //evalExpression expression eval as cartesian product
