@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/mapstructure"
 	"strings"
@@ -9,34 +8,34 @@ import (
 
 //Audit data model
 type Audit struct {
-	BenchmarkType string     `json:"benchmark_type"`
-	Categories    []Category `json:"categories"`
+	BenchmarkType string     `yaml:"benchmark_type"`
+	Categories    []Category `yaml:"categories"`
 }
 
 //Category data model
 type Category struct {
-	Name        string      `json:"name"`
-	SubCategory SubCategory `json:"sub_category"`
+	Name        string      `yaml:"name"`
+	SubCategory SubCategory `yaml:"sub_category"`
 }
 
 //SubCategory data model
 type SubCategory struct {
-	Name       string        `json:"name"`
-	AuditTests []*AuditBench `json:"audit_tests"`
+	Name       string        `yaml:"name"`
+	AuditTests []*AuditBench `yaml:"audit_tests"`
 }
 
 //AuditBench data model
 type AuditBench struct {
-	Name                 string   `mapstructure:"name" json:"name"`
-	ProfileApplicability string   `mapstructure:"profile_applicability" json:"profile_applicability"`
-	Description          string   `mapstructure:"description" json:"description"`
+	Name                 string   `mapstructure:"name" yaml:"name"`
+	ProfileApplicability string   `mapstructure:"profile_applicability" yaml:"profile_applicability"`
+	Description          string   `mapstructure:"description" yaml:"description"`
 	AuditCommand         []string `mapstructure:"audit" json:"audit"`
-	CheckType            string   `mapstructure:"check_type" json:"check_type"`
-	Remediation          string   `mapstructure:"remediation" json:"remediation"`
-	Impact               string   `mapstructure:"impact" json:"impact"`
-	DefaultValue         string   `mapstructure:"default_value" json:"default_value"`
-	References           []string `mapstructure:"references" json:"references"`
-	EvalExpr             string   `mapstructure:"eval_expr" json:"eval_expr"`
+	CheckType            string   `mapstructure:"check_type" yaml:"check_type"`
+	Remediation          string   `mapstructure:"remediation" yaml:"remediation"`
+	Impact               string   `mapstructure:"impact" yaml:"impact"`
+	DefaultValue         string   `mapstructure:"default_value" yaml:"default_value"`
+	References           []string `mapstructure:"references" yaml:"references"`
+	EvalExpr             string   `mapstructure:"eval_expr" yaml:"eval_expr"`
 	CmdExprBuilder       utils.CmdExprBuilder
 	TestSucceed          bool
 	CommandParams        map[int][]string
@@ -48,10 +47,10 @@ type AuditResult struct {
 	NumOfSuccess int
 }
 
-//UnmarshalJSON over unmarshall to add logic
-func (at *AuditBench) UnmarshalJSON(data []byte) error {
+//UnmarshalYAML over unmarshall to add logic
+func (at *AuditBench) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var res map[string]interface{}
-	if err := json.Unmarshal(data, &res); err != nil {
+	if err := unmarshal(&res); err != nil {
 		return err
 	}
 	err := mapstructure.Decode(res, &at)

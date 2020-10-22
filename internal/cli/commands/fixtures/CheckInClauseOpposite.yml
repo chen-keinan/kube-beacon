@@ -1,0 +1,25 @@
+---
+benchmark_type: k8s
+categories:
+  - name: Control Plane Components
+    sub_category:
+      name: API Server
+      audit_tests:
+        - name: 1.2.34 Ensure that encryption providers are appropriately configured
+          description: Where etcd encryption is used, appropriate providers should be
+            configured.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - aaa
+          remediation: Follow the Kubernetes documentation and configure a EncryptionConfig
+            file. In this file, choose aescbc, kms or secretbox as the encryption provider.
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0'; IN ('a','b','c');"
+          default_value: By default, no encryption provider is set.
+          references:
+            - https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
+            - https://acotten.com/post/kube17-security
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://github.com/kubernetes/features/issues/92
+            - https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#providers

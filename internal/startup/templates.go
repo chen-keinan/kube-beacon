@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-//GenerateK8sBenchmarkFiles use packr to load benchmark audit test json
+//GenerateK8sBenchmarkFiles use packr to load benchmark audit test yaml
 func GenerateK8sBenchmarkFiles() []utils.FilesInfo {
 	fileInfo := make([]utils.FilesInfo, 0)
 	box := packr.NewBox("./../benchmark/k8s/v1.6.0/")

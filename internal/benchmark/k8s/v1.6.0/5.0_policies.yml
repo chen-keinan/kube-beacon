@@ -1,0 +1,234 @@
+---
+benchmark_type: k8s
+categories:
+  - name: Control Plane Components
+    sub_category:
+      name: Policies
+      audit_tests:
+        - name: 5.1.1 Ensure that the cluster-admin role is only used where required
+          description: The RBAC role cluster-admin provides wide-ranging powers over the
+            environment and should be used only where and when needed.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - tf=/dev/stdout &&  kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].name
+              |grep cluster-admin > tf && awk '{ print $3 }' tf
+          remediation: |-
+            Identify all clusterrolebindings to the cluster-admin role. Check if they are used and if they need this role or if they could use a role with fewer privileges.
+            Where possible, first bind users to a lower privileged role and then remove the clusterrolebinding to the cluster-admin role :
+            kubectl delete clusterrolebinding [name]
+          check_type: multi_param
+          impact: 'Care should be taken before removing any clusterrolebindings from the
+        environment to ensure they were not required for operation of the cluster.
+        Specifically, modifications should not be made to clusterrolebindings with
+        the system: prefix as they are required for the operation of system components.'
+          eval_expr: "'$0' == 'system:masters';"
+          default_value: 'By default a single clusterrolebinding called cluster-admin
+        is provided with the system:masters group as its principal.
+
+'
+          references:
+            - https://kubernetes.io/docs/admin/authorization/rbac/#user-facing-roles
+        - name: 5.1.2 Minimize access to secrets
+          description: The Kubernetes API stores secrets, which may be service account
+            tokens for the Kubernetes API or credentials used by workloads in the cluster.
+            Access to these secrets should be restricted to the smallest possible group
+            of users to reduce the risk of privilege escalation.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - tf=/dev/stdout && kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
+              |grep User  > tf && awk '{ print $1 }' tf
+            - 'kubectl auth can-i get secrets --all-namespaces --as #0'
+            - kubectl auth can-i list secrets --all-namespaces --as=#0
+            - kubectl auth can-i watch secrets --all-namespaces --as=#0
+          remediation: Where possible, remove get, list and watch access to secret objects
+            in the cluster.
+          check_type: multi_param
+          impact: Care should be taken not to remove access to secrets to system components
+            which require this for their operation
+          eval_expr: "('$0' != 'system:kube-controller-manager'; && '$1' == 'no'; && '$2'
+        == 'no'; && '$3' == 'no';) || '$0' == 'system:kube-controller-manager';"
+          default_value: 'By default a single clusterrolebinding called cluster-admin
+        is provided with the system:masters group as its principal.
+
+'
+          references: []
+        - name: 5.1.3 Minimize wildcard use in Roles and ClusterRoles
+          description: |
+            Kubernetes Roles and ClusterRoles provide access to resources based on sets of objects and actions that can be taken on those objects. It is possible to set either of these to be the wildcard "*" which matches all items.
+            Use of wildcards is not optimal from a security perspective as it may allow for inadvertent access to be granted when new resources are added to the Kubernetes API either as CRDs or in later versions of the product.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - kubectl get roles --all-namespaces -o yaml | grep '*'
+            - cf=/dev/stdout && cf2=/dev/stdout && kubectl get clusterroles -o yaml | grep
+              '*' > cf && sed "s/'/ /g" cf > cf2 && sed 's/*/a/g' cf2
+          remediation: Where possible replace any use of wildcards in clusterroles and
+            roles with specific objects or actions.
+          check_type: multi_param
+          impact: ''
+          eval_expr: "'$0' == '' && '$1' == ''"
+          default_value: ''
+          references: []
+        - name: 5.1.4 Minimize access to create pods
+          description: |-
+            The ability to create pods in a namespace can provide a number of opportunities for privilege escalation, such as assigning privileged service accounts to these pods or mounting hostPaths with access to sensitive data (unless Pod Security Policies are implemented to restrict this access)
+            As such, access to create new pods should be restricted to the smallest possible group of users.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - tf=/dev/stdout && kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
+              |grep User  > tf && awk '{ print $1 }' tf
+            - 'kubectl auth can-i  --all-namespaces --as #0 create pod'
+          remediation: Where possible, remove create access to pod objects in the cluster.
+          check_type: multi_param
+          impact: Care should be taken not to remove access to pods to system components
+            which require this for their operation
+          eval_expr: " '$1' == 'no';"
+          default_value: By default in a kubeadm cluster the following list of principals
+            have create privileges on pod objects
+          references: []
+        - name: 5.1.5 Ensure that default service accounts are not actively used.
+          description: 'The default service account should not be used to ensure that
+        rights granted to applications can be more easily audited and reviewed.
+
+'
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - 'kubectl get serviceaccounts --all-namespaces -o yaml |grep -A5 ''kind: ServiceAccount''
+        |grep -A5 default |grep -o ''automountServiceAccountToken:[^"]\S*'' | awk
+        -F "=" ''{print $2}'' |awk ''FNR <= 1'''
+            - kubectl get roleBinding --all-namespaces=true -o yaml | grep -A5 subjects
+              | grep -A2 ServiceAccount | grep name |grep default
+            - kubectl get clusterRoleBinding --all-namespaces=true -o yaml |grep -A5 subjects
+              | grep -A2 ServiceAccount |grep name |grep default
+          remediation: |-
+            Create explicit service accounts wherever a Kubernetes workload requires specific access to the Kubernetes API server.
+            Modify the configuration of each default service account to include this value
+            automountServiceAccountToken: false
+          check_type: multi_param
+          impact: All workloads which require access to the Kubernetes API will require
+            an explicit service account to be created.
+          eval_expr: " ('$0' != ''; && '$0' == 'false';) && '$1' == ''; && '$2' == '';"
+          default_value: By default the default service account allows for its service
+            account token to be mounted in pods in its namespace.
+          references:
+            - https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+        - name: 5.1.6 Ensure that Service Account Tokens are only mounted where
+          description: Service accounts tokens should not be mounted in pods except where
+            the workload running in the pod explicitly needs to communicate with the API
+            server
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - 'kubectl get serviceaccounts --all-namespaces -o yaml |grep -A5 ''kind: ServiceAccount''
+        |grep -A5 default |grep -o ''automountServiceAccountToken:[^"]\S*'' | awk
+        -F "=" ''{print $2}'' |awk ''FNR <= 1'''
+            - kubectl get pods --all-namespaces -o yaml | grep -o 'automountServiceAccountToken:[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Modify the definition of pods and service accounts which do not
+            need to mount service account tokens to disable it.
+          check_type: multi_param
+          impact: Pods mounted without service account tokens will not be able to communicate
+            with the API server, except where the resource is available to unauthenticated
+            principals.
+          eval_expr: "'$0' != ''; && '$0' == 'false'; &&  '$1' != ''; && '$1' == 'false';"
+          default_value: By default, all pods get a service account token mounted in them.
+          references:
+            - https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+        - name: 5.2.1 Minimize the admission of privileged containers
+          description: Do not generally permit containers to be run with the securityContext.privileged
+            flag set to true.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - kubectl get psp -o=custom-columns=:.metadata.name
+            - 'kubectl get psp #0 -o=jsonpath=''{.spec.privileged}'''
+          remediation: Create a PSP as described in the Kubernetes documentation, ensuring
+            that the .spec.privileged field is omitted or set to false.
+          check_type: multi_param
+          impact: 'Pods defined with spec.containers[].securityContext.privileged: true
+        will not be permitted.'
+          eval_expr: "'false' IN ($1); || '' IN ($1);"
+          default_value: By default, PodSecurityPolicies are not defined.
+          references:
+            - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod-
+              security-policies
+        - name: 5.2.2 Minimize the admission of containers wishing to share the host process
+            ID namespace
+          description: Do not generally permit containers to be run with the hostPID flag
+            set to true.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - kubectl get psp -o=custom-columns=:.metadata.name
+            - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostPID}'''
+          remediation: Create a PSP as described in the Kubernetes documentation, ensuring
+            that the .spec.hostPID field is omitted or set to false.
+          check_type: multi_param
+          impact: 'Pods defined with spec.hostPID: true will not be permitted unless they
+        are run under a specific PSP.'
+          eval_expr: "'false' IN ($1); || '' IN ($1);"
+          default_value: By default, PodSecurityPolicies are not defined.
+          references:
+            - https://kubernetes.io/docs/concepts/policy/pod-security-policy
+        - name: 5.2.3 Minimize the admission of containers wishing to share the host IPC
+            namespace
+          description: Do not generally permit containers to be run with the hostIPC flag
+            set to true.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - kubectl get psp -o=custom-columns=:.metadata.name
+            - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostIPC}'''
+          remediation: Create a PSP as described in the Kubernetes documentation, ensuring
+            that the .spec.hostIPC field is omitted or set to false.
+          check_type: multi_param
+          impact: 'Pods defined with spec.hostIPC: true will not be permitted unless they
+        are run under a specific PSP.'
+          eval_expr: "'false' IN ($1); || '' IN ($1);"
+          default_value: By default, PodSecurityPolicies are not defined.
+          references:
+            - https://kubernetes.io/docs/concepts/policy/pod-security-policy
+        - name: 5.2.4 Minimize the admission of containers wishing to share the host network
+            namespace
+          description: Do not generally permit containers to be run with the hostNetwork
+            flag set to true.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - kubectl get psp -o=custom-columns=:.metadata.name
+            - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostNetwork}'''
+          remediation: Create a PSP as described in the Kubernetes documentation, ensuring
+            that the .spec.hostNetwork field is omitted or set to false.
+          check_type: multi_param
+          impact: 'Pods defined with spec.hostNetwork: true will not be permitted unless
+        they are run under a specific PSP.'
+          eval_expr: "'false' IN ($1); || '' IN ($1);"
+          default_value: By default, PodSecurityPolicies are not defined.
+          references:
+            - https://kubernetes.io/docs/concepts/policy/pod-security-policy
+        - name: 5.2.5 Minimize the admission of containers with allowPrivilegeEscalation
+          description: Do not generally permit containers to be run with the allowPrivilegeEscalation
+            flag set to true.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - kubectl get psp -o=custom-columns=:.metadata.name
+            - 'kubectl get psp #0 -o=jsonpath=''{.spec.allowPrivilegeEscalation}'''
+          remediation: Create a PSP as described in the Kubernetes documentation, ensuring
+            that the .spec.allowPrivilegeEscalation field is omitted or set to false.
+          check_type: multi_param
+          impact: 'Pods defined with spec.allowPrivilegeEscalation: true will not be permitted
+        unless they are run under a specific PSP.'
+          eval_expr: "'false' IN ($1); || '' IN ($1);"
+          default_value: By default, PodSecurityPolicies are not defined.
+          references:
+            - https://kubernetes.io/docs/concepts/policy/pod-security-policy
+        - name: '5.2.6 Minimize the admission of root containers '
+          description: Do not generally permit containers to be run as the root user.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - kubectl get psp -o=custom-columns=:.metadata.name
+            - 'kubectl get psp #0 -o=jsonpath=''{.spec.allowPrivilegeEscalation}'''
+          remediation: Create a PSP as described in the Kubernetes documentation, ensuring
+            that the .spec.runAsUser.rule is set to either MustRunAsNonRoot or MustRunAs
+            with the range of UIDs not including 0.
+          check_type: multi_param
+          impact: Pods with containers which run as the root user will not be permitted.
+          eval_expr: "'false' IN ($1); || '' IN ($1);"
+          default_value: By default, PodSecurityPolicies are not defined.
+          references:
+            - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod-
+              security-policies

@@ -1,0 +1,467 @@
+---
+benchmark_type: k8s
+categories:
+  - name: Control Plane Components
+    sub_category:
+      name: Worker Nodes
+      audit_tests:
+        - name: 4.1.1 Ensure that the kubelet service file permissions are set to 644
+            or more restrictive
+          description: Ensure that the kubelet service file has permissions of 644 or
+            more restrictive.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+          remediation: |
+            Run the below command (based on the file location on your system) on the each worker node. For example,
+            chmod 755 /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+          check_type: multi_param
+          impact: None
+          eval_expr: "$0 <= 644;"
+          default_value: By default, the kubelet service file has permissions of 640.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/#44-joining-your-nodes
+            - https://kubernetes.io/docs/admin/kubeadm/#kubelet-drop-in
+        - name: 4.1.2 Ensure that the kubelet service file ownership is set to root:root
+          description: Ensure that the kubelet service file ownership is set to root:root.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - stat -c %U:%G /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+          remediation: |-
+            Run the below command (based on the file location on your system) on the each worker node. For example,
+            chown root:root /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == 'root:root';"
+          default_value: By default, kubelet service file ownership is set to root:root.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/#44-joining-your-nodes
+            - https://kubernetes.io/docs/admin/kubeadm/#kubelet-drop-in
+        - name: 4.1.3 If proxy kubeconfig file exists ensure permissions are set to 644
+            or more restrictive
+          description: If kube-proxy is running, and if it is using a file-based kubeconfig
+            file, ensure that the proxy kubeconfig file has permissions of 644 or more
+            restrictive.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'stat -c %a #0'
+          remediation: |-
+            Run the below command (based on the file location on your system) on the each worker node. For example,
+            chmod 644 <proxy kubeconfig file>
+          check_type: multi_param
+          impact: None
+          eval_expr: "$1 <= 644;"
+          default_value: By default, proxy file has permissions of 640.
+          references:
+            - https://kubernetes.io/docs/admin/kube-proxy/
+        - name: 4.1.4 If proxy kubeconfig file exists ensure ownership is set to root:root
+          description: If kube-proxy is running, ensure that the file ownership of its
+            kubeconfig file is set to root:root.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'stat -c %U:%G #0'
+          remediation: |-
+            Run the below command (based on the file location on your system) on the each worker node. For example,
+            chown root:root <proxy kubeconfig file>
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$1' == 'root:root';"
+          default_value: By default, proxy file ownership is set to root:root.
+          references:
+            - https://kubernetes.io/docs/admin/kube-proxy/
+        - name: 4.1.5 Ensure that the --kubeconfig kubelet.conf file permissions are set
+            to 644 or more restrictive
+          description: Ensure that the kubelet.conf file has permissions of 644 or more
+            restrictive.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+          remediation: |-
+            Remediation:
+            Run the below command (based on the file location on your system) on the each worker node. For example,
+            chmod 644 /etc/kubernetes/kubelet.conf
+          check_type: multi_param
+          impact: None
+          eval_expr: "$0 <= 644;"
+          default_value: By default, kubelet.conf file has permissions of 640.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+        - name: 4.1.6 Ensure that the --kubeconfig kubelet.conf file ownership is set
+            to root:root
+          description: Ensure that the kubelet.conf file ownership is set to root:root.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - stat -c %U:%G /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+          remediation: |-
+            Run the below command (based on the file location on your system) on the each worker node. For example,
+            chown root:root /etc/kubernetes/kubelet.conf
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == 'root:root';"
+          default_value: By default, kubelet.conf file ownership is set to root:root.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+        - name: 4.1.7 Ensure that the certificate authorities file permissions are set
+            to 644 or more restrictive
+          description: Ensure that the certificate authorities file has permissions of
+            644 or more restrictive.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'stat -c %a #0'
+          remediation: Run the following command to modify the file permissions of the
+            --client-ca-file chmod 644 <filename>
+          check_type: multi_param
+          impact: None
+          eval_expr: "$1 <= 644;"
+          default_value: By default no --client-ca-file is specified.
+          references:
+            - https://kubernetes.io/docs/admin/authentication/#x509-client-certs
+        - name: 4.1.8 Ensure that the client certificate authorities file ownership is
+            set to root:root
+          description: Ensure that the certificate authorities file ownership is set to
+            root:root.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo stat -c %U:%G #0'
+          remediation: |-
+            Remediation:
+            Run the following command to modify the ownership of the --client-ca-file. chown root:root <filename>
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$1' <= 'root:root';"
+          default_value: By default no --client-ca-file is specified.
+          references:
+            - https://kubernetes.io/docs/admin/authentication/#x509-client-certs
+        - name: '4.1.9 Ensure that the kubelet --config configuration file has permissions
+        set to 644 or more restrictive '
+          description: Ensure that if the kubelet refers to a configuration file with
+            the --config argument, that file has permissions of 644 or more restrictive.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - sudo stat -c %a /var/lib/kubelet/config.yaml
+          remediation: |-
+            Remediation:
+            Run the following command (using the config file location identied in the Audit step)
+            chmod 644 /var/lib/kubelet/config.yaml
+          check_type: multi_param
+          impact: None
+          eval_expr: "$0 <= 644;"
+          default_value: By default, the /var/lib/kubelet/config.yaml file as set up by
+            kubeadm has permissions of 644.
+          references:
+            - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
+        - name: 4.1.10 Ensure that the kubelet --config configuration file ownership is
+            set to root:root
+          description: Ensure that if the kubelet refers to a configuration file with
+            the --config argument, that file is owned by root:root.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - sudo stat -c %U:%G /var/lib/kubelet/config.yaml
+          remediation: |-
+            Run the following command (using the config file location identied in the Audit step)
+            chown root:root /etc/kubernetes/kubelet.conf
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$1' <= 'root:root';"
+          default_value: By default, /var/lib/kubelet/config.yaml file as set up by kubeadm
+            is owned by root:root.
+          references:
+            - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
+        - name: 4.2.1 Ensure that the --anonymous-auth argument is set to false
+          description: Disable anonymous requests to the Kubelet server.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep -A5 ''authentication'' #0 | grep -A1 ''anonymous''| grep  -o ''enabled:[^"]\S*''|
+        awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --anonymous-auth' | grep -o ' --anonymous-auth=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Run the following command (using the config file location identied in the Audit step)
+            chown root:root /etc/kubernetes/kubelet.conf
+          check_type: multi_param
+          impact: Anonymous requests will be rejected.
+          eval_expr: "'$1' == 'false'; || '$2' == 'false';"
+          default_value: By default, anonymous access is enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubelet-authentication
+        - name: 4.2.2 Ensure that the --authorization-mode argument is not set to AlwaysAllow
+          description: Do not allow all requests. Enable explicit authorization.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep -A5 ''authorization'' #0 | grep  ''mode:[^"]\S*''| awk -F ":" ''{print
+        $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --authorization-mode' | grep -o ' --authorization-mode=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            If using a Kubelet config file, edit the file to set authorization: mode to Webhook.
+            If using executable arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_AUTHZ_ARGS variable.
+            --authorization-mode=Webhook
+          check_type: multi_param
+          impact: Unauthorized requests will be denied.
+          eval_expr: "'$1' != 'AlwaysAllow'; && '$2' != 'AlwaysAllow';"
+          default_value: By default, --authorization-mode argument is set to AlwaysAllow.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubelet-authentication
+        - name: 4.2.3 Ensure that the --client-ca-file argument is set as appropriate
+          description: Enable Kubelet authentication using certificates.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep -A10 ''authentication'' #0 |grep -A1 ''x509'' |grep ''clientCAFile:[^"]\S*''|
+        awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --client-ca-file' | grep -o ' --client-ca-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            If using a Kubelet config file, edit the file to set authentication: x509: clientCAFile to the location of the client CA file.
+            If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_AUTHZ_ARGS variable.
+            --client-ca-file=<path/to/client-ca-file>
+          check_type: multi_param
+          impact: You require TLS to be configured on apiserver as well as kubelets.
+          eval_expr: "'$1' != ''; || '$2' != '';"
+          default_value: By default, --client-ca-file argument is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet-authentication-authorization/,
+        - name: 4.2.4 Verify that the --read-only-port argument is set to 0
+          description: Disable the read-only port.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --read-only-port' | grep -o ' --read-only-port=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep ''readOnlyPort'' #0 |grep ''readOnlyPort:[^"]\S*''| awk -F ":"
+        ''{print $2}'' |awk ''FNR <= 1'''
+          remediation: |-
+            If using a Kubelet config file, edit the file to set readOnlyPort to 0.
+            If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+            --read-only-port=0
+          check_type: multi_param
+          impact: Removal of the read-only port will require that any service which made
+            use of it will need to be re-configured to use the main Kubelet API.
+          eval_expr: "'$0' != ''; || '$1' == '0';"
+          default_value: By default, --read-only-port is set to 10255/TCP. However, if
+            a config file is specified by -- config the default value for readOnlyPort
+            is 0.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+        - name: 4.2.5 Ensure that the --streaming-connection-idle-timeout argument is
+            not set to 0
+          description: Do not disable timeouts on streaming connections.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep ''streamingConnectionIdleTimeout'' #0 |grep ''streamingConnectionIdleTimeout:[^"]\S*''|
+        awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --streamingConnectionIdleTimeout' | grep -o
+              ' --streamingConnectionIdleTimeout=[^"]\S*' | awk -F "=" '{print $2}' |awk
+              'FNR <= 1'
+          remediation: |-
+            If using a Kubelet config file, edit the file to set streamingConnectionIdleTimeout to a value other than 0.
+            If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+            --streaming-connection-idle-timeout=5m
+          check_type: multi_param
+          impact: Long-lived connections could be interrupted.
+          eval_expr: "'$1' != '0'; && '$2' != '0s';"
+          default_value: By default, --streaming-connection-idle-timeout is set to 4 hours.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://github.com/kubernetes/kubernetes/pull/18552
+        - name: 4.2.6 Ensure that the --protect-kernel-defaults argument is set to true
+          description: Protect tuned kernel parameters from overriding kubelet default
+            kernel parameter values.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep ''protectKernelDefaults'' #0 |grep ''protectKernelDefaults:[^"]\S*''|
+        awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --protect-kernel-defaults' | grep -o ' --protect-kernel-defaults=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            If using a Kubelet config file, edit the file to set protectKernelDefaults: true.
+            If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+            --protect-kernel-defaults=true
+          check_type: multi_param
+          impact: You would have to re-tune kernel parameters to match kubelet parameters.
+          eval_expr: "'$1' == 'true'; || '$2' == 'true';"
+          default_value: By default, --protect-kernel-defaults is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://github.com/kubernetes/kubernetes/pull/18552
+        - name: 4.2.7 Ensure that the --make-iptables-util-chains argument is set to true
+          description: Allow Kubelet to manage iptables.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep ''makeIPTablesUtilChains'' #0 |grep ''makeIPTablesUtilChains:[^"]\S*''|
+        awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --make-iptables-util-chains' | grep -o ' --make-iptables-util-chains=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            If using a Kubelet config file, edit the file to set makeIPTablesUtilChains: true.
+            If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and remove the --make-iptables-util-chains argument from the KUBELET_SYSTEM_PODS_ARGS variable.
+          check_type: multi_param
+          impact: Kubelet would manage the iptables on the system and keep it in sync.
+            If you are using any other iptables management solution, then there might
+            be some conflicts
+          eval_expr: "('$1' != 'false'; && '$2' == ''; ) || '$2' == 'true';"
+          default_value: By default, --make-iptables-util-chains argument is set to true.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+        - name: 4.2.8 Ensure that the --hostname-override argument is not set
+          description: Do not override node hostnames.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --hostname-override' | grep -o ' --hostname-override=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+            on each worker node and remove the --hostname-override argument from the KUBELET_SYSTEM_PODS_ARGS
+            variable.
+          check_type: multi_param
+          impact: Some cloud providers may require this flag to ensure that hostname matches
+            names issued by the cloud provider. In these environments, this recommendation
+            should not apply.
+          eval_expr: "'$0' == '';"
+          default_value: By default, --hostname-override argument is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://github.com/kubernetes/kubernetes/issues/22063
+        - name: 4.2.9 Ensure that the --event-qps argument is set to 0 or a level which
+            ensures appropriate event capture
+          description: Security relevant information should be captured. The --event-qps
+            flag on the Kubelet can be used to limit the rate at which events are gathered.
+            Setting this too low could result in relevant events not being logged, however
+            the unlimited setting of 0 could result in a denial of service on the kubelet.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep ''event-qps'' #0 |grep ''event-qps:[^"]\S*''| awk -F ":" ''{print
+        $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --event-qps' | grep -o ' --event-qps=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: 'If using a Kubelet config file, edit the file to set eventRecordQPS:
+        to an appropriate level. If using command line arguments, edit the kubelet
+        service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each
+        worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.'
+          check_type: multi_param
+          impact: Setting this parameter to 0 could result in a denial of service condition
+            due to excessive events being created. The cluster's event processing and
+            storage systems should be scaled to handle expected event loads.
+          eval_expr: "('$1' != '0'; && '$2' == ''; ) || '$2' != '0';"
+          default_value: By default, --event-qps argument is set to 5.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://github.com/kubernetes/kubernetes/blob/master/pkg/kubelet/apis/kubeletconfig/v1beta1/types.go
+        - name: 4.2.10 Ensure that the --tls-cert-file and --tls-private-key-file arguments
+            are set as appropriate
+          description: Setup TLS connection on the Kubelets.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep ''tlsCertFile'' #0 |grep ''tlsCertFile:[^"]\S*''| awk -F ":" ''{print
+        $2}'' |awk ''FNR <= 1'''
+            - 'sudo grep ''tlsPrivateKeyFile'' #0 |grep ''tlsPrivateKeyFile:[^"]\S*''| awk
+        -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --tls-cert-file' | grep -o ' --tls-cert-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - ps -ef | grep kubelet |grep ' --tls-private-key-file' | grep -o ' --tls-private-key-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            If using a Kubelet config file, edit the file to set tlsCertFile to the location of the certificate file to use to identify this Kubelet, and tlsPrivateKeyFile to the location of the corresponding private key file.
+            If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameters in KUBELET_CERTIFICATE_ARGS variable. --tls-cert-file=<path/to/tls-certificate-file> --tls-private-key-file=<path/to/tls-key-file>
+          check_type: multi_param
+          impact: ''
+          eval_expr: "('$1' != ''; && '$2' != '';) || ('$3' != ''; && '$4' != '';)"
+          default_value: ''
+          references: []
+        - name: 4.2.11 Ensure that the --rotate-certificates argument is not set to false
+          description: Enable kubelet client certificate rotation.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep ''rotateCertificates'' #0 |grep ''rotateCertificates:[^"]\S*''|
+        awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+            - ps -ef | grep kubelet |grep ' --rotate-certificates' | grep -o ' --rotate-certificates=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            If using a Kubelet config file, edit the file to add the line rotateCertificates: true or remove it altogether to use the default value.
+            If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and remove --rotate-certificates=false argument from the KUBELET_CERTIFICATE_ARGS
+             209 | P a g e
+            variable.
+          check_type: multi_param
+          impact: None
+          eval_expr: "('$1' == ''; || '$1' == 'true'; ) || '$2' == 'true';"
+          default_value: By default, kubelet client certificate rotation is enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kubelet/
+            - https://github.com/kubernetes/kubernetes/blob/master/pkg/kubelet/apis/kubeletconfig/v1beta1/types.go
+        - name: 4.2.12 Verify that the RotateKubeletServerCertificate argument is set
+            to true
+          description: Enable kubelet server certificate rotation.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep 'RotateKubeletServerCertificate' | grep -o 'RotateKubeletServerCertificate=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_CERTIFICATE_ARGS variable.
+            --feature-gates=RotateKubeletServerCertificate=true
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == 'true';"
+          default_value: By default, kubelet server certificate rotation is disabled.
+          references:
+            - https://github.com/kubernetes/kubernetes/pull/45059
+            - https://kubernetes.io/docs/admin/kubelet-tls-bootstrapping/#kubelet-configuration
+        - name: 4.2.13 Ensure that the Kubelet only makes use of Strong Cryptographic
+            Ciphers
+          description: Ensure that the Kubelet is configured to only use strong cryptographic
+            ciphers.
+          profile_applicability: Level 1 - Worker Node
+          audit:
+            - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+              -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'sudo grep ''TLSCipherSuites'' #0 |grep ''TLSCipherSuites:[^"]\S*''| awk -F
+        ":" ''{print $2}'' |awk ''FNR <= 1'''
+            - 'cf=/dev/stdout && echo #1 > cf && sed ''s/,/\n/g'' cf'
+            - ps -ef | grep kubelet |grep 'TLSCipherSuites' | grep -o 'TLSCipherSuites=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - 'tmp=/dev/stdout && echo #3 > tmp && sed ''s/,/\n/g'' tmp'
+          remediation: |-
+            If using a Kubelet config file, edit the file to set TLSCipherSuites: to TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+            ,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256 or to a subset of these values.
+            If using executable arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the --tls-cipher-suites parameter as follows, or to a subset of these values.
+            --tls-cipher- suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM _SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM _SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM _SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256
+          check_type: multi_param
+          impact: Kubelet clients that cannot support modern cryptographic ciphers will
+            not be able to make connections to the Kubelet API.
+          eval_expr: "'$2'; IN ('TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256','TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+        ,'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305','TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+        ,'TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305','TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384','TLS_RSA_WITH_AES_256_GCM_SHA384','TLS_RSA_WITH_AES_128_GCM_SHA256');
+        || '$4'; IN ('TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256','TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+        ,'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305','TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384','TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305','TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384','TLS_RSA_WITH_AES_256_GCM_SHA384','TLS_RSA_WITH_AES_128_GCM_SHA256');"
+          default_value: By default the Kubernetes API server supports a wide range of
+            TLS ciphers
+          references:
+            - https://github.com/kubernetes/kubernetes/pull/45059
+            - https://kubernetes.io/docs/admin/kubelet-tls-bootstrapping/#kubelet-configuration

@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/internal/mocks"
@@ -9,6 +8,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -17,7 +17,7 @@ import (
 //Test_EvalVarSingleIn text
 func Test_EvalVarSingleIn(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeMultiProcessInClause.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeMultiProcessInClause.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +31,7 @@ func Test_EvalVarSingleIn(t *testing.T) {
 //Test_EvalVarSingleNotInGood text
 func Test_EvalVarSingleNotInGood(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeMultiProcessInClause.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeMultiProcessInClause.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func Test_EvalVarSingleNotInGood(t *testing.T) {
 //Test_EvalVarSingleNotInBad text
 func Test_EvalVarSingleNotInBad(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeMultiProcessInClause.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeMultiProcessInClause.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func Test_EvalVarSingleNotInBad(t *testing.T) {
 //Test_EvalVarSingleNotInSingleValue test
 func Test_EvalVarSingleNotInSingleValue(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeMultiProcessInClause.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeMultiProcessInClause.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func Test_EvalVarSingleNotInSingleValue(t *testing.T) {
 //Test_EvalVarMultiExprSingleValue test
 func Test_EvalVarMultiExprSingleValue(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeMultiExprProcessParam.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeMultiExprProcessParam.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,7 +87,7 @@ func Test_EvalVarMultiExprSingleValue(t *testing.T) {
 //Test_EvalVarMultiExprSingleValue test
 func Test_EvalVarMultiExprMultiValue(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeMultiExprProcessParam.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeMultiExprProcessParam.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func Test_EvalVarMultiExprMultiValue(t *testing.T) {
 //Test_EvalVarMultiExprMultiEmptyValue test
 func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeMultiExprEmptyProcessParam.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeMultiExprEmptyProcessParam.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +115,7 @@ func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 //Test_EvalVarComparator test
 func Test_EvalVarComparator(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeComparator.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeComparator.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func Test_EvalVarComparator(t *testing.T) {
 //Test_MultiCommandParams_OK test
 func Test_MultiCommandParams_OK(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckMultiParamOK.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckMultiParamOK.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +147,7 @@ func Test_MultiCommandParams_OK(t *testing.T) {
 //Test_MultiCommandParams_OK_With_IN test
 func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckMultiParamOKWithIN.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckMultiParamOKWithIN.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -165,7 +165,7 @@ func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
 //Test_MultiCommandParams_NOK test
 func Test_MultiCommandParams_NOK(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckMultiParamNOK.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckMultiParamNOK.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func Test_MultiCommandParams_NOK(t *testing.T) {
 //Test_MultiCommandParams_NOKWith_IN test
 func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckMultiParamNOKWithIN.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckMultiParamNOKWithIN.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -201,7 +201,7 @@ func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 //Test_MultiCommandParamsPass1stResultToNext test
 func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckMultiParamPass1stResultToNext.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckMultiParamPass1stResultToNext.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +220,7 @@ func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 //Test_MultiCommandParamsComplex test
 func Test_MultiCommandParamsComplex(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckMultiParamComplex.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckMultiParamComplex.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -241,7 +241,7 @@ func Test_MultiCommandParamsComplex(t *testing.T) {
 //Test_MultiCommandParamsComplexOppositeEmptyReturn test
 func Test_MultiCommandParamsComplexOppositeEmptyReturn(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckInClauseOppositeEmptyReturn.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckInClauseOppositeEmptyReturn.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -258,7 +258,7 @@ func Test_MultiCommandParamsComplexOppositeEmptyReturn(t *testing.T) {
 //Test_MultiCommandParamsComplexOppositeWithNumber test
 func Test_MultiCommandParamsComplexOppositeWithNumber(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckInClauseOppositeWithNum.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckInClauseOppositeWithNum.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -275,7 +275,7 @@ func Test_MultiCommandParamsComplexOppositeWithNumber(t *testing.T) {
 //Test_MultiCommand4_2_13 test
 func Test_MultiCommand4_2_13(t *testing.T) {
 	ab := models.Audit{}
-	err := json.Unmarshal(readTestData("CheckInClause4.2.13.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckInClause4.2.13.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}

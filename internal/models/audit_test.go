@@ -1,9 +1,9 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -12,7 +12,7 @@ import (
 //Test_CheckType_Permission test
 func Test_CheckType_Blaa(t *testing.T) {
 	ab := Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeBlaa.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeBlaa.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,7 +23,7 @@ func Test_CheckType_Blaa(t *testing.T) {
 //Test_CheckType_Multi_ProcessParam test
 func Test_CheckType_Multi_ProcessParam(t *testing.T) {
 	ab := Audit{}
-	err := json.Unmarshal(readTestData("CheckTypeMultiProcessParam.json", t), &ab)
+	err := yaml.Unmarshal(readTestData("CheckTypeMultiProcessParam.yml", t), &ab)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/Knetic/govaluate"
 	"github.com/chen-keinan/beacon/internal/common"
@@ -11,6 +10,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/utils"
+	"gopkg.in/yaml.v2"
 	"strconv"
 	"strings"
 )
@@ -75,7 +75,7 @@ func (bk *K8sAudit) Run(args []string) int {
 		panic(fmt.Sprintf("failed to read audit files %s", err))
 	}
 	for _, auditFile := range auditFiles {
-		err := json.Unmarshal([]byte(auditFile.Data), &audit)
+		err := yaml.Unmarshal([]byte(auditFile.Data), &audit)
 		if err != nil {
 			panic("Failed to unmarshal audit test json file")
 		}

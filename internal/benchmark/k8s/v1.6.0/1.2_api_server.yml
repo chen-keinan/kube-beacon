@@ -1,0 +1,715 @@
+---
+benchmark_type: k8s
+categories:
+  - name: Control Plane Components
+    sub_category:
+      name: API Server
+      audit_tests:
+        - name: '1.2.1 Ensure that the --anonymous-auth argument is set to false '
+          description: Disable anonymous requests to the API server.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'anonymous-auth' | grep -o 'anonymous-auth=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.
+            --anonymous-auth=false
+          check_type: multi_param
+          impact: Anonymous requests will be rejected.
+          eval_expr: "'$0' == 'false';"
+          default_value: By default, anonymous access is enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/authentication/#anonymous-requests
+        - name: '1.2.2 Ensure that the --basic-auth-file argument is not set '
+          description: Do not use basic authentication.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'basic-auth-file' | grep -o 'basic-auth-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Follow the documentation and configure alternate mechanisms for
+            authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and remove the --basic-auth-file=<filename>
+            parameter.
+          check_type: multi_param
+          impact: You will have to configure and use alternate authentication mechanisms
+            such as tokens and certificates. Username and password for basic authentication
+            could no longer be used.
+          eval_expr: "'$0' == '';"
+          default_value: By default, basic authentication is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/authentication/#static-password-file
+        - name: '1.2.3 Ensure that the --token-auth-file parameter is not set '
+          description: Do not use token based authentication.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'token-auth-file' | grep -o 'token-auth-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Follow the documentation and configure alternate mechanisms for
+            authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and remove the --token-auth-file=<filename>
+            parameter.
+          check_type: multi_param
+          impact: You will have to configure and use alternate authentication mechanisms
+            such as certificates. Static token based authentication could not be used.
+          eval_expr: "'$0' == '';"
+          default_value: By default, --token-auth-file argument is not set.
+          references:
+            - https://kubernetes.io/docs/admin/authentication/#static-token-file
+            - " https://kubernetes.io/docs/admin/kube-apiserver/"
+        - name: '1.2.4 Ensure that the --kubelet-https argument is set to true '
+          description: Use https for kubelet connections.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'anonymous-auth' | grep -o 'anonymous-auth=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Follow the documentation and configure alternate mechanisms for
+            authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and remove the --token-auth-file=<filename>
+            parameter.
+          check_type: multi_param
+          impact: You require TLS to be configured on apiserver as well as kubelets.
+          eval_expr: "'$0' == ''; || '$0' == 'true';"
+          default_value: By default, kubelet connections are over https.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/
+        - name: '1.2.5 Ensure that the --kubelet-client-certificate and --kubelet-client-key
+        arguments are set as appropriate '
+          description: Enable certificate based kubelet authentication.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'kubelet-client-certificate' | grep -o
+              'kubelet-client-certificate=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <=
+              1'
+          remediation: Follow the Kubernetes documentation and set up the TLS connection
+            between the apiserver and kubelets. Then, edit API server pod specification
+            file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and
+            set the kubelet client certificate and key parameters as below. --kubelet-client-certificate=<path/to/client-certificate-file>
+            --kubelet-client-key=<path/to/client-key-file>
+          check_type: multi_param
+          impact: You require TLS to be configured on apiserver as well as kubelets.
+          eval_expr: "'$0' == '/etc/kubernetes/pki/apiserver-kubelet-client.crt';"
+          default_value: By default, certificate-based kubelet authentication is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/
+            - https://kubernetes.io/docs/concepts/cluster-administration/master-node-communication/#apiserver---kubelet
+        - name: '1.2.5 Ensure that the --kubelet-client-certificate and --kubelet-client-key
+        arguments are set as appropriate '
+          description: Enable certificate based kubelet authentication.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'kubelet-client-key' | grep -o 'kubelet-client-key=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Follow the Kubernetes documentation and set up the TLS connection
+            between the apiserver and kubelets. Then, edit API server pod specification
+            file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and
+            set the kubelet client certificate and key parameters as below. --kubelet-client-certificate=<path/to/client-certificate-file>
+            --kubelet-client-key=<path/to/client-key-file>
+          check_type: multi_param
+          impact: You require TLS to be configured on apiserver as well as kubelets.
+          eval_expr: "'$0' == '/etc/kubernetes/pki/apiserver-kubelet-client.key';"
+          default_value: By default, certificate-based kubelet authentication is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/
+            - https://kubernetes.io/docs/concepts/cluster-administration/master-node-communication/#apiserver---kubelet
+        - name: '1.2.6 Ensure that the --kubelet-certificate-authority argument is set
+        as appropriate '
+          description: Verify kubelet's certificate before establishing connection.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'kubelet-certificate-authority' | grep
+              -o 'kubelet-certificate-authority=[^"]\S*' | awk -F "=" '{print $2}' |awk
+              'FNR <= 1'
+          remediation: Follow the Kubernetes documentation and setup the TLS connection
+            between the apiserver and kubelets. Then, edit the API server pod specification
+            file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and
+            set the -- kubelet-certificate-authority parameter to the path to the cert
+            file for the certificate authority. --kubelet-certificate-authority=<ca-string>
+          check_type: multi_param
+          impact: You require TLS to be configured on apiserver as well as kubelets.
+          eval_expr: "'$0' != '';"
+          default_value: By default, --kubelet-certificate-authority argument is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/
+            - https://kubernetes.io/docs/concepts/cluster-administration/master-node-communication/#apiserver---kubelet
+        - name: '1.2.7 Ensure that the --authorization-mode argument is not set to AlwaysAllow '
+          description: Do not always authorize all requests.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'authorization-mode' | grep -o 'authorization-mode=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to values other than AlwaysAllow. One such example could be as below.
+            --authorization-mode=RBAC
+          check_type: multi_param
+          impact: Only authorized requests will be served.
+          eval_expr: "'$0' != ''; && '$0' != 'AlwaysAllow';"
+          default_value: By default, AlwaysAllow is not enabled.
+          references:
+            - 'https://kubernetes.io/docs/admin/kube-apiserver/ '
+            - https://kubernetes.io/docs/admin/authorization/
+        - name: '1.2.8 Ensure that the --authorization-mode argument includes Node '
+          description: Restrict kubelet nodes to reading only objects associated with
+            them.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'authorization-mode' | grep -o 'authorization-mode=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and set the --authorization-mode parameter
+            to a value that includes Node. --authorization-mode=Node,RBAC
+          check_type: multi_param
+          impact: None
+          eval_expr: "'Node' IN ($0);"
+          default_value: By default, Node authorization is not enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/authorization/node/
+            - https://github.com/kubernetes/kubernetes/pull/46076
+        - name: '1.2.9 Ensure that the --authorization-mode argument includes RBAC '
+          description: Turn on Role Based Access Control.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'authorization-mode' | grep -o 'authorization-mode=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and set the --authorization-mode parameter
+            to a value that includes RBAC, for example:--authorization-mode=Node,RBAC
+          check_type: multi_param
+          impact: When RBAC is enabled you will need to ensure that appropriate RBAC settings
+            (including Roles, RoleBindings and ClusterRoleBindings) are configured to
+            allow appropriate access.
+          eval_expr: "'RBAC' IN ($0);"
+          default_value: By default, RBAC authorization is not enabled.
+          references:
+            - https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+        - name: 1.2.10 Ensure that the admission control plugin EventRateLimit is set
+          description: Limit the rate at which the API server accepts requests.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the Kubernetes documentation and set the desired limits in a configuration file. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml and set the below parameters
+             --enable-admission-plugins=...,EventRateLimit,... --admission-control-config-file=<path/to/configuration/file>
+          check_type: multi_param
+          impact: You need to carefully tune in limits as per your environment.
+          eval_expr: "'EventRateLimit' IN ($0);"
+          default_value: By default, EventRateLimit is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/admission-controllers/#eventratelimit
+            - https://github.com/staebler/community/blob/9873b632f4d99b5d99c38c9b15fe2f8b93d0a746/contributors/design-
+              proposals/admission_control_event_rate_limit.md
+        - name: 1.2.11 Ensure that the admission control plugin AlwaysAdmit is not set
+          description: Do not allow all requests.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and either remove the --enable-admission-plugins
+            parameter, or set it to a value that does not include AlwaysAdmit.
+          check_type: multi_param
+          impact: Only requests explicitly allowed by the admissions control plugins would
+            be served.
+          eval_expr: "'$0' != ''; && !('AlwaysAdmit' IN ($0));"
+          default_value: AlwaysAdmit is not in the list of default admission plugins.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/admission-controllers/#alwaysadmit
+        - name: 1.2.12 Ensure that the admission control plugin AlwaysPullImages is set
+          description: Always pull images.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and set the --enable-admission-plugins parameter
+            to include AlwaysPullImages.--enable-admission-plugins=...,AlwaysPullImages,...
+          check_type: multi_param
+          impact: Credentials would be required to pull the private images every time.
+            Also, in trusted environments, this might increases load on network, registry,
+            and decreases speed.This setting could impact offline or isolated clusters,
+            which have images pre-loaded and do not have access to a registry to pull
+            in-use images. This setting is not appropriate for clusters which use this
+            configuration.
+          eval_expr: "'$0' != ''; && 'AlwaysPullImages' IN ($0);"
+          default_value: By default, AlwaysPullImages is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/admission-controllers/#alwayspullimages
+        - name: 1.2.13 Ensure that the admission control plugin SecurityContextDeny is
+            set if PodSecurityPolicy is not used
+          description: The SecurityContextDeny admission controller can be used to deny
+            pods which make use of some SecurityContext fields which could allow for privilege
+            escalation in the cluster. This should be used where PodSecurityPolicy is
+            not in place within the cluster.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'enable-admission-plugins' | grep -o 'enable-admission-plugins=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to include SecurityContextDeny, unless PodSecurityPolicy is already in place.
+            --enable-admission-plugins=...,SecurityContextDeny,...
+          check_type: multi_param
+          impact: This admission controller should only be used where Pod Security Policies
+            cannot be used on the cluster, as it can interact poorly with certain Pod
+            Security Policies
+          eval_expr: "'SecurityContextDeny' IN ($0); && !('PodSecurityPolicy' IN ($0));"
+          default_value: By default, SecurityContextDeny is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/admission-controllers/#securitycontextdeny
+            - https://kubernetes.io/docs/user-guide/pod-security-policy/#working-with-rbac
+        - name: 1.2.14 Ensure that the admission control plugin ServiceAccount is set
+          description: Automate service accounts management.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'disable-admission-plugins' | grep -o 'disable-admission-plugins=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: Follow the documentation and create ServiceAccount objects as per
+            your environment. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and ensure that the --disable-admission-plugins
+            parameter is set to a value that does not include ServiceAccount.
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' != ''; && !('ServiceAccount' IN ($0));"
+          default_value: By default, ServiceAccount is set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/admission-controllers/#serviceaccount
+            - https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-
+              account/
+        - name: 1.2.15 Ensure that the admission control plugin NamespaceLifecycle is
+            set
+          description: Reject creating objects in a namespace that is undergoing termination.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'disable-admission-plugins' | grep -o 'disable-admission-plugins=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: 'Edit the API server pod specification file /etc/kubernetes/manifests/kube-
+        apiserver.yaml on the master node and set the --disable-admission-plugins
+        parameter to ensure it does not include NamespaceLifecycle.
+
+'
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' != ''; && !('NamespaceLifecycle' IN ($0));"
+          default_value: By default, NamespaceLifecycle is set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/admission-controllers/#namespacelifecycle
+        - name: 1.2.16 Ensure that the admission control plugin PodSecurityPolicy is set
+          description: Reject creating pods that do not match Pod Security Policies.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'disable-admission-plugins' | grep -o 'disable-admission-plugins=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the documentation and create Pod Security Policy objects as per your environment. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to a value that includes PodSecurityPolicy:
+            --enable-admission-plugins=...,PodSecurityPolicy,...
+          check_type: multi_param
+          impact: The policy objects must be created and granted before pod creation would
+            be allowed.
+          eval_expr: "'$0' != ''; && ('PodSecurityPolicy' IN ($0));"
+          default_value: By default, PodSecurityPolicy is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/admission-controllers/#podsecuritypolicy
+            - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod-security-policies
+        - name: 1.2.17 Ensure that the admission control plugin NodeRestriction is set
+          description: Limit the Node and Pod objects that a kubelet could modify.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'disable-admission-plugins' | grep -o 'disable-admission-plugins=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the Kubernetes documentation and configure NodeRestriction plug-in on kubelets. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to a value that includes NodeRestriction.
+            --enable-admission-plugins=...,NodeRestriction,...
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' != ''; && ('NodeRestriction' IN ($0));"
+          default_value: By default, NodeRestriction is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/admin/admission-controllers/#noderestriction
+            - https://kubernetes.io/docs/admin/authorization/node/
+            - https://acotten.com/post/kube17-security
+        - name: 1.2.18 Ensure that the --insecure-bind-address argument is not set
+          description: Do not bind the insecure API service.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'insecure-bind-address' | grep -o 'disable-admission-plugins='
+          remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
+            apiserver.yaml on the master node and remove the --insecure-bind-address parameter.
+          check_type: multi_param
+          impact: Connections to the API server will require valid authentication credentials.
+          eval_expr: "'$0' != '';"
+          default_value: By default, the insecure bind address is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+        - name: 1.2.19 Ensure that the --insecure-port argument is set to 0
+          description: Do not bind to insecure port.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'insecure-port' | grep -o 'insecure-port=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.
+            --insecure-port=0
+          check_type: multi_param
+          impact: |-
+            All components that use the API must connect via the secured port, authenticate themselves, and be authorized to use the API.
+            This includes:
+            • kube-controller-manager
+            • kube-proxy
+            • kube-scheduler
+            • kubelets
+          eval_expr: "'$0' == '0';"
+          default_value: By default, the insecure port is set to 8080.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+        - name: 1.2.20 Ensure that the --secure-port argument is not set to 0
+          description: Do not disable the secure port.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'secure-port' | grep -o 'secure-port=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: 'Edit the API server pod specification file /etc/kubernetes/manifests/kube-
+        apiserver.yaml on the master node and either remove the --secure-port parameter
+        or set it to a different (non-zero) desired port.
+
+'
+          check_type: multi_param
+          impact: You need to set the API Server up with the right TLS certificates.
+          eval_expr: "$0 > 0; && $0 < 65535;"
+          default_value: By default, port 6443 is used as the secure port.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+        - name: 1.2.21 Ensure that the --profiling argument is set to false
+          description: Disable profiling, if not needed.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'profiling' | grep -o 'profiling=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.
+            --profiling=false
+          check_type: multi_param
+          impact: Profiling information would not be available.
+          eval_expr: "'$0' == 'false';"
+          default_value: By default, profiling is enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://github.com/kubernetes/community/blob/master/contributors/devel/profiling.md
+        - name: 1.2.22 Ensure that the --audit-log-path argument is set
+          description: Enable auditing on the Kubernetes API Server and set the desired
+            audit log path.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'audit-log-path' | grep -o 'audit-log-path=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-path parameter to a suitable path and file where you would like audit logs to be written, for example:
+            --audit-log-path=/var/log/apiserver/audit.log
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == '/var/log/apiserver/audit.log';"
+          default_value: By default, auditing is not enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/concepts/cluster-administration/audit/
+            - https://github.com/kubernetes/features/issues/22
+        - name: 1.2.23 Ensure that the --audit-log-maxage argument is set to 30 or as
+            appropriate
+          description: Retain the logs for at least 30 days or as appropriate.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'audit-log-maxage' | grep -o 'audit-log-maxage=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxage parameter to 30 or as an appropriate number of days:
+            --audit-log-maxage=30
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == '30';"
+          default_value: By default, auditing is not enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/concepts/cluster-administration/audit/
+            - https://github.com/kubernetes/features/issues/22
+        - name: 1.2.24 Ensure that the --audit-log-maxbackup argument is set to 10 or
+            as appropriate
+          description: Retain 10 or an appropriate number of old log files.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'audit-log-maxbackup' | grep -o 'audit-log-maxbackup=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxbackup parameter to 10 or to an appropriate value.
+            --audit-log-maxbackup=10
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == '10';"
+          default_value: By default, auditing is not enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/concepts/cluster-administration/audit/
+            - https://github.com/kubernetes/features/issues/22
+        - name: 1.2.25 Ensure that the --audit-log-maxsize argument is set to 100 or as
+            appropriate
+          description: Rotate log files on reaching 100 MB or as appropriate.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'audit-log-maxsize' | grep -o 'audit-log-maxsize=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxsize parameter to an appropriate size in MB. For example, to set it as 100 MB:
+            --audit-log-maxsize=100
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == '100';"
+          default_value: By default, auditing is not enabled.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://kubernetes.io/docs/concepts/cluster-administration/audit/
+            - https://github.com/kubernetes/features/issues/22
+        - name: 1.2.26 Ensure that the --request-timeout argument is set as appropriate
+          description: Set global request timeout for API server requests as appropriate.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'request-timeout' | grep -o 'request-timeout=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml and set the below parameter as appropriate and if needed. For example,
+            --request-timeout=300s
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == '300s';"
+          default_value: By default, --request-timeout is set to 60 seconds.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://github.com/kubernetes/kubernetes/pull/51415
+        - name: 1.2.27 Ensure that the --service-account-lookup argument is set to true
+          description: Validate service account before validating token.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'service-account-lookup' | grep -o 'service-account-lookup=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.
+            --service-account-lookup=true
+            Alternatively, you can delete the --service-account-lookup parameter from this file so that the default takes effect.
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == 'true';"
+          default_value: By default, --service-account-lookup argument is set to true.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://github.com/kubernetes/kubernetes/issues/24167
+            - https://en.wikipedia.org/wiki/Time_of_check_to_time_of_use
+        - name: 1.2.28 Ensure that the --service-account-key-file argument is set as appropriate
+          description: Explicitly set a service account public key file for service accounts
+            on the apiserver.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'service-account-key-file' | grep -o 'service-account-key-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --service-account-key-file parameter to the public key file for service accounts:
+            --service-account-key-file=<filename>
+          check_type: multi_param
+          impact: The corresponding private key must be provided to the controller manager.
+            You would need to securely maintain the key file and rotate the keys based
+            on your organization's key rotation policy.
+          eval_expr: "'$0' != '';"
+          default_value: By default, --service-account-key-file argument is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://github.com/kubernetes/kubernetes/issues/24167
+        - name: 1.2.29 Ensure that the --etcd-certfile argument are set as appropriate
+          description: etcd should be configured to make use of TLS encryption for client
+            connections.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'etcd-certfile' | grep -o 'etcd-certfile=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the Kubernetes documentation and set up the TLS connection between the apiserver and etcd. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the etcd certificate and key file parameters.
+            Impact:
+            TLS and client certificate authentication must be configured for etcd.
+            Default Value:
+            By default, --etcd-certfile and --etcd-keyfile arguments are not set
+              --etcd-certfile=<path/to/client-certificate-file>
+          check_type: multi_param
+          impact: TLS and client certificate authentication must be configured for etcd.
+          eval_expr: "'$0' == '/etc/kubernetes/pki/apiserver-etcd-client.crt';"
+          default_value: By default, --etcd-certfile argument are not set
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://coreos.com/etcd/docs/latest/op-guide/security.html
+        - name: 1.2.29 Ensure that the --etcd-keyfile argument are set as appropriate
+          description: etcd should be configured to make use of TLS encryption for client
+            connections.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'etcd-keyfile' | grep -o 'etcd-keyfile=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the Kubernetes documentation and set up the TLS connection between the apiserver and etcd. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the etcd certificate and key file parameters.
+            Impact:
+            TLS and client certificate authentication must be configured for etcd.
+            Default Value:
+            By default, --etcd-certfile and --etcd-keyfile arguments are not set
+              --etcd-certfile=<path/to/client-certificate-file>
+          check_type: multi_param
+          impact: TLS and client certificate authentication must be configured for etcd.
+          eval_expr: "'$0' == '/etc/kubernetes/pki/apiserver-etcd-client.key';"
+          default_value: By default, --etcd-keyfile argument are not set
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://coreos.com/etcd/docs/latest/op-guide/security.html
+        - name: 1.2.30 Ensure that the --tls-cert-file arguments are set as appropriate
+          description: Setup TLS connection on the API server.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'tls-cert-file' | grep -o 'tls-cert-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the Kubernetes documentation and set up the TLS connection on the apiserver. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the TLS certificate and private key file parameters.
+             --tls-cert-file=<path/to/tls-certificate-file>
+          check_type: multi_param
+          impact: TLS and client certificate authentication must be configured for your
+            Kubernetes cluster deployment.
+          eval_expr: "'$0' == '/etc/kubernetes/pki/apiserver.crt';"
+          default_value: By default, --tls-cert-file argument is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - http://rootsquash.com/2016/05/10/securing-the-kubernetes-api/
+            - https://github.com/kelseyhightower/docker-kubernetes-tls-guide
+        - name: 1.2.30 Ensure that the --tls-private-key-file arguments are set as appropriate
+          description: Setup TLS connection on the API server.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'tls-private-key-file' | grep -o 'tls-private-key-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the Kubernetes documentation and set up the TLS connection on the apiserver. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the TLS certificate and private key file parameters.
+             --tls-private-key-file=<path/to/tls-key-file>
+          check_type: multi_param
+          impact: TLS and client certificate authentication must be configured for your
+            Kubernetes cluster deployment.
+          eval_expr: "'$0' == '/etc/kubernetes/pki/apiserver.key';"
+          default_value: By default, --tls-private-key-file argument is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - http://rootsquash.com/2016/05/10/securing-the-kubernetes-api/
+            - https://github.com/kelseyhightower/docker-kubernetes-tls-guide
+        - name: 1.2.31 Ensure that the --client-ca-file argument is set as appropriate
+          description: Setup TLS connection on the API server.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the Kubernetes documentation and set up the TLS connection on the apiserver. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the client certificate authority file.
+            --client-ca-file=<path/to/client-ca-file>
+          check_type: multi_param
+          impact: TLS and client certificate authentication must be configured for your
+            Kubernetes cluster deployment.
+          eval_expr: "'$0' == '/etc/kubernetes/pki/ca.crt';"
+          default_value: By default, --client-ca-file argument is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - http://rootsquash.com/2016/05/10/securing-the-kubernetes-api/
+            - https://github.com/kelseyhightower/docker-kubernetes-tls-guide
+        - name: 1.2.32 Ensure that the --etcd-cafile argument is set as appropriate
+          description: etcd should be configured to make use of TLS encryption for client
+            connections.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'etcd-cafile' | grep -o 'etcd-cafile=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+          remediation: |-
+            Follow the Kubernetes documentation and set up the TLS connection between the apiserver and etcd. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the etcd certificate authority file parameter.
+            --etcd-cafile=<path/to/ca-file>
+          check_type: multi_param
+          impact: TLS and client certificate authentication must be configured for etcd.
+          eval_expr: "'$0' == '/etc/kubernetes/pki/etcd/ca.crt';"
+          default_value: By default, --etcd-cafile is not set.
+          references:
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://coreos.com/etcd/docs/latest/op-guide/security.html
+        - name: 1.2.33 Ensure that the --encryption-provider-config argument is set as
+            appropriate
+          description: Encrypt etcd key-value store.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'encryption-provider-config' | grep -o
+              'encryption-provider-config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <=
+              1'
+          remediation: |-
+            Follow the Kubernetes documentation and configure a EncryptionConfig file. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the --encryption-provider-config parameter to the path of that file:
+            --encryption-provider-config=</path/to/EncryptionConfig/File>
+          check_type: multi_param
+          impact: TLS and client certificate authentication must be configured for etcd.
+          eval_expr: "'$0' == '/etc/kubernetes/encryption.yaml';"
+          default_value: By default, --encryption-provider-config is not set.
+          references:
+            - https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
+            - https://acotten.com/post/kube17-security
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://github.com/kubernetes/features/issues/92
+        - name: 1.2.34 Ensure that encryption providers are appropriately configured
+          description: Where etcd encryption is used, appropriate providers should be
+            configured.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'encryption-provider-config' | grep -o
+              'encryption-provider-config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <=
+              1'
+            - sudo awk -v FS="encryption-provider-config=" 'NF>1{print $2}'  /etc/kubernetes/manifests/kube-apiserver.yaml
+            - 'grep -e aescbc #1 | grep -o ''aescbc[^"]\S*'''
+            - 'grep -e kms #1 | grep -o ''kms[^"]\S*'''
+            - 'grep -e secretbox #1 | grep -o ''secretbox[^"]\S*'''
+          remediation: Follow the Kubernetes documentation and configure a EncryptionConfig
+            file. In this file, choose aescbc, kms or secretbox as the encryption provider.
+          check_type: multi_param
+          impact: None
+          eval_expr: "'$0' == '$1'; && (('$2' == 'aescbc:'; && '$3' == 'kms:';)  || '$4'
+        == 'secretbox:';)"
+          default_value: By default, no encryption provider is set.
+          references:
+            - https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
+            - https://acotten.com/post/kube17-security
+            - https://kubernetes.io/docs/admin/kube-apiserver/
+            - https://github.com/kubernetes/features/issues/92
+            - https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#providers
+        - name: 1.2.35 Ensure that the API Server only makes use of Strong Cryptographic
+            Ciphers
+          description: Ensure that the API server is configured to only use strong cryptographic
+            ciphers.
+          profile_applicability: Level 1 - Master Node
+          audit:
+            - ps -ef | grep kube-apiserver |grep 'tls-cipher-suites' | grep -o 'tls-cipher-suites=[^"]\S*'
+              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - sudo awk -v FS="tls-cipher-suites=" 'NF>1{print $2}'  /etc/kubernetes/manifests/kube-apiserver.yaml
+          remediation: Follow the Kubernetes documentation and configure a EncryptionConfig
+            file. In this file, choose aescbc, kms or secretbox as the encryption provider.
+          check_type: multi_param
+          impact: API server clients that cannot support modern cryptographic ciphers
+            will not be able to make connections to the API server.
+          eval_expr: "'$0' == 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM
+        _SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM
+        _SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM
+        _SHA384'; && '$0' == '$1';"
+          default_value: By default the Kubernetes API server supports a wide range of
+            TLS ciphers
+          references:
+            - https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best- Practices#23-use-secure-cipher-suites
