@@ -123,6 +123,57 @@
             "references": [
               "https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies"
             ]
+          },
+          {
+            "name": "5.2.2 Minimize the admission of containers wishing to share the host process ID namespace",
+            "description": "Do not generally permit containers to be run with the hostPID flag set to true.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "kubectl get psp -o=custom-columns=:.metadata.name",
+              "kubectl get psp #0 -o=jsonpath='{.spec.hostPID}'"
+            ],
+            "remediation": "Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.hostPID field is omitted or set to false.",
+            "check_type": "multi_param",
+            "impact": "Pods defined with spec.hostPID: true will not be permitted unless they are run under a specific PSP.",
+            "eval_expr": "'false' IN ($1); || '' IN ($1);",
+            "default_value": "By default, PodSecurityPolicies are not defined.",
+            "references": [
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy"
+            ]
+          },
+          {
+            "name": "5.2.3 Minimize the admission of containers wishing to share the host IPC namespace",
+            "description": "Do not generally permit containers to be run with the hostIPC flag set to true.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "kubectl get psp -o=custom-columns=:.metadata.name",
+              "kubectl get psp #0 -o=jsonpath='{.spec.hostIPC}'"
+            ],
+            "remediation": "Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.hostIPC field is omitted or set to false.",
+            "check_type": "multi_param",
+            "impact": "Pods defined with spec.hostIPC: true will not be permitted unless they are run under a specific PSP.",
+            "eval_expr": "'false' IN ($1); || '' IN ($1);",
+            "default_value": "By default, PodSecurityPolicies are not defined.",
+            "references": [
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy"
+            ]
+          },
+          {
+            "name": "5.2.4 Minimize the admission of containers wishing to share the host network namespace",
+            "description": "Do not generally permit containers to be run with the hostNetwork flag set to true.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "kubectl get psp -o=custom-columns=:.metadata.name",
+              "kubectl get psp #0 -o=jsonpath='{.spec.hostNetwork}'"
+            ],
+            "remediation": "Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.hostNetwork field is omitted or set to false.",
+            "check_type": "multi_param",
+            "impact": "Pods defined with spec.hostNetwork: true will not be permitted unless they are run under a specific PSP.",
+            "eval_expr": "'false' IN ($1); || '' IN ($1);",
+            "default_value": "By default, PodSecurityPolicies are not defined.",
+            "references": [
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy"
+            ]
           }
         ]
       }
