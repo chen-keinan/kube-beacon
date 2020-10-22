@@ -22,8 +22,6 @@ type ValidateExprData struct {
 	index     int
 	resultArr []string
 	atb       *models.AuditBench
-	Total     int
-	Match     int
 }
 
 //NextValidExprData return the next recursive ValidExprData
@@ -104,7 +102,7 @@ func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
 		}
 		data := NewValidExprData(resArr, at)
 		// evaluate command result with expression
-		NumFailedTest := bk.evalExpression(data, make([]string, 0), 0)
+		NumFailedTest := bk.evalExpression(at, resArr, len(resArr), make([]string, 0), 0)
 		// continue with result processing
 		auditRes = append(auditRes, bk.resultProcessor(data, NumFailedTest)...)
 	}
@@ -193,36 +191,43 @@ func (bk *K8sAudit) execCommandWithParams(arr []IndexValue, index int, prevResHo
 }
 
 //evalExpression expression eval as cartesian product
-func (bk *K8sAudit) evalExpression(ved ValidateExprData, combArr []string, testExec int) int {
-	if len(ved.resultArr) == 0 {
-		expr := ved.atb.CmdExprBuilder(combArr, ved.atb.EvalExpr)
-		testExec++
-		testSucceeded, err := bk.evalCommandExpr(ved.atb, expr)
-		if err != nil {
-			log.Console(err.Error())
-		}
-		return testExec - testSucceeded
+func (bk *K8sAudit) evalExpression(at *models.AuditBench,
+	commandRes []string, commResSize int, permutationArr []string, testFailure int) int {
+	if len(commandRes) == 0 {
+		return evalCommand(at, permutationArr, testFailure)
 	}
-	outputs := strings.Split(ved.resultArr[0], "\n")
+	outputs := strings.Split(commandRes[0], "\n")
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue
 		}
-		combArr = append(combArr, o)
-		testExec = bk.evalExpression(ved.NextValidExprData(), combArr, testExec)
-		combArr = combArr[:len(combArr)-1]
+		permutationArr = append(permutationArr, o)
+		testFailure = bk.evalExpression(at, commandRes[1:commResSize], commResSize-1, permutationArr, testFailure)
+		permutationArr = permutationArr[:len(permutationArr)-1]
 	}
-	return testExec
+	return testFailure
 }
 
-func (bk *K8sAudit) evalCommandExpr(at *models.AuditBench, expr string) (int, error) {
+func evalCommand(at *models.AuditBench, permutationArr []string, testExec int) int {
+	// build command expression with params
+	expr := at.CmdExprBuilder(permutationArr, at.EvalExpr)
+	testExec++
+	// eval command expression
+	testSucceeded, err := evalCommandExpr(expr)
+	if err != nil {
+		log.Console(fmt.Sprintf("failed to evaluate command expr for audit test %s", at.Name))
+	}
+	return testExec - testSucceeded
+}
+
+func evalCommandExpr(expr string) (int, error) {
 	expression, err := govaluate.NewEvaluableExpression(expr)
 	if err != nil {
-		return 0, fmt.Errorf("failed to build evaluation command expr for\n %s", at.Name)
+		return 0, err
 	}
 	result, err := expression.Evaluate(nil)
 	if err != nil {
-		return 0, fmt.Errorf("failed to evaluate command expr for audit test %s", at.Name)
+		return 0, err
 	}
 	b, ok := result.(bool)
 	if ok && b {
