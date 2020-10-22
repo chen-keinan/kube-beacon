@@ -42,18 +42,18 @@ type K8sAudit struct {
 }
 
 // ResultProcessor process audit results
-type ResultProcessor func(vd ValidateExprData, NumFailedTest int) []*models.AuditBench
+type ResultProcessor func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench
 
 // simpleResultProcessor process audit results to stdout print only
-var simpleResultProcessor ResultProcessor = func(vd ValidateExprData, NumFailedTest int) []*models.AuditBench {
-	printTestResults(vd.atb, NumFailedTest)
+var simpleResultProcessor ResultProcessor = func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench {
+	printTestResults(at, NumFailedTest)
 	return []*models.AuditBench{}
 }
 
 // ResultProcessor process audit results to std out and failure results
-var reportResultProcessor ResultProcessor = func(vd ValidateExprData, NumFailedTest int) []*models.AuditBench {
+var reportResultProcessor ResultProcessor = func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench {
 	// append failed messages
-	return AddFailedMessages(vd, NumFailedTest)
+	return AddFailedMessages(at, NumFailedTest)
 }
 
 //NewK8sAudit new audit object
@@ -100,11 +100,10 @@ func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
 			res := bk.execCommand(at, index, cmdTotalRes, make([]IndexValue, 0))
 			cmdTotalRes = append(cmdTotalRes, res)
 		}
-		data := NewValidExprData(cmdTotalRes, at)
 		// evaluate command result with expression
 		NumFailedTest := bk.evalExpression(at, cmdTotalRes, len(cmdTotalRes), make([]string, 0), 0)
 		// continue with result processing
-		auditRes = append(auditRes, bk.resultProcessor(data, NumFailedTest)...)
+		auditRes = append(auditRes, bk.resultProcessor(at, NumFailedTest)...)
 	}
 	return auditRes
 }

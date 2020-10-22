@@ -19,12 +19,12 @@ func printTestResults(at *models.AuditBench, NumFailedTest int) {
 }
 
 //AddFailedMessages add failed audit test to report data
-func AddFailedMessages(data ValidateExprData, NumFailedTest int) []*models.AuditBench {
+func AddFailedMessages(at *models.AuditBench, NumFailedTest int) []*models.AuditBench {
 	av := make([]*models.AuditBench, 0)
 	testSucceeded := NumFailedTest == 0
-	data.atb.TestSucceed = testSucceeded
+	at.TestSucceed = testSucceeded
 	if !testSucceeded {
-		av = append(av, data.atb)
+		av = append(av, at)
 	}
 	return av
 }
