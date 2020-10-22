@@ -71,6 +71,24 @@
             "default_value": "By default in a kubeadm cluster the following list of principals have create privileges on pod objects",
             "references": [
             ]
+          },
+          {
+            "name": "5.1.5 Ensure that default service accounts are not actively used.",
+            "description": "The default service account should not be used to ensure that rights granted to applications can be more easily audited and reviewed.\n",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "kubectl get serviceaccounts --all-namespaces -o yaml |grep -A5 'kind: ServiceAccount' |grep -A5 default |grep -o 'automountServiceAccountToken:[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "kubectl get roleBinding --all-namespaces=true -o yaml | grep -A5 subjects | grep -A2 ServiceAccount | grep name |grep default",
+              "kubectl get clusterRoleBinding --all-namespaces=true -o yaml |grep -A5 subjects | grep -A2 ServiceAccount |grep name |grep default"
+            ],
+            "remediation": "Create explicit service accounts wherever a Kubernetes workload requires specific access to the Kubernetes API server.\nModify the configuration of each default service account to include this value\nautomountServiceAccountToken: false",
+            "check_type": "multi_param",
+            "impact": "All workloads which require access to the Kubernetes API will require an explicit service account to be created.",
+            "eval_expr": " ('$0' == ''; || '$0' == 'false';) && '$1' == ''; && '$2' == '';",
+            "default_value": "By default the default service account allows for its service account token to be mounted in pods in its namespace.",
+            "references": [
+              "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service- account/"
+            ]
           }
         ]
       }
