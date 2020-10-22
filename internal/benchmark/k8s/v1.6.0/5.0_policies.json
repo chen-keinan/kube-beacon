@@ -87,7 +87,7 @@
             "eval_expr": " ('$0' != ''; && '$0' == 'false';) && '$1' == ''; && '$2' == '';",
             "default_value": "By default the default service account allows for its service account token to be mounted in pods in its namespace.",
             "references": [
-              "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service- account/"
+              "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
             ]
           },
           {
@@ -104,7 +104,24 @@
             "eval_expr": "'$0' != ''; && '$0' == 'false'; &&  '$1' != ''; && '$1' == 'false';",
             "default_value": "By default, all pods get a service account token mounted in them.",
             "references": [
-              "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service- account/"
+              "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
+            ]
+          },
+          {
+            "name": "5.2.1 Minimize the admission of privileged containers",
+            "description": "Do not generally permit containers to be run with the securityContext.privileged flag set to true.",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "kubectl get psp -o=custom-columns=:.metadata.name",
+              "kubectl get psp #0 -o=jsonpath='{.spec.privileged}'"
+            ],
+            "remediation": "Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.privileged field is omitted or set to false.",
+            "check_type": "multi_param",
+            "impact": "Pods defined with spec.containers[].securityContext.privileged: true will not be permitted.",
+            "eval_expr": "'false' IN ($1); || '' IN ($1);",
+            "default_value": "By default, PodSecurityPolicies are not defined.",
+            "references": [
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies"
             ]
           }
         ]
