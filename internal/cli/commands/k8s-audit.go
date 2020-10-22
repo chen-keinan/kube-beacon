@@ -66,7 +66,7 @@ func (bk K8sAudit) Help() string {
 	return startup.GetHelpSynopsis()
 }
 
-//Run execute benchmark command
+//Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
 	auditRes := make([]*models.AuditBench, 0)
 	audit := models.Audit{}
@@ -89,6 +89,7 @@ func (bk *K8sAudit) Run(args []string) int {
 	return 0
 }
 
+// runTests execute category of audit tests
 func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
 	auditRes := make([]*models.AuditBench, 0)
 	for _, at := range ac.SubCategory.AuditTests {
@@ -96,6 +97,7 @@ func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
 			continue
 		}
 		cmdTotalRes := make([]string, 0)
+		// execute audit test command
 		for index := range at.AuditCommand {
 			res := bk.execCommand(at, index, cmdTotalRes, make([]IndexValue, 0))
 			cmdTotalRes = append(cmdTotalRes, res)
