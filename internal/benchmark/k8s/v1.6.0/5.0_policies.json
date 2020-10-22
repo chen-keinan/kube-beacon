@@ -84,8 +84,25 @@
             "remediation": "Create explicit service accounts wherever a Kubernetes workload requires specific access to the Kubernetes API server.\nModify the configuration of each default service account to include this value\nautomountServiceAccountToken: false",
             "check_type": "multi_param",
             "impact": "All workloads which require access to the Kubernetes API will require an explicit service account to be created.",
-            "eval_expr": " ('$0' == ''; || '$0' == 'false';) && '$1' == ''; && '$2' == '';",
+            "eval_expr": " ('$0' != ''; && '$0' == 'false';) && '$1' == ''; && '$2' == '';",
             "default_value": "By default the default service account allows for its service account token to be mounted in pods in its namespace.",
+            "references": [
+              "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service- account/"
+            ]
+          },
+          {
+            "name": "5.1.6 Ensure that Service Account Tokens are only mounted where",
+            "description": "Service accounts tokens should not be mounted in pods except where the workload running in the pod explicitly needs to communicate with the API server",
+            "profile_applicability": "Level 1 - Worker Node",
+            "audit": [
+              "kubectl get serviceaccounts --all-namespaces -o yaml |grep -A5 'kind: ServiceAccount' |grep -A5 default |grep -o 'automountServiceAccountToken:[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'",
+              "kubectl get pods --all-namespaces -o yaml | grep -o 'automountServiceAccountToken:[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'"
+            ],
+            "remediation": "Modify the definition of pods and service accounts which do not need to mount service account tokens to disable it.",
+            "check_type": "multi_param",
+            "impact": "Pods mounted without service account tokens will not be able to communicate with the API server, except where the resource is available to unauthenticated principals.",
+            "eval_expr": "'$0' != ''; && '$0' == 'false'; &&  '$1' != ''; && '$1' == 'false';",
+            "default_value": "By default, all pods get a service account token mounted in them.",
             "references": [
               "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service- account/"
             ]
