@@ -242,3 +242,33 @@ categories:
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
+    -
+      name: '5.2.7 Minimize the admission of containers with the NET_RAW capability'
+      description: Do not generally permit containers with the potentially dangerous NET_RAW capability.
+      profile_applicability: Level 1 - Worker Node
+      audit:
+      - kubectl get psp -o=custom-columns=:.metadata.name
+      - 'kubectl get psp #0 -o=jsonpath=''{.spec.requiredDropCapabilities}'''
+      remediation: Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.requiredDropCapabilities is set to include either NET_RAW or ALL.
+      check_type: multi_param
+      impact: Pods with containers which run with the NET_RAW capability will not be permitted.
+      eval_expr: "'NET_RAW' IN ($1); || 'ALL' IN ($1);"
+      default_value: By default, PodSecurityPolicies are not defined.
+      references:
+      - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
+      - https://www.nccgroup.trust/uk/our-research/abusing-privileged-and- unprivileged-linux-containers/
+    -
+      name: '5.2.8 Minimize the admission of containers with added capabilities'
+      description: Do not generally permit containers with capabilities assigned beyond the default set.
+      profile_applicability: Level 1 - Worker Node
+      audit:
+      - kubectl get psp -o=custom-columns=:.metadata.name
+      - 'tfr3=/dev/stdout && tfr2=/dev/stdout && kubectl get psp psp.flannel.unprivileged -o=jsonpath=''{.spec.allowedCapabilities}'' > tfr3 && sed ''s/"/ /g'' tfr3 > tfr2  && sed ''s/[][]//g'' tfr2'
+      remediation: Ensure that allowedCapabilities is not present in PSPs for the cluster unless it is set to an empty array.
+      check_type: multi_param
+      impact: Pods with containers which require capabilities outwith the default set will not be permitted.
+      eval_expr: "'' == '$1';"
+      default_value: By default, PodSecurityPolicies are not defined.
+      references:
+      - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
+      - https://www.nccgroup.trust/uk/our-research/abusing-privileged-and- unprivileged-linux-containers/
