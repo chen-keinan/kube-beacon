@@ -20,6 +20,9 @@ var SpecificTest Predicate = func(tests []*models.AuditBench, params string) []*
 			}
 		}
 	}
+	if len(sat) == 0 {
+		return tests
+	}
 	return sat
 }
 

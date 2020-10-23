@@ -3,7 +3,7 @@ package cli
 import (
 	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/pkg/utils"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -23,4 +23,14 @@ func Test_StartCli(t *testing.T) {
 	assert.Equal(t, files[5].Name, common.ControlPlaneConfiguration)
 	assert.Equal(t, files[6].Name, common.WorkerNodes)
 	assert.Equal(t, files[7].Name, common.Policies)
+}
+
+func Test_ArgsSanitizer(t *testing.T) {
+	args := []string{"--a", "-b"}
+	sArgs := ArgsSanitizer(args)
+	assert.Equal(t, sArgs[0], "a")
+	assert.Equal(t, sArgs[1], "b")
+	args = []string{}
+	sArgs = ArgsSanitizer(args)
+	assert.True(t, sArgs[0] == "")
 }

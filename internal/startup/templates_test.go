@@ -39,3 +39,9 @@ func Test_CreateBenchmarkFilesIfNotExist(t *testing.T) {
 	err = os.RemoveAll(utils.GetBenchmarkFolder())
 	assert.NoError(t, err)
 }
+
+//Test_GetHelpSynopsis test
+func Test_GetHelpSynopsis(t *testing.T) {
+	hs := GetHelpSynopsis()
+	assert.True(t, len(hs) != 0)
+}

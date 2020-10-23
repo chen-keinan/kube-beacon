@@ -302,3 +302,28 @@ func readTestData(fileName string, t *testing.T) []byte {
 	f.Close()
 	return b
 }
+
+//Test_NewK8sAudit test
+func Test_NewK8sAudit(t *testing.T) {
+	args := []string{"a", "s=1.2.3"}
+	ka := NewK8sAudit(args)
+	assert.True(t, len(ka.PredicateParams) == 2)
+	assert.True(t, len(ka.PredicateChain) == 2)
+	assert.True(t, ka.resultProcessor != nil)
+}
+
+func Test_Help(t *testing.T) {
+	args := []string{"a", "s=1.2.3"}
+	ka := NewK8sAudit(args)
+	help := ka.Help()
+	assert.True(t, len(help) != 0)
+}
+
+func Test_reportResultProcessor(t *testing.T) {
+	ad := &models.AuditBench{Name: "1.2.1 aaa"}
+	fm := reportResultProcessor(ad, 0)
+	assert.True(t, len(fm) == 0)
+	fm = reportResultProcessor(ad, 1)
+	assert.True(t, len(fm) == 1)
+	assert.Equal(t, fm[0].Name, "1.2.1 aaa")
+}
