@@ -312,13 +312,15 @@ func Test_NewK8sAudit(t *testing.T) {
 	assert.True(t, ka.resultProcessor != nil)
 }
 
+//Test_Help test
 func Test_Help(t *testing.T) {
 	args := []string{"a", "s=1.2.3"}
 	ka := NewK8sAudit(args)
 	help := ka.Help()
-	assert.True(t, len(help) != 0)
+	assert.True(t, len(help) > 0)
 }
 
+//Test_reportResultProcessor test
 func Test_reportResultProcessor(t *testing.T) {
 	ad := &models.AuditBench{Name: "1.2.1 aaa"}
 	fm := reportResultProcessor(ad, 0)
@@ -326,4 +328,12 @@ func Test_reportResultProcessor(t *testing.T) {
 	fm = reportResultProcessor(ad, 1)
 	assert.True(t, len(fm) == 1)
 	assert.Equal(t, fm[0].Name, "1.2.1 aaa")
+}
+
+//Test_K8sSynopsis test
+func Test_K8sSynopsis(t *testing.T) {
+	args := []string{"a", "s=1.2.3"}
+	ka := NewK8sAudit(args)
+	s := ka.Synopsis()
+	assert.True(t, len(s) > 0)
 }

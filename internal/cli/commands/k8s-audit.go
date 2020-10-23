@@ -17,23 +17,6 @@ import (
 
 var log = logger.GetLog()
 
-//ValidateExprData expr data
-type ValidateExprData struct {
-	index     int
-	resultArr []string
-	atb       *models.AuditBench
-}
-
-//NextValidExprData return the next recursive ValidExprData
-func (ve ValidateExprData) NextValidExprData() ValidateExprData {
-	return ValidateExprData{resultArr: ve.resultArr[1:ve.index], index: ve.index - 1, atb: ve.atb}
-}
-
-// NewValidExprData return new instance of ValidExprData
-func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
-	return ValidateExprData{resultArr: arr, index: len(arr), atb: at}
-}
-
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
 	Command         shell.Executor
