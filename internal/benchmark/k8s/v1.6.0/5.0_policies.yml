@@ -263,7 +263,7 @@ categories:
       profile_applicability: Level 1 - Worker Node
       audit:
       - kubectl get psp -o=custom-columns=:.metadata.name
-      - 'tfr3=/dev/stdout && tfr2=/dev/stdout && kubectl get psp psp.flannel.unprivileged -o=jsonpath=''{.spec.allowedCapabilities}'' > tfr3 && sed ''s/"/ /g'' tfr3 > tfr2  && sed ''s/[][]//g'' tfr2'
+      - 'tfr3=/dev/stdout && tfr2=/dev/stdout && kubectl get psp #0 -o=jsonpath=''{.spec.allowedCapabilities}'' > tfr3 && sed ''s/"/ /g'' tfr3 > tfr2  && sed ''s/[][]//g'' tfr2'
       remediation: Ensure that allowedCapabilities is not present in PSPs for the cluster unless it is set to an empty array.
       check_type: multi_param
       impact: Pods with containers which require capabilities outwith the default set will not be permitted.
