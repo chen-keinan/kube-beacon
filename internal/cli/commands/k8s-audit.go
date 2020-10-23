@@ -9,8 +9,8 @@ import (
 	"github.com/chen-keinan/beacon/internal/reports"
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/internal/startup"
+	"github.com/chen-keinan/beacon/pkg/filters"
 	"github.com/chen-keinan/beacon/pkg/utils"
-	"gopkg.in/yaml.v2"
 	"strconv"
 	"strings"
 )
@@ -37,8 +37,9 @@ func NewValidExprData(arr []string, at *models.AuditBench) ValidateExprData {
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
 	Command         shell.Executor
-	specificTests   []string
 	resultProcessor ResultProcessor
+	PredicateChain  []filters.Predicate
+	PredicateParams []string
 }
 
 // ResultProcessor process audit results
@@ -58,7 +59,10 @@ var reportResultProcessor ResultProcessor = func(at *models.AuditBench, NumFaile
 
 //NewK8sAudit new audit object
 func NewK8sAudit(args []string) *K8sAudit {
-	return &K8sAudit{Command: shell.NewShellExec(), specificTests: getSpecificTestsToExecute(args), resultProcessor: getResultProcessingFunction(args)}
+	return &K8sAudit{Command: shell.NewShellExec(),
+		PredicateChain:  buildPredicateChain(args),
+		PredicateParams: buildPredicateChainParams(args),
+		resultProcessor: getResultProcessingFunction(args)}
 }
 
 //Help return benchmark command help
@@ -68,45 +72,34 @@ func (bk K8sAudit) Help() string {
 
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
-	auditRes := make([]*models.AuditBench, 0)
-	audit := models.Audit{}
-	auditFiles, err := utils.GetK8sBenchAuditFiles()
-	if err != nil {
-		panic(fmt.Sprintf("failed to read audit files %s", err))
-	}
-	for _, auditFile := range auditFiles {
-		err := yaml.Unmarshal([]byte(auditFile.Data), &audit)
-		if err != nil {
-			panic("Failed to unmarshal audit test json file")
-		}
-		for _, ac := range audit.Categories {
-			ar := bk.runTests(ac)
-			auditRes = append(auditRes, ar...)
-		}
+	completedTest := make([]*models.AuditBench, 0)
+	// load audit tests fro benchmark folder
+	auditTests := LoadAuditTests()
+	// filter tests by cmd criteria
+	filteredAudit := FilterAuditTests(bk.PredicateChain, bk.PredicateParams, auditTests)
+	//execute audit tests
+	for _, fat := range filteredAudit {
+		ar := bk.runAuditTest(fat)
+		completedTest = append(completedTest, ar...)
 	}
 	// generate report data
-	reports.GenerateAuditReport(auditRes)
+	reports.GenerateAuditReport(completedTest)
 	return 0
 }
 
-// runTests execute category of audit tests
-func (bk *K8sAudit) runTests(ac models.Category) []*models.AuditBench {
+// runAuditTest execute category of audit tests
+func (bk *K8sAudit) runAuditTest(at *models.AuditBench) []*models.AuditBench {
 	auditRes := make([]*models.AuditBench, 0)
-	for _, at := range ac.SubCategory.AuditTests {
-		if utils.ExcludeAuditTest(bk.specificTests, at.Name) {
-			continue
-		}
-		cmdTotalRes := make([]string, 0)
-		// execute audit test command
-		for index := range at.AuditCommand {
-			res := bk.execCommand(at, index, cmdTotalRes, make([]IndexValue, 0))
-			cmdTotalRes = append(cmdTotalRes, res)
-		}
-		// evaluate command result with expression
-		NumFailedTest := bk.evalExpression(at, cmdTotalRes, len(cmdTotalRes), make([]string, 0), 0)
-		// continue with result processing
-		auditRes = append(auditRes, bk.resultProcessor(at, NumFailedTest)...)
+	cmdTotalRes := make([]string, 0)
+	// execute audit test command
+	for index := range at.AuditCommand {
+		res := bk.execCommand(at, index, cmdTotalRes, make([]IndexValue, 0))
+		cmdTotalRes = append(cmdTotalRes, res)
 	}
+	// evaluate command result with expression
+	NumFailedTest := bk.evalExpression(at, cmdTotalRes, len(cmdTotalRes), make([]string, 0), 0)
+	// continue with result processing
+	auditRes = append(auditRes, bk.resultProcessor(at, NumFailedTest)...)
 	return auditRes
 }
 

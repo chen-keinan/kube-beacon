@@ -126,3 +126,9 @@ func ExcludeAuditTest(tests []string, name string) bool {
 	}
 	return true
 }
+
+//GetSpecificTestsToExecute return processing function by specificTests
+func GetSpecificTestsToExecute(arg string) []string {
+	values := strings.ReplaceAll(arg, "s=", "")
+	return strings.Split(values, ",")
+}

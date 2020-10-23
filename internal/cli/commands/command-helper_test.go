@@ -2,6 +2,7 @@ package commands
 
 import (
 	"github.com/chen-keinan/beacon/internal/models"
+	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"runtime"
@@ -45,9 +46,7 @@ func GetFunctionName(i interface{}) string {
 }
 
 func Test_getSpecificTestsToExecute(t *testing.T) {
-	test := getSpecificTestsToExecute([]string{"a", "b", "s=1.2.4;1.2.5"})
+	test := utils.GetSpecificTestsToExecute("s=1.2.4,1.2.5")
 	assert.Equal(t, test[0], "1.2.4")
 	assert.Equal(t, test[1], "1.2.5")
-	test = getSpecificTestsToExecute([]string{"a", "b"})
-	assert.True(t, len(test) == 0)
 }
