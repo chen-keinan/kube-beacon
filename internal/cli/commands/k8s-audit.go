@@ -86,18 +86,21 @@ func (bk *K8sAudit) runAuditTest(at *models.AuditBench) []*models.AuditBench {
 	return auditRes
 }
 
-func (bk *K8sAudit) addDummyCommandResponse(at *models.AuditBench, index int) string {
-	spExpr := utils.SeparateExpr(at.EvalExpr)
-	for _, expr := range spExpr {
-		if expr.Type == common.SingleValue {
-			if !strings.Contains(expr.Expr, fmt.Sprintf("'$%d'", index)) {
-				if strings.Contains(expr.Expr, fmt.Sprintf("$%d", index)) {
-					return common.NotValidNumber
+func (bk *K8sAudit) addDummyCommandResponse(at *models.AuditBench, index int, n string) string {
+	if n == "[^\"]\\S*'\n" || n == "" || n == common.NotValidString {
+		spExpr := utils.SeparateExpr(at.EvalExpr)
+		for _, expr := range spExpr {
+			if expr.Type == common.SingleValue {
+				if !strings.Contains(expr.Expr, fmt.Sprintf("'$%d'", index)) {
+					if strings.Contains(expr.Expr, fmt.Sprintf("$%d", index)) {
+						return common.NotValidNumber
+					}
 				}
 			}
 		}
+		return common.NotValidString
 	}
-	return common.NotValidString
+	return n
 }
 
 //IndexValue hold command index and result
@@ -111,23 +114,20 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 	paramArr, ok := at.CommandParams[index]
 	if ok {
 		for _, param := range paramArr {
-			parmNum, err := strconv.Atoi(param)
+			paramNum, err := strconv.Atoi(param)
 			if err != nil {
 				log.Console(fmt.Sprintf("failed to convert param for command %s", cmd))
 				continue
 			}
-			if parmNum < len(prevResult) {
-				n := prevResult[parmNum]
-				if n == "[^\"]\\S*'\n" || n == "" || n == common.NotValidString {
-					n = bk.addDummyCommandResponse(at, index)
-				}
-				newRes = append(newRes, IndexValue{index: parmNum, value: n})
+			if paramNum < len(prevResult) {
+				n := bk.addDummyCommandResponse(at, index, prevResult[paramNum])
+				newRes = append(newRes, IndexValue{index: paramNum, value: n})
 			}
 		}
 		commandRes := bk.execCmdWithParams(newRes, len(newRes), make([]IndexValue, 0), cmd, make([]string, 0))
 		sb := strings.Builder{}
 		for _, cr := range commandRes {
-			sb.WriteString(fmt.Sprintf("%s\n", cr))
+			sb.WriteString(utils.AddNewLineToNonEmptyStr(cr))
 		}
 		return sb.String()
 	}
@@ -143,7 +143,7 @@ func (bk *K8sAudit) execCmdWithParams(arr []IndexValue, index int, prevResHolder
 	if len(arr) == 0 {
 		return execShellCmd(prevResHolder, resArr, currCommand, bk.Command)
 	}
-	sArr := strings.Split(arr[0].value, "\n")
+	sArr := strings.Split(utils.RemoveNewLineSuffix(arr[0].value), "\n")
 	for _, a := range sArr {
 		prevResHolder = append(prevResHolder, IndexValue{index: arr[0].index, value: a})
 		resArr = bk.execCmdWithParams(arr[1:index], index-1, prevResHolder, currCommand, resArr)
@@ -175,7 +175,7 @@ func (bk *K8sAudit) evalExpression(at *models.AuditBench,
 	if len(commandRes) == 0 {
 		return evalCommand(at, permutationArr, testFailure)
 	}
-	outputs := strings.Split(commandRes[0], "\n")
+	outputs := strings.Split(utils.RemoveNewLineSuffix(commandRes[0]), "\n")
 	for _, o := range outputs {
 		if len(o) == 0 && len(outputs) > 1 {
 			continue

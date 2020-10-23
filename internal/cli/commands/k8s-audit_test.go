@@ -6,6 +6,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/shell"
+	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
@@ -25,7 +26,6 @@ func Test_EvalVarSingleIn(t *testing.T) {
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	k := kb.evalExpression(bench, []string{"aaa"}, 1, make([]string, 0), 0)
 	assert.True(t, k == 0)
-	assert.NoError(t, err)
 }
 
 //Test_EvalVarSingleNotInGood text
@@ -39,7 +39,6 @@ func Test_EvalVarSingleNotInGood(t *testing.T) {
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	k := kb.evalExpression(bench, []string{"ttt,aaa"}, 1, make([]string, 0), 0)
 	assert.True(t, k == 0)
-	assert.NoError(t, err)
 }
 
 //Test_EvalVarSingleNotInBad text
@@ -53,7 +52,6 @@ func Test_EvalVarSingleNotInBad(t *testing.T) {
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	k := kb.evalExpression(bench, []string{"RBAC,aaa"}, 1, make([]string, 0), 0)
 	assert.True(t, k > 0)
-	assert.NoError(t, err)
 }
 
 //Test_EvalVarSingleNotInSingleValue test
@@ -67,7 +65,6 @@ func Test_EvalVarSingleNotInSingleValue(t *testing.T) {
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	k := kb.evalExpression(bench, []string{"aaa"}, 1, make([]string, 0), 0)
 	assert.True(t, k == 0)
-	assert.NoError(t, err)
 }
 
 //Test_EvalVarMultiExprSingleValue test
@@ -81,7 +78,6 @@ func Test_EvalVarMultiExprSingleValue(t *testing.T) {
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	k := kb.evalExpression(bench, []string{"AlwaysAdmit"}, 1, make([]string, 0), 0)
 	assert.True(t, k > 0)
-	assert.NoError(t, err)
 }
 
 //Test_EvalVarMultiExprSingleValue test
@@ -95,7 +91,6 @@ func Test_EvalVarMultiExprMultiValue(t *testing.T) {
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	k := kb.evalExpression(bench, []string{"bbb,aaa"}, 1, make([]string, 0), 0)
 	assert.True(t, k == 0)
-	assert.NoError(t, err)
 }
 
 //Test_EvalVarMultiExprMultiEmptyValue test
@@ -109,7 +104,6 @@ func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	k := kb.evalExpression(bench, []string{common.GrepRegex}, 1, make([]string, 0), 0)
 	assert.True(t, k > 0)
-	assert.NoError(t, err)
 }
 
 //Test_EvalVarComparator test
@@ -123,7 +117,6 @@ func Test_EvalVarComparator(t *testing.T) {
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
 	k := kb.evalExpression(bench, []string{"1204"}, 1, make([]string, 0), 0)
 	assert.True(t, k == 0)
-	assert.NoError(t, err)
 }
 
 //Test_MultiCommandParams_OK test
@@ -140,7 +133,6 @@ func Test_MultiCommandParams_OK(t *testing.T) {
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
@@ -158,7 +150,6 @@ func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk,aaa"}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
@@ -176,7 +167,6 @@ func Test_MultiCommandParams_NOK(t *testing.T) {
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
@@ -194,7 +184,6 @@ func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
@@ -213,7 +202,6 @@ func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 	executor.EXPECT().Exec("ccc kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
@@ -234,7 +222,6 @@ func Test_MultiCommandParamsComplex(t *testing.T) {
 	executor.EXPECT().Exec("eee").Return(&shell.CommandResult{Stdout: "secretbox"}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
@@ -251,7 +238,6 @@ func Test_MultiCommandParamsComplexOppositeEmptyReturn(t *testing.T) {
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
@@ -268,7 +254,6 @@ func Test_MultiCommandParamsComplexOppositeWithNumber(t *testing.T) {
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
 
@@ -286,8 +271,25 @@ func Test_MultiCommand4_2_13(t *testing.T) {
 	executor.EXPECT().Exec("ps -ef | grep kubelet |grep 'TLSCipherSuites' | grep -o 'TLSCipherSuites=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
 	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
-	assert.NoError(t, err)
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
+}
+
+//Test_MultiCommand4_2_13 test
+func Test_MultiCommand5_2_7(t *testing.T) {
+	ab := &models.AuditBench{}
+	ab.AuditCommand = []string{"aaa", "bbb #0"}
+	ab.EvalExpr = "'NET_RAW' IN ($1); || 'ALL' IN ($1);"
+	ab.CommandParams = map[int][]string{1: {"0"}}
+	ab.CmdExprBuilder = utils.UpdateCmdExprParam
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "1234\n"}, nil).Times(1)
+	executor.EXPECT().Exec("bbb 1234").Return(&shell.CommandResult{Stdout: "\n"}, nil).Times(1)
+	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb.runAuditTest(ab)
+	assert.False(t, ab.TestSucceed)
+
 }
 
 func readTestData(fileName string, t *testing.T) []byte {

@@ -229,7 +229,7 @@ categories:
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy
     -
-      name: '5.2.6 Minimize the admission of root containers '
+      name: 5.2.6 Minimize the admission of root containers
       description: Do not generally permit containers to be run as the root user.
       profile_applicability: Level 1 - Worker Node
       audit:
@@ -243,11 +243,11 @@ categories:
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
     -
-      name: '5.2.7 Minimize the admission of containers with the NET_RAW capability'
+      name: 5.2.7 Minimize the admission of containers with the NET_RAW capability
       description: Do not generally permit containers with the potentially dangerous NET_RAW capability.
       profile_applicability: Level 1 - Worker Node
       audit:
-      - kubectl get psp -o=custom-columns=:.metadata.name
+      - 'tfr=/dev/stdout && kubectl get psp -o=custom-columns=:.metadata.name > tfr && sed '':a;N;$!ba;s/\n/ /g'' tfr'
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.requiredDropCapabilities}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.requiredDropCapabilities is set to include either NET_RAW or ALL.
       check_type: multi_param
@@ -258,7 +258,7 @@ categories:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
       - https://www.nccgroup.trust/uk/our-research/abusing-privileged-and- unprivileged-linux-containers/
     -
-      name: '5.2.8 Minimize the admission of containers with added capabilities'
+      name: 5.2.8 Minimize the admission of containers with added capabilities
       description: Do not generally permit containers with capabilities assigned beyond the default set.
       profile_applicability: Level 1 - Worker Node
       audit:
@@ -268,6 +268,21 @@ categories:
       check_type: multi_param
       impact: Pods with containers which require capabilities outwith the default set will not be permitted.
       eval_expr: "'' == '$1';"
+      default_value: By default, PodSecurityPolicies are not defined.
+      references:
+      - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
+      - https://www.nccgroup.trust/uk/our-research/abusing-privileged-and- unprivileged-linux-containers/
+    -
+      name: 5.2.9 Minimize the admission of containers with capabilities assigned
+      description: Do not generally permit containers with capabilities
+      profile_applicability: Level 1 - Worker Node
+      audit:
+      - 'tfr=/dev/stdout && kubectl get psp -o=custom-columns=:.metadata.name > tfr && sed '':a;N;$!ba;s/\n/ /g'' tfr'
+      - 'kubectl get psp #0 -o=jsonpath=''{.spec.requiredDropCapabilities}'''
+      remediation: Review the use of capabilites in applications runnning on your cluster. Where a namespace contains applicaions which do not require any Linux capabities to operate consider adding a PSP which forbids the admission of containers which do not drop all capabilities.
+      check_type: multi_param
+      impact: Pods with containers require capabilities to operate will not be permitted.
+      eval_expr: "'ALL' == '$1';"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
