@@ -18,6 +18,7 @@ require (
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/magiconair/properties v1.8.1
 	github.com/mitchellh/cli v1.1.2
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/open-policy-agent/opa v0.23.2 // indirect

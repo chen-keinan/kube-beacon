@@ -6,7 +6,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/pkg/filters"
 	"github.com/chen-keinan/beacon/pkg/utils"
-	"github.com/kyokomi/emoji"
+	"github.com/mitchellh/colorstring"
 	"gopkg.in/yaml.v2"
 	"strings"
 )
@@ -15,9 +15,11 @@ func printTestResults(at *models.AuditBench, NumFailedTest int) {
 	testSucceeded := NumFailedTest == 0
 	at.TestSucceed = testSucceeded
 	if testSucceeded {
-		log.Console(emoji.Sprintf(":check_mark_button: %s\n", at.Name))
+		pass := colorstring.Color("[green][Pass]")
+		log.Console(fmt.Sprintf("%s %s\n", pass, at.Name))
 	} else {
-		log.Console(emoji.Sprintf(":cross_mark: %s\n", at.Name))
+		fail := colorstring.Color("[red][Fail]")
+		log.Console(fmt.Sprintf("%s %s\n", fail, at.Name))
 	}
 	at.TestSucceed = testSucceeded
 }
