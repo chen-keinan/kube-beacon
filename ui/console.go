@@ -14,6 +14,7 @@ type OutputGenerator func(at [][]*models.AuditBench)
 
 //PrintOutput print audit test result to console
 func PrintOutput(auditTests [][]*models.AuditBench, outputGenerator OutputGenerator) {
+	log.Console(auditResult)
 	outputGenerator(auditTests)
 }
 

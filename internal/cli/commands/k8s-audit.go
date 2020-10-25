@@ -82,6 +82,7 @@ func (bk *K8sAudit) Run(args []string) int {
 		ft = append(ft, filteredAudit)
 	}
 	//execute audit tests and sho it in progress bar
+	log.Console(ui.K8sAuditTest)
 	for _, f := range ft {
 		tr := ui.ShowProgressBar(f, bk.runAuditTest)
 		completedTest = append(completedTest, tr)
