@@ -25,7 +25,7 @@ var UpdateCmdExprParam CmdExprBuilder = func(outputArr []string, expr string) st
 					break
 				}
 			}
-			value = exp.EvaExprBuilderFunc(output, i, exp.Expr)
+			value = exp.EvaExprBuilderFunc(strings.TrimSpace(output), i, exp.Expr)
 			exp.Expr = value
 		}
 		builder.WriteString(value)

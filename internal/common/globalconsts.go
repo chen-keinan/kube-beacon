@@ -23,8 +23,8 @@ const (
 	MultiValue = "MultiValue"
 	//SingleValue for tests
 	SingleValue = "SingleValue"
-	//NotValidString value
-	NotValidString = "NotValid"
+	//EmptyValue for test
+	EmptyValue = "EmptyValue"
 	//NotValidNumber value
 	NotValidNumber = "10000"
 	//Report arg

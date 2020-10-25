@@ -86,9 +86,9 @@ func (bk *K8sAudit) runAuditTest(at *models.AuditBench) []*models.AuditBench {
 	return auditRes
 }
 
-func (bk *K8sAudit) addDummyCommandResponse(at *models.AuditBench, index int, n string) string {
-	if n == "[^\"]\\S*'\n" || n == "" || n == common.NotValidString {
-		spExpr := utils.SeparateExpr(at.EvalExpr)
+func (bk *K8sAudit) addDummyCommandResponse(expr string, index int, n string) string {
+	if n == "[^\"]\\S*'\n" || n == "" || n == common.EmptyValue {
+		spExpr := utils.SeparateExpr(expr)
 		for _, expr := range spExpr {
 			if expr.Type == common.SingleValue {
 				if !strings.Contains(expr.Expr, fmt.Sprintf("'$%d'", index)) {
@@ -98,7 +98,7 @@ func (bk *K8sAudit) addDummyCommandResponse(at *models.AuditBench, index int, n 
 				}
 			}
 		}
-		return common.NotValidString
+		return common.EmptyValue
 	}
 	return n
 }
@@ -120,7 +120,7 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 				continue
 			}
 			if paramNum < len(prevResult) {
-				n := bk.addDummyCommandResponse(at, index, prevResult[paramNum])
+				n := bk.addDummyCommandResponse(at.EvalExpr, index, prevResult[paramNum])
 				newRes = append(newRes, IndexValue{index: paramNum, value: n})
 			}
 		}
@@ -154,15 +154,17 @@ func (bk *K8sAudit) execCmdWithParams(arr []IndexValue, index int, prevResHolder
 
 func execShellCmd(prevResHolder []IndexValue, resArr []string, currCommand string, se shell.Executor) []string {
 	for _, param := range prevResHolder {
-		if param.value == common.NotValidString || param.value == common.NotValidNumber || param.value == "" {
+		if param.value == common.EmptyValue || param.value == common.NotValidNumber || param.value == "" {
 			resArr = append(resArr, param.value)
 			break
 		}
 		cmd := strings.ReplaceAll(currCommand, fmt.Sprintf("#%d", param.index), param.value)
 		result, _ := se.Exec(cmd)
 		if result.Stderr != "" {
-			resArr = append(resArr, "")
 			log.Console(fmt.Sprintf("Failed to execute command %s", result.Stderr))
+		}
+		if len(strings.TrimSpace(result.Stdout)) == 0 {
+			result.Stdout = common.EmptyValue
 		}
 		resArr = append(resArr, result.Stdout)
 	}
@@ -192,7 +194,7 @@ func evalCommand(at *models.AuditBench, permutationArr []string, testExec int) i
 	expr := at.CmdExprBuilder(permutationArr, at.EvalExpr)
 	testExec++
 	// eval command expression
-	testSucceeded, err := evalCommandExpr(expr)
+	testSucceeded, err := evalCommandExpr(strings.ReplaceAll(expr, common.EmptyValue, ""))
 	if err != nil {
 		log.Console(fmt.Sprintf("failed to evaluate command expr for audit test %s", at.Name))
 	}
