@@ -319,3 +319,16 @@ categories:
       - https://kubernetes.io/docs/concepts/services-networking/networkpolicies/
       - https://octetz.com/posts/k8s-network-policy-apis
       - https://kubernetes.io/docs/tasks/configure-pod-container/declare-network-policy/
+    -
+      name: 5.4.1 Prefer using secrets as files over secrets as environment variables
+      description: Kubernetes supports mounting secrets as data volumes or as environment variables. Minimize the use of environment variable secrets.
+      profile_applicability: Level 1 - Master Node
+      audit:
+      - 'kubectl get all -o custom-columns=:.spec.containers[].env[].valueFrom.secretKeyRef.name 2>/dev/null | sed ''s/<none>//g'' |sed -n ''1d;p'''
+      remediation: If possible, rewrite application code to read secrets from mounted secret files, rather than from environment variables.
+      check_type: multi_param
+      impact: Application code which expects to read secrets in the form of environment variables would need modification
+      eval_expr: "'$0' != '';"
+      default_value: By default, secrets are not defined
+      references:
+      - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets

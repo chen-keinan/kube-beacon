@@ -46,7 +46,7 @@ func LoadAuditTests() []*models.AuditBench {
 	for _, auditFile := range auditFiles {
 		err := yaml.Unmarshal([]byte(auditFile.Data), &audit)
 		if err != nil {
-			panic("Failed to unmarshal audit test json file")
+			panic("Failed to unmarshal audit test yaml file")
 		}
 		auditTests = append(auditTests, audit.Categories[0].SubCategory.AuditTests...)
 	}
