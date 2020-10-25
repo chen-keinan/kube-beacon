@@ -3,7 +3,7 @@ benchmark_type: k8s
 categories:
   - name: Control Plane Components
     sub_category:
-      name: API Server
+      name: 1.2 API Server
       audit_tests:
         - name: '1.2.1 Ensure that the --anonymous-auth argument is set to false '
           description: Disable anonymous requests to the API server.

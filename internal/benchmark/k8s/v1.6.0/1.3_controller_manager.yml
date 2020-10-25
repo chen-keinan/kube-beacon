@@ -3,7 +3,7 @@ benchmark_type: k8s
 categories:
   - name: Control Plane Components
     sub_category:
-      name: Controller Manager
+      name: 1.3 Controller Manager
       audit_tests:
         - name: 1.3.1 Ensure that the --terminated-pod-gc-threshold argument is set as
             appropriate

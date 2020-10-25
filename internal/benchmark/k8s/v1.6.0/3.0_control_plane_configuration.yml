@@ -3,7 +3,7 @@ benchmark_type: k8s
 categories:
   - name: Control Plane Components
     sub_category:
-      name: Control Plane Configuration
+      name: 3.0 Control Plane Configuration
       audit_tests:
         - name: 3.1.1 Client certificate authentication should not be used for users
           description: |-

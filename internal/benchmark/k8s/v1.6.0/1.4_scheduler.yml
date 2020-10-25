@@ -3,7 +3,7 @@ benchmark_type: k8s
 categories:
   - name: Control Plane Components
     sub_category:
-      name: Scheduler
+      name: 1.4 Scheduler
       audit_tests:
         - name: 1.4.1 Ensure that the --profiling argument is set to false
           description: Disable profiling, if not needed.

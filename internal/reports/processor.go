@@ -9,9 +9,9 @@ import (
 var log = logger.GetLog()
 
 //GenerateAuditReport generate failed audit report
-func GenerateAuditReport(adts []*models.AuditBench) {
+func GenerateAuditReport(adtsReport []*models.AuditBench) {
 	table := uitable.New()
-	for _, failedAudit := range adts {
+	for _, failedAudit := range adtsReport {
 		table.MaxColWidth = 100
 		table.Wrap = true // wrap columns
 		table.AddRow("--------------", "-------------------------------------------------------------------------------------------")

@@ -11,6 +11,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/filters"
 	"github.com/chen-keinan/beacon/pkg/utils"
+	"github.com/chen-keinan/beacon/ui"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,7 @@ var log = logger.GetLog()
 type K8sAudit struct {
 	Command         shell.Executor
 	resultProcessor ResultProcessor
+	outputGenerator ui.OutputGenerator
 	PredicateChain  []filters.Predicate
 	PredicateParams []string
 }
@@ -28,10 +30,24 @@ type K8sAudit struct {
 // ResultProcessor process audit results
 type ResultProcessor func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench
 
+// consoleOutputGenerator print audit tests to stdout
+var consoleOutputGenerator ui.OutputGenerator = func(at [][]*models.AuditBench) {
+	for _, a := range at {
+		log.Console(fmt.Sprintf("%s %s\n", "[Category]", a[0].Category))
+		printTestResults(a)
+	}
+}
+
+// reportOutputGenerator print failed audit test to human report
+var reportOutputGenerator ui.OutputGenerator = func(at [][]*models.AuditBench) {
+	for _, a := range at {
+		reports.GenerateAuditReport(a)
+	}
+}
+
 // simpleResultProcessor process audit results to stdout print only
 var simpleResultProcessor ResultProcessor = func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench {
-	printTestResults(at, NumFailedTest)
-	return []*models.AuditBench{}
+	return AddAllMessages(at, NumFailedTest)
 }
 
 // ResultProcessor process audit results to std out and failure results
@@ -45,7 +61,8 @@ func NewK8sAudit(args []string) *K8sAudit {
 	return &K8sAudit{Command: shell.NewShellExec(),
 		PredicateChain:  buildPredicateChain(args),
 		PredicateParams: buildPredicateChainParams(args),
-		resultProcessor: getResultProcessingFunction(args)}
+		resultProcessor: getResultProcessingFunction(args),
+		outputGenerator: getOutputGeneratorFunction(args)}
 }
 
 //Help return benchmark command help
@@ -55,18 +72,22 @@ func (bk K8sAudit) Help() string {
 
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
-	completedTest := make([]*models.AuditBench, 0)
+	completedTest := make([][]*models.AuditBench, 0)
+	ft := make([][]*models.AuditBench, 0)
 	// load audit tests fro benchmark folder
 	auditTests := LoadAuditTests()
 	// filter tests by cmd criteria
-	filteredAudit := FilterAuditTests(bk.PredicateChain, bk.PredicateParams, auditTests)
-	//execute audit tests
-	for _, fat := range filteredAudit {
-		ar := bk.runAuditTest(fat)
-		completedTest = append(completedTest, ar...)
+	for _, adt := range auditTests {
+		filteredAudit := FilterAuditTests(bk.PredicateChain, bk.PredicateParams, adt)
+		ft = append(ft, filteredAudit)
 	}
-	// generate report data
-	reports.GenerateAuditReport(completedTest)
+	//execute audit tests and sho it in progress bar
+	for _, f := range ft {
+		tr := ui.ShowProgressBar(f, bk.runAuditTest)
+		completedTest = append(completedTest, tr)
+	}
+	// generate output data
+	ui.PrintOutput(completedTest, bk.outputGenerator)
 	return 0
 }
 

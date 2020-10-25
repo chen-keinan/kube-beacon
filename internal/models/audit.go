@@ -39,6 +39,7 @@ type AuditBench struct {
 	CmdExprBuilder       utils.CmdExprBuilder
 	TestSucceed          bool
 	CommandParams        map[int][]string
+	Category             string
 }
 
 //AuditResult data

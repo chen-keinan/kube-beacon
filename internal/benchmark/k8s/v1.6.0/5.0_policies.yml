@@ -4,7 +4,7 @@ categories:
 -
   name: Control Plane Components
   sub_category:
-    name: Policies
+    name: 5.0 Policies
     audit_tests:
     -
       name: 5.1.1 Ensure that the cluster-admin role is only used where required

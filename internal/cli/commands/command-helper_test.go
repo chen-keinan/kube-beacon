@@ -37,11 +37,11 @@ func Test_GetProcessingFunction(t *testing.T) {
 	args := []string{"r"}
 	a := getResultProcessingFunction(args)
 	name := GetFunctionName(a)
-	assert.True(t, strings.Contains(name, "commands.glob..func2"))
+	assert.True(t, strings.Contains(name, "commands.glob..func4"))
 	args = []string{}
 	a = getResultProcessingFunction(args)
 	name = GetFunctionName(a)
-	assert.True(t, strings.Contains(name, "commands.glob..func1"))
+	assert.True(t, strings.Contains(name, "commands.glob..func3"))
 }
 
 func GetFunctionName(i interface{}) string {
@@ -76,7 +76,7 @@ func Test_LoadAuditTest(t *testing.T) {
 	}
 	at := LoadAuditTests()
 	assert.True(t, len(at) != 0)
-	assert.True(t, strings.Contains(at[0].Name, "1.1.1"))
+	assert.True(t, strings.Contains(at[0][0].Name, "1.1.1"))
 }
 
 //Test_FilterAuditTests test

@@ -3,7 +3,7 @@ benchmark_type: k8s
 categories:
   - name: Control Plane Components
     sub_category:
-      name: Etcd
+      name: 2.0 etcd
       audit_tests:
         - name: 2.1 Ensure that the --cert-file and --key-file arguments are set as appropriate
           description: Configure TLS encryption for the etcd service.

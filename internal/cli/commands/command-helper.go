@@ -6,22 +6,22 @@ import (
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/pkg/filters"
 	"github.com/chen-keinan/beacon/pkg/utils"
+	"github.com/chen-keinan/beacon/ui"
 	"github.com/mitchellh/colorstring"
 	"gopkg.in/yaml.v2"
 	"strings"
 )
 
-func printTestResults(at *models.AuditBench, NumFailedTest int) {
-	testSucceeded := NumFailedTest == 0
-	at.TestSucceed = testSucceeded
-	if testSucceeded {
-		pass := colorstring.Color("[green][Pass]")
-		log.Console(fmt.Sprintf("%s %s\n", pass, at.Name))
-	} else {
-		fail := colorstring.Color("[red][Fail]")
-		log.Console(fmt.Sprintf("%s %s\n", fail, at.Name))
+func printTestResults(at []*models.AuditBench) {
+	for _, a := range at {
+		if a.TestSucceed {
+			pass := colorstring.Color("[green][Pass]")
+			log.Console(fmt.Sprintf("%s %s\n", pass, a.Name))
+		} else {
+			fail := colorstring.Color("[red][Fail]")
+			log.Console(fmt.Sprintf("%s %s\n", fail, a.Name))
+		}
 	}
-	at.TestSucceed = testSucceeded
 }
 
 //AddFailedMessages add failed audit test to report data
@@ -35,9 +35,18 @@ func AddFailedMessages(at *models.AuditBench, NumFailedTest int) []*models.Audit
 	return av
 }
 
+//AddAllMessages add all audit test to report data
+func AddAllMessages(at *models.AuditBench, NumFailedTest int) []*models.AuditBench {
+	av := make([]*models.AuditBench, 0)
+	testSucceeded := NumFailedTest == 0
+	at.TestSucceed = testSucceeded
+	av = append(av, at)
+	return av
+}
+
 //LoadAuditTests load audit test from benchmark folder
-func LoadAuditTests() []*models.AuditBench {
-	auditTests := make([]*models.AuditBench, 0)
+func LoadAuditTests() [][]*models.AuditBench {
+	auditTests := make([][]*models.AuditBench, 0)
 	audit := models.Audit{}
 	auditFiles, err := utils.GetK8sBenchAuditFiles()
 	if err != nil {
@@ -48,7 +57,8 @@ func LoadAuditTests() []*models.AuditBench {
 		if err != nil {
 			panic("Failed to unmarshal audit test yaml file")
 		}
-		auditTests = append(auditTests, audit.Categories[0].SubCategory.AuditTests...)
+		audit.Categories[0].SubCategory.AuditTests[0].Category = audit.Categories[0].SubCategory.Name
+		auditTests = append(auditTests, audit.Categories[0].SubCategory.AuditTests)
 	}
 	return auditTests
 }
@@ -82,6 +92,14 @@ func getResultProcessingFunction(args []string) ResultProcessor {
 		return reportResultProcessor
 	}
 	return simpleResultProcessor
+}
+
+//getOutPutGeneratorFunction return output generator function
+func getOutputGeneratorFunction(args []string) ui.OutputGenerator {
+	if isArgsExist(args, common.Report) {
+		return reportOutputGenerator
+	}
+	return consoleOutputGenerator
 }
 
 //buildPredicateChain build chain of filters based on command criteria

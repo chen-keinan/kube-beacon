@@ -3,7 +3,7 @@ benchmark_type: k8s
 categories:
   - name: Control Plane Components
     sub_category:
-      name: Master Node Configuration Files
+      name: 1.1 Master Node Configuration Files
       audit_tests:
         - name: '1.1.1 Ensure that the API server pod specification file permissions are
         set to 644 or more restrictive '
