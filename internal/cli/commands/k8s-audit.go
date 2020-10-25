@@ -179,9 +179,6 @@ func (bk *K8sAudit) evalExpression(at *models.AuditBench,
 	}
 	outputs := strings.Split(utils.RemoveNewLineSuffix(commandRes[0]), "\n")
 	for _, o := range outputs {
-		if len(o) == 0 && len(outputs) > 1 {
-			continue
-		}
 		permutationArr = append(permutationArr, o)
 		testFailure = bk.evalExpression(at, commandRes[1:commResSize], commResSize-1, permutationArr, testFailure)
 		permutationArr = permutationArr[:len(permutationArr)-1]

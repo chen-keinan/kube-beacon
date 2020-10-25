@@ -292,6 +292,23 @@ func Test_MultiCommand5_2_7(t *testing.T) {
 
 }
 
+//Test_MultiCommand5_3_4 test
+func Test_MultiCommand5_3_4(t *testing.T) {
+	ab := &models.AuditBench{}
+	ab.AuditCommand = []string{"aaa", "bbb"}
+	ab.EvalExpr = "'$0' == ''; && '$1' == '';"
+	ab.CommandParams = map[int][]string{}
+	ab.CmdExprBuilder = utils.UpdateCmdExprParam
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "\n\n\n\n\n"}, nil).Times(1)
+	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "default-token-ppzx7\n\n\n\n\n"}, nil).Times(1)
+	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb.runAuditTest(ab)
+	assert.False(t, ab.TestSucceed)
+}
+
 func readTestData(fileName string, t *testing.T) []byte {
 	f, err := os.Open(fmt.Sprintf("./fixtures/%s", fileName))
 	if err != nil {
