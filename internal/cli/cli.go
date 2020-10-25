@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"bytes"
+	"fmt"
 	"github.com/chen-keinan/beacon/internal/cli/commands"
+	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/utils"
@@ -32,7 +35,7 @@ func StartCli() {
 //InitCLI initialize beacon cli
 func InitCLI(sa SanitizeArgs) {
 	args := sa(os.Args[1:])
-	app := cli.NewCLI("beacon", "1.0.0")
+	app := cli.NewCLI(common.BeaconCli, common.BeaconVersion)
 	// init cli folder and templates
 	StartCli()
 	app.Args = append(app.Args, args...)
@@ -41,6 +44,7 @@ func InitCLI(sa SanitizeArgs) {
 			return commands.NewK8sAudit(app.Args), nil
 		},
 	}
+	app.HelpFunc = BeaconHelpFunc(common.BeaconCli)
 	status, err := app.Run()
 	if err != nil {
 		log.Console(err.Error())
@@ -64,3 +68,16 @@ var ArgsSanitizer SanitizeArgs = func(str []string) []string {
 
 //SanitizeArgs sanitizer func
 type SanitizeArgs func(str []string) []string
+
+// BeaconHelpFunc beacon help function with all supported commands
+func BeaconHelpFunc(app string) cli.HelpFunc {
+	return func(commands map[string]cli.CommandFactory) string {
+		var buf bytes.Buffer
+		buf.WriteString(fmt.Sprintf(
+			"Usage: %s [--version] [--help] <command> [<args>]\n\n",
+			app))
+		buf.WriteString("Available commands are:\n")
+		buf.WriteString(startup.GetHelpSynopsis())
+		return buf.String()
+	}
+}

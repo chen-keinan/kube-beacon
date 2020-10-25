@@ -31,4 +31,8 @@ const (
 	Report = "r"
 	//Synopsis help
 	Synopsis = "synopsis"
+	//BeaconCli Name
+	BeaconCli = "Beacon"
+	//BeaconVersion version
+	BeaconVersion = "1.0.0"
 )
