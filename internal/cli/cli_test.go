@@ -3,7 +3,9 @@ package cli
 import (
 	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/pkg/utils"
+	"github.com/mitchellh/cli"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -33,4 +35,13 @@ func Test_ArgsSanitizer(t *testing.T) {
 	args = []string{}
 	sArgs = ArgsSanitizer(args)
 	assert.True(t, sArgs[0] == "")
+}
+
+//Test_BeaconHelpFunc test
+func Test_BeaconHelpFunc(t *testing.T) {
+	cm := make(map[string]cli.CommandFactory, 0)
+	bhf := BeaconHelpFunc("Beacon")
+	helpFile := bhf(cm)
+	assert.True(t, strings.Contains(helpFile, "Available commands are:"))
+	assert.True(t, strings.Contains(helpFile, "Usage: Beacon [--version] [--help] <command> [<args>]"))
 }
