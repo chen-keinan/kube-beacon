@@ -108,7 +108,7 @@ func buildPredicateChain(args []string) []filters.Predicate {
 	for _, n := range args {
 		switch {
 		case strings.HasPrefix(n, "s="):
-			pc = append(pc, filters.SpecificTest)
+			pc = append(pc, filters.IncludeAuditTest)
 		case n == "a":
 			pc = append(pc, filters.Basic)
 		}

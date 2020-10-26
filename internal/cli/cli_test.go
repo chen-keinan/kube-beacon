@@ -39,7 +39,7 @@ func Test_ArgsSanitizer(t *testing.T) {
 
 //Test_BeaconHelpFunc test
 func Test_BeaconHelpFunc(t *testing.T) {
-	cm := make(map[string]cli.CommandFactory, 0)
+	cm := make(map[string]cli.CommandFactory)
 	bhf := BeaconHelpFunc("Beacon")
 	helpFile := bhf(cm)
 	assert.True(t, strings.Contains(helpFile, "Available commands are:"))

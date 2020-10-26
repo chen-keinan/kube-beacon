@@ -6,18 +6,35 @@ import (
 	"testing"
 )
 
-//Test_SpecificTestPredict text
-func Test_SpecificTestPredict(t *testing.T) {
+//Test_IncludeTestPredict text
+func Test_IncludeTestPredict(t *testing.T) {
 	ab := []*models.AuditBench{{Name: "1.2.1 abc"}, {Name: "1.2.3 eft"}}
-	abp := SpecificTest(ab, "1.2.1")
+	abp := IncludeAuditTest(ab, "1.2.1")
 	assert.Equal(t, abp[0].Name, "1.2.1 abc")
 	assert.True(t, len(abp) == 1)
 }
 
-//Test_SpecificTestPredicateNoValidArg text
-func Test_SpecificTestPredicateNoValidArg(t *testing.T) {
+//Test_IncludeTestPredicateNoValidArg text
+func Test_IncludeTestPredicateNoValidArg(t *testing.T) {
 	ab := []*models.AuditBench{{Name: "1.2.1 abc"}, {Name: "1.2.3 eft"}}
-	abp := SpecificTest(ab, "1.2.5")
+	abp := IncludeAuditTest(ab, "1.2.5")
+	assert.Equal(t, abp[0].Name, "1.2.1 abc")
+	assert.Equal(t, abp[1].Name, "1.2.3 eft")
+	assert.True(t, len(abp) == 2)
+}
+
+//Test_ExcludeTestPredict text
+func Test_ExcludeTestPredict(t *testing.T) {
+	ab := []*models.AuditBench{{Name: "1.2.1 abc"}, {Name: "1.2.3 eft"}}
+	abp := ExcludeAuditTest(ab, "1.2.1")
+	assert.Equal(t, abp[0].Name, "1.2.3 eft")
+	assert.True(t, len(abp) == 1)
+}
+
+//Test_ExcludeTestPredicateNoValidArg text
+func Test_ExcludeTestPredicateNoValidArg(t *testing.T) {
+	ab := []*models.AuditBench{{Name: "1.2.1 abc"}, {Name: "1.2.3 eft"}}
+	abp := ExcludeAuditTest(ab, "1.2.5")
 	assert.Equal(t, abp[0].Name, "1.2.1 abc")
 	assert.Equal(t, abp[1].Name, "1.2.3 eft")
 	assert.True(t, len(abp) == 2)

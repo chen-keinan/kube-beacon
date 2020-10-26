@@ -50,7 +50,7 @@ func GetFunctionName(i interface{}) string {
 
 //Test_getSpecificTestsToExecute test
 func Test_getSpecificTestsToExecute(t *testing.T) {
-	test := utils.GetSpecificTestsToExecute("s=1.2.4,1.2.5")
+	test := utils.GetAuditTestsList("i", "i=1.2.4,1.2.5")
 	assert.Equal(t, test[0], "1.2.4")
 	assert.Equal(t, test[1], "1.2.5")
 }
@@ -82,7 +82,7 @@ func Test_LoadAuditTest(t *testing.T) {
 //Test_FilterAuditTests test
 func Test_FilterAuditTests(t *testing.T) {
 	at := []*models.AuditBench{{Name: "1.2.1 aaa"}, {Name: "2.2.2"}}
-	fab := FilterAuditTests([]filters.Predicate{filters.SpecificTest}, []string{"1.2.1"}, at)
+	fab := FilterAuditTests([]filters.Predicate{filters.IncludeAuditTest}, []string{"1.2.1"}, at)
 	assert.Equal(t, fab[0].Name, "1.2.1 aaa")
 	assert.True(t, len(fab) == 1)
 }

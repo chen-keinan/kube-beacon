@@ -9,15 +9,33 @@ import (
 // Predicate filter audit tests cmd criteria
 type Predicate func(tests []*models.AuditBench, params string) []*models.AuditBench
 
-// SpecificTest Basic test do not filter at all
-var SpecificTest Predicate = func(tests []*models.AuditBench, params string) []*models.AuditBench {
+// IncludeAuditTest include audit tests , only included tests will be executed
+var IncludeAuditTest Predicate = func(tests []*models.AuditBench, params string) []*models.AuditBench {
 	sat := make([]*models.AuditBench, 0)
-	spt := utils.GetSpecificTestsToExecute(params)
+	spt := utils.GetAuditTestsList("i", params)
 	for _, sp := range spt {
 		for _, at := range tests {
 			if strings.Contains(at.Name, sp) {
 				sat = append(sat, at)
 			}
+		}
+	}
+	if len(sat) == 0 {
+		return tests
+	}
+	return sat
+}
+
+// ExcludeAuditTest audit test from been executed
+var ExcludeAuditTest Predicate = func(tests []*models.AuditBench, params string) []*models.AuditBench {
+	sat := make([]*models.AuditBench, 0)
+	spt := utils.GetAuditTestsList("e", params)
+	for _, sp := range spt {
+		for _, at := range tests {
+			if strings.Contains(at.Name, sp) {
+				continue
+			}
+			sat = append(sat, at)
 		}
 	}
 	if len(sat) == 0 {

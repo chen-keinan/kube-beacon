@@ -90,10 +90,10 @@ func Test_ExcludeAuditTest(t *testing.T) {
 
 //Test_GetSpecificTestsToExecute test
 func Test_GetSpecificTestsToExecute(t *testing.T) {
-	l := GetSpecificTestsToExecute("s=1.2.3,1.4.5")
+	l := GetAuditTestsList("i", "i=1.2.3,1.4.5")
 	assert.Equal(t, l[0], "1.2.3")
 	assert.Equal(t, l[1], "1.4.5")
-	l = GetSpecificTestsToExecute("")
+	l = GetAuditTestsList("e", "")
 	assert.Equal(t, l[0], "")
 }
 
