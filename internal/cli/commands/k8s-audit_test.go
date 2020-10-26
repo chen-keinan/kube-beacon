@@ -324,7 +324,7 @@ func readTestData(fileName string, t *testing.T) []byte {
 
 //Test_NewK8sAudit test
 func Test_NewK8sAudit(t *testing.T) {
-	args := []string{"a", "s=1.2.3"}
+	args := []string{"a", "i=1.2.3"}
 	ka := NewK8sAudit(args)
 	assert.True(t, len(ka.PredicateParams) == 2)
 	assert.True(t, len(ka.PredicateChain) == 2)
@@ -333,7 +333,7 @@ func Test_NewK8sAudit(t *testing.T) {
 
 //Test_Help test
 func Test_Help(t *testing.T) {
-	args := []string{"a", "s=1.2.3"}
+	args := []string{"a", "i=1.2.3"}
 	ka := NewK8sAudit(args)
 	help := ka.Help()
 	assert.True(t, len(help) > 0)
@@ -351,7 +351,7 @@ func Test_reportResultProcessor(t *testing.T) {
 
 //Test_K8sSynopsis test
 func Test_K8sSynopsis(t *testing.T) {
-	args := []string{"a", "s=1.2.3"}
+	args := []string{"a", "i=1.2.3"}
 	ka := NewK8sAudit(args)
 	s := ka.Synopsis()
 	assert.True(t, len(s) > 0)

@@ -35,4 +35,8 @@ const (
 	BeaconCli = "Beacon"
 	//BeaconVersion version
 	BeaconVersion = "1.0.0"
+	//IncludeParam param
+	IncludeParam = "i="
+	//ExcludeParam param
+	ExcludeParam = "e="
 )

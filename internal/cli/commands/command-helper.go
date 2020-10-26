@@ -107,8 +107,10 @@ func buildPredicateChain(args []string) []filters.Predicate {
 	pc := make([]filters.Predicate, 0)
 	for _, n := range args {
 		switch {
-		case strings.HasPrefix(n, "s="):
+		case strings.HasPrefix(n, common.IncludeParam):
 			pc = append(pc, filters.IncludeAuditTest)
+		case strings.HasPrefix(n, common.ExcludeParam):
+			pc = append(pc, filters.ExcludeAuditTest)
 		case n == "a":
 			pc = append(pc, filters.Basic)
 		}
@@ -119,13 +121,6 @@ func buildPredicateChain(args []string) []filters.Predicate {
 //buildPredicateParams build chain of filters params based on command criteria
 func buildPredicateChainParams(args []string) []string {
 	pp := make([]string, 0)
-	for _, n := range args {
-		switch {
-		case strings.HasPrefix(n, "s="):
-			pp = append(pp, n)
-		case n == "a":
-			pp = append(pp, n)
-		}
-	}
+	pp = append(pp, args...)
 	return pp
 }

@@ -89,18 +89,18 @@ func Test_FilterAuditTests(t *testing.T) {
 
 //Test_buildPredicateChain test
 func Test_buildPredicateChain(t *testing.T) {
-	fab := buildPredicateChain([]string{"a", "s=1.2.1"})
+	fab := buildPredicateChain([]string{"a", "i=1.2.1"})
 	assert.True(t, len(fab) == 2)
 	fab = buildPredicateChain([]string{"a"})
 	assert.True(t, len(fab) == 1)
-	fab = buildPredicateChain([]string{"s=1.2.1"})
+	fab = buildPredicateChain([]string{"i=1.2.1"})
 	assert.True(t, len(fab) == 1)
 }
 
 //Test_buildPredicateChainParams test
 func Test_buildPredicateChainParams(t *testing.T) {
-	p := buildPredicateChainParams([]string{"a", "s=1.2.1"})
+	p := buildPredicateChainParams([]string{"a", "i=1.2.1"})
 	assert.True(t, len(p) == 2)
 	assert.Equal(t, p[0], "a")
-	assert.Equal(t, p[1], "s=1.2.1")
+	assert.Equal(t, p[1], "i=1.2.1")
 }
