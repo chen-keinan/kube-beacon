@@ -73,11 +73,7 @@ type SanitizeArgs func(str []string) []string
 func BeaconHelpFunc(app string) cli.HelpFunc {
 	return func(commands map[string]cli.CommandFactory) string {
 		var buf bytes.Buffer
-		buf.WriteString(fmt.Sprintf(
-			"Usage: %s [--version] [--help] <command> [<args>]\n\n",
-			app))
-		buf.WriteString("Available commands are:\n")
-		buf.WriteString(startup.GetHelpSynopsis())
+		buf.WriteString(fmt.Sprintf(startup.GetHelpSynopsis(), app))
 		return buf.String()
 	}
 }
