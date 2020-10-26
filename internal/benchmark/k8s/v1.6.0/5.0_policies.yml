@@ -337,12 +337,11 @@ categories:
       description: Consider the use of an external secrets storage and management system, instead of using Kubernetes Secrets directly, if you have more complex secret management needs. Ensure the solution requires authentication to access secrets, has auditing of access to and use of secrets, and encrypts secrets. Some solutions also make it easier to rotate secrets.
       profile_applicability: Level 1 - Master Node
       audit:
-      - 'kubectl get all -o custom-columns=:.spec.containers[].env[].valueFrom.secretKeyRef.name 2>/dev/null | sed ''s/<none>//g'' |sed -n ''1d;p'''
       - 'kubectl get all -o custom-columns=:.spec.volumes[].secret.secretName 2>/dev/null | sed ''s/<none>//g'' |sed -n ''1d;p'''
       remediation: Refer to the secrets management options offered by your cloud provider or a third-party secrets management solution.
       check_type: multi_param
       impact: None
-      eval_expr: "'$0' == ''; && '$1' == '';"
+      eval_expr: "'$0' == '';"
       default_value: By default, no external secret management is configured.
       references:
       - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets
