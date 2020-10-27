@@ -31,17 +31,17 @@ type K8sAudit struct {
 type ResultProcessor func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench
 
 // consoleOutputGenerator print audit tests to stdout
-var consoleOutputGenerator ui.OutputGenerator = func(at [][]*models.AuditBench) {
+var consoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
 	for _, a := range at {
-		log.Console(fmt.Sprintf("%s %s\n", "[Category]", a[0].Category))
-		printTestResults(a)
+		log.Console(fmt.Sprintf("%s %s\n", "[Category]", a.Name))
+		printTestResults(a.AuditTests)
 	}
 }
 
 // reportOutputGenerator print failed audit test to human report
-var reportOutputGenerator ui.OutputGenerator = func(at [][]*models.AuditBench) {
+var reportOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
 	for _, a := range at {
-		reports.GenerateAuditReport(a)
+		reports.GenerateAuditReport(a.AuditTests)
 	}
 }
 
@@ -72,8 +72,8 @@ func (bk K8sAudit) Help() string {
 
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
-	completedTest := make([][]*models.AuditBench, 0)
-	ft := make([][]*models.AuditBench, 0)
+	completedTest := make([]*models.SubCategory, 0)
+	ft := make([]*models.SubCategory, 0)
 	// load audit tests fro benchmark folder
 	auditTests := LoadAuditTests()
 	// filter tests by cmd criteria

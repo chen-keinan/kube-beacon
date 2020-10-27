@@ -14,8 +14,8 @@ type Audit struct {
 
 //Category data model
 type Category struct {
-	Name        string      `yaml:"name"`
-	SubCategory SubCategory `yaml:"sub_category"`
+	Name        string       `yaml:"name"`
+	SubCategory *SubCategory `yaml:"sub_category"`
 }
 
 //SubCategory data model

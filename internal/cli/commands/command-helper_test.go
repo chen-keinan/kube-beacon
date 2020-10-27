@@ -76,15 +76,15 @@ func Test_LoadAuditTest(t *testing.T) {
 	}
 	at := LoadAuditTests()
 	assert.True(t, len(at) != 0)
-	assert.True(t, strings.Contains(at[0][0].Name, "1.1.1"))
+	assert.True(t, strings.Contains(at[0].AuditTests[0].Name, "1.1.1"))
 }
 
 //Test_FilterAuditTests test
 func Test_FilterAuditTests(t *testing.T) {
-	at := []*models.AuditBench{{Name: "1.2.1 aaa"}, {Name: "2.2.2"}}
+	at := &models.SubCategory{AuditTests: []*models.AuditBench{{Name: "1.2.1 aaa"}, {Name: "2.2.2"}}}
 	fab := FilterAuditTests([]filters.Predicate{filters.IncludeAuditTest}, []string{"1.2.1"}, at)
-	assert.Equal(t, fab[0].Name, "1.2.1 aaa")
-	assert.True(t, len(fab) == 1)
+	assert.Equal(t, fab.AuditTests[0].Name, "1.2.1 aaa")
+	assert.True(t, len(fab.AuditTests) == 1)
 }
 
 //Test_buildPredicateChain test

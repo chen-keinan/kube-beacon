@@ -45,31 +45,30 @@ func AddAllMessages(at *models.AuditBench, NumFailedTest int) []*models.AuditBen
 }
 
 //LoadAuditTests load audit test from benchmark folder
-func LoadAuditTests() [][]*models.AuditBench {
-	auditTests := make([][]*models.AuditBench, 0)
-	audit := models.Audit{}
+func LoadAuditTests() []*models.SubCategory {
+	auditTests := make([]*models.SubCategory, 0)
 	auditFiles, err := utils.GetK8sBenchAuditFiles()
 	if err != nil {
 		panic(fmt.Sprintf("failed to read audit files %s", err))
 	}
+	audit := models.Audit{}
 	for _, auditFile := range auditFiles {
 		err := yaml.Unmarshal([]byte(auditFile.Data), &audit)
 		if err != nil {
 			panic("Failed to unmarshal audit test yaml file")
 		}
-		audit.Categories[0].SubCategory.AuditTests[0].Category = audit.Categories[0].SubCategory.Name
-		auditTests = append(auditTests, audit.Categories[0].SubCategory.AuditTests)
+		auditTests = append(auditTests, audit.Categories[0].SubCategory)
 	}
 	return auditTests
 }
 
 //FilterAuditTests filter audit tests by predicate chain
-func FilterAuditTests(predicates []filters.Predicate, predicateParams []string, at []*models.AuditBench) []*models.AuditBench {
+func FilterAuditTests(predicates []filters.Predicate, predicateParams []string, at *models.SubCategory) *models.SubCategory {
 	return RunPredicateChain(predicates, predicateParams, len(predicates), at)
 }
 
 //RunPredicateChain call every predicate in chain and filter tests
-func RunPredicateChain(predicates []filters.Predicate, predicateParams []string, size int, at []*models.AuditBench) []*models.AuditBench {
+func RunPredicateChain(predicates []filters.Predicate, predicateParams []string, size int, at *models.SubCategory) *models.SubCategory {
 	if size == 0 {
 		return at
 	}
