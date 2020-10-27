@@ -42,9 +42,6 @@ var ExcludeAuditTest Predicate = func(tests *models.SubCategory, params string) 
 		}
 		sat = append(sat, at)
 	}
-	if len(sat) == 0 {
-		return tests
-	}
 	return &models.SubCategory{Name: tests.Name, AuditTests: sat}
 }
 

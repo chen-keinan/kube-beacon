@@ -1,10 +1,13 @@
 package commands
 
 import (
+	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
+	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/filters"
 	"github.com/chen-keinan/beacon/pkg/utils"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"reflect"
@@ -103,4 +106,30 @@ func Test_buildPredicateChainParams(t *testing.T) {
 	assert.True(t, len(p) == 2)
 	assert.Equal(t, p[0], "a")
 	assert.Equal(t, p[1], "i=1.2.1")
+}
+
+func Test_filteredAuditBenchTests(t *testing.T) {
+	asc := []*models.SubCategory{{AuditTests: []*models.AuditBench{{Name: "1.1.0 bbb"}}}}
+	fp := []filters.Predicate{filters.IncludeAuditTest, filters.ExcludeAuditTest}
+	st := []string{"i=1.1.0", "e=1.1.0"}
+	fr := filteredAuditBenchTests(asc, fp, st)
+	assert.True(t, len(fr) == 0)
+}
+
+//Test_executeTests test
+func Test_executeTests(t *testing.T) {
+	ab := &models.AuditBench{}
+	ab.AuditCommand = []string{"aaa", "bbb"}
+	ab.EvalExpr = "'$0' == ''; && '$1' == '';"
+	ab.CommandParams = map[int][]string{}
+	ab.CmdExprBuilder = utils.UpdateCmdExprParam
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	executor := mocks.NewMockExecutor(ctrl)
+	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "\n\n\n\n\n"}, nil).Times(1)
+	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "default-token-ppzx7\n\n\n\n\n"}, nil).Times(1)
+	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	sc := []*models.SubCategory{{AuditTests: []*models.AuditBench{ab}}}
+	executeTests(sc, kb.runAuditTest)
+	assert.False(t, ab.TestSucceed)
 }
