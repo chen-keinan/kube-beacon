@@ -12,10 +12,6 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 * root cause of the security issue
 * proposed remediation for security issue
 
-
-#### The Following diagram describe the kubernetes services which take part in beacon audit   
-![k8s arch](./pkg/images/k8s_arch.png?raw=true)
-
 #### kubernetes cluster audit scan output: 
 ![k8s audit](./pkg/images/beacon.gif) 
 
