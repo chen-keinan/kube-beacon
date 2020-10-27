@@ -123,3 +123,25 @@ func buildPredicateChainParams(args []string) []string {
 	pp = append(pp, args...)
 	return pp
 }
+
+func filteredAuditBenchTests(auditTests []*models.SubCategory, pc []filters.Predicate, pp []string) []*models.SubCategory {
+	ft := make([]*models.SubCategory, 0)
+	for _, adt := range auditTests {
+		filteredAudit := FilterAuditTests(pc, pp, adt)
+		if len(filteredAudit.AuditTests) == 0 {
+			continue
+		}
+		ft = append(ft, filteredAudit)
+	}
+	return ft
+}
+
+func executeTests(ft []*models.SubCategory, execTestFunc func(ad *models.AuditBench) []*models.AuditBench) []*models.SubCategory {
+	completedTest := make([]*models.SubCategory, 0)
+	log.Console(ui.K8sAuditTest)
+	for _, f := range ft {
+		tr := ui.ShowProgressBar(f, execTestFunc)
+		completedTest = append(completedTest, tr)
+	}
+	return completedTest
+}

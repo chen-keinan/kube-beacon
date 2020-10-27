@@ -72,21 +72,12 @@ func (bk K8sAudit) Help() string {
 
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
-	completedTest := make([]*models.SubCategory, 0)
-	ft := make([]*models.SubCategory, 0)
 	// load audit tests fro benchmark folder
 	auditTests := LoadAuditTests()
 	// filter tests by cmd criteria
-	for _, adt := range auditTests {
-		filteredAudit := FilterAuditTests(bk.PredicateChain, bk.PredicateParams, adt)
-		ft = append(ft, filteredAudit)
-	}
-	//execute audit tests and sho it in progress bar
-	log.Console(ui.K8sAuditTest)
-	for _, f := range ft {
-		tr := ui.ShowProgressBar(f, bk.runAuditTest)
-		completedTest = append(completedTest, tr)
-	}
+	ft := filteredAuditBenchTests(auditTests, bk.PredicateChain, bk.PredicateParams)
+	//execute audit tests and show it in progress bar
+	completedTest := executeTests(ft, bk.runAuditTest)
 	// generate output data
 	ui.PrintOutput(completedTest, bk.outputGenerator)
 	return 0

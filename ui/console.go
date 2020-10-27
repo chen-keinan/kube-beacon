@@ -19,12 +19,15 @@ func PrintOutput(auditTests []*models.SubCategory, outputGenerator OutputGenerat
 }
 
 //ShowProgressBar execute audit test and show progress bar
-func ShowProgressBar(a *models.SubCategory, f func(ad *models.AuditBench) []*models.AuditBench) *models.SubCategory {
+func ShowProgressBar(a *models.SubCategory, execTestFunc func(ad *models.AuditBench) []*models.AuditBench) *models.SubCategory {
+	if len(a.AuditTests) == 0 {
+		return a
+	}
 	completedTest := make([]*models.AuditBench, 0)
 	log.Console(a.Name)
 	bar := pb.StartNew(len(a.AuditTests))
 	for _, test := range a.AuditTests {
-		ar := f(test)
+		ar := execTestFunc(test)
 		completedTest = append(completedTest, ar...)
 
 		bar.Increment()

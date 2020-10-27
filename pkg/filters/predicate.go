@@ -21,9 +21,9 @@ var IncludeAuditTest Predicate = func(tests *models.SubCategory, params string) 
 		}
 	}
 	if len(sat) == 0 {
-		return &models.SubCategory{AuditTests: make([]*models.AuditBench, 0)}
+		return &models.SubCategory{Name: tests.Name, AuditTests: make([]*models.AuditBench, 0)}
 	}
-	return &models.SubCategory{AuditTests: sat}
+	return &models.SubCategory{Name: tests.Name, AuditTests: sat}
 }
 
 // ExcludeAuditTest audit test from been executed
@@ -45,7 +45,7 @@ var ExcludeAuditTest Predicate = func(tests *models.SubCategory, params string) 
 	if len(sat) == 0 {
 		return tests
 	}
-	return &models.SubCategory{AuditTests: sat}
+	return &models.SubCategory{Name: tests.Name, AuditTests: sat}
 }
 
 // Basic filter by specific audit tests as set in command
