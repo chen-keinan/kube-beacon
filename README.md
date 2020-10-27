@@ -17,5 +17,5 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 ![k8s arch](./pkg/images/k8s_arch.png?raw=true)
 
 #### kubernetes cluster audit scan output: 
-![k8s audit](./pkg/images/k8s_audit.png?raw=true)
+![k8s audit](./pkg/images/beacon.gif?raw=true)
 
