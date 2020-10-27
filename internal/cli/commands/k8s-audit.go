@@ -21,8 +21,9 @@ var log = logger.GetLog()
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
 	Command         shell.Executor
-	resultProcessor ResultProcessor
-	outputGenerator ui.OutputGenerator
+	ResultProcessor ResultProcessor
+	OutputGenerator ui.OutputGenerator
+	FileLoader      TestLoader
 	PredicateChain  []filters.Predicate
 	PredicateParams []string
 }
@@ -30,16 +31,16 @@ type K8sAudit struct {
 // ResultProcessor process audit results
 type ResultProcessor func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench
 
-// consoleOutputGenerator print audit tests to stdout
-var consoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
+// ConsoleOutputGenerator print audit tests to stdout
+var ConsoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
 	for _, a := range at {
 		log.Console(fmt.Sprintf("%s %s\n", "[Category]", a.Name))
 		printTestResults(a.AuditTests)
 	}
 }
 
-// reportOutputGenerator print failed audit test to human report
-var reportOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
+// ReportOutputGenerator print failed audit test to human report
+var ReportOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
 	for _, a := range at {
 		reports.GenerateAuditReport(a.AuditTests)
 	}
@@ -61,8 +62,10 @@ func NewK8sAudit(args []string) *K8sAudit {
 	return &K8sAudit{Command: shell.NewShellExec(),
 		PredicateChain:  buildPredicateChain(args),
 		PredicateParams: buildPredicateChainParams(args),
-		resultProcessor: getResultProcessingFunction(args),
-		outputGenerator: getOutputGeneratorFunction(args)}
+		ResultProcessor: GetResultProcessingFunction(args),
+		OutputGenerator: getOutputGeneratorFunction(args),
+		FileLoader:      NewFileLoader()}
+
 }
 
 //Help return benchmark command help
@@ -73,13 +76,14 @@ func (bk K8sAudit) Help() string {
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
 	// load audit tests fro benchmark folder
-	auditTests := LoadAuditTests()
+
+	auditTests := bk.FileLoader.LoadAuditTests()
 	// filter tests by cmd criteria
 	ft := filteredAuditBenchTests(auditTests, bk.PredicateChain, bk.PredicateParams)
 	//execute audit tests and show it in progress bar
 	completedTest := executeTests(ft, bk.runAuditTest)
 	// generate output data
-	ui.PrintOutput(completedTest, bk.outputGenerator)
+	ui.PrintOutput(completedTest, bk.OutputGenerator)
 	return 0
 }
 
@@ -95,7 +99,7 @@ func (bk *K8sAudit) runAuditTest(at *models.AuditBench) []*models.AuditBench {
 	// evaluate command result with expression
 	NumFailedTest := bk.evalExpression(at, cmdTotalRes, len(cmdTotalRes), make([]string, 0), 0)
 	// continue with result processing
-	auditRes = append(auditRes, bk.resultProcessor(at, NumFailedTest)...)
+	auditRes = append(auditRes, bk.ResultProcessor(at, NumFailedTest)...)
 	return auditRes
 }
 

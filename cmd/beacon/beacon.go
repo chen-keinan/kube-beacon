@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	cli.InitCLI(cli.ArgsSanitizer)
+	cli.StartCLI(cli.ArgsSanitizer)
 }

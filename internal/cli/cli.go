@@ -15,8 +15,8 @@ import (
 
 var log = logger.GetLog()
 
-//StartCli init beacon cli , folder , templates and etc
-func StartCli() {
+//InitCli init beacon cli , folder , templates and etc
+func InitCli() {
 	err := utils.CreateHomeFolderIfNotExist()
 	if err != nil {
 		panic(err)
@@ -25,31 +25,56 @@ func StartCli() {
 	if err != nil {
 		panic(err)
 	}
-	filesData := startup.GenerateK8sBenchmarkFiles()
+	filesData, err := startup.GenerateK8sBenchmarkFiles()
+	if err != nil {
+		panic(err)
+	}
 	err = startup.SaveBenchmarkFilesIfNotExist(filesData)
 	if err != nil {
 		panic(err)
 	}
 }
 
-//InitCLI initialize beacon cli
-func InitCLI(sa SanitizeArgs) {
-	args := sa(os.Args[1:])
-	app := cli.NewCLI(common.BeaconCli, common.BeaconVersion)
-	// init cli folder and templates
-	StartCli()
-	app.Args = append(app.Args, args...)
-	app.Commands = map[string]cli.CommandFactory{
-		"a": func() (cli.Command, error) {
-			return commands.NewK8sAudit(app.Args), nil
-		},
-	}
-	app.HelpFunc = BeaconHelpFunc(common.BeaconCli)
-	status, err := app.Run()
+//StartCLI initialize beacon cli
+func StartCLI(sa SanitizeArgs) {
+	// create cli data
+	cmdArgs := []string{"a"}
+	cliArgs := sa(os.Args[1:])
+	cmdArgs = append(cmdArgs, cliArgs...)
+	cmds := make([]cli.Command, 0)
+	// invoke cli
+	cmds = append(cmds, commands.NewK8sAudit(cmdArgs))
+	commands := createCliBuilderData(cmdArgs, cmds)
+	status, err := invokeCommandCli(cmdArgs, commands)
 	if err != nil {
 		log.Console(err.Error())
 	}
 	os.Exit(status)
+}
+
+//createCliBuilderData return cli params and commands
+func createCliBuilderData(ca []string, cmd []cli.Command) map[string]cli.CommandFactory {
+	// read cli args
+	cmdFactory := make(map[string]cli.CommandFactory)
+	// build cli commands
+	for index, a := range cmd {
+		cmdFactory[ca[index]] = func() (cli.Command, error) {
+			return a, nil
+		}
+	}
+	return cmdFactory
+}
+
+// invokeCommandCli invoke cli command with params
+func invokeCommandCli(args []string, commands map[string]cli.CommandFactory) (int, error) {
+	app := cli.NewCLI(common.BeaconCli, common.BeaconVersion)
+	// init cli folder and templates
+	InitCli()
+	app.Args = append(app.Args, args...)
+	app.Commands = commands
+	app.HelpFunc = BeaconHelpFunc(common.BeaconCli)
+	status, err := app.Run()
+	return status, err
 }
 
 //ArgsSanitizer sanitize CLI arguments

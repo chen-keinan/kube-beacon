@@ -44,8 +44,24 @@ func AddAllMessages(at *models.AuditBench, NumFailedTest int) []*models.AuditBen
 	return av
 }
 
+//TestLoader load tests from filesystem
+//command-helper.go
+//go:generate mockgen -destination=../../mocks/mock_TestLoader.go -package=mocks . TestLoader
+type TestLoader interface {
+	LoadAuditTests() []*models.SubCategory
+}
+
+//AuditTestLoader object
+type AuditTestLoader struct {
+}
+
+//NewFileLoader create new file loader
+func NewFileLoader() TestLoader {
+	return &AuditTestLoader{}
+}
+
 //LoadAuditTests load audit test from benchmark folder
-func LoadAuditTests() []*models.SubCategory {
+func (tl AuditTestLoader) LoadAuditTests() []*models.SubCategory {
 	auditTests := make([]*models.SubCategory, 0)
 	auditFiles, err := utils.GetK8sBenchAuditFiles()
 	if err != nil {
@@ -85,8 +101,8 @@ func isArgsExist(args []string, name string) bool {
 	return false
 }
 
-//getResultProcessingFunction return processing function by specificTests
-func getResultProcessingFunction(args []string) ResultProcessor {
+//GetResultProcessingFunction return processing function by specificTests
+func GetResultProcessingFunction(args []string) ResultProcessor {
 	if isArgsExist(args, common.Report) {
 		return reportResultProcessor
 	}
@@ -96,9 +112,9 @@ func getResultProcessingFunction(args []string) ResultProcessor {
 //getOutPutGeneratorFunction return output generator function
 func getOutputGeneratorFunction(args []string) ui.OutputGenerator {
 	if isArgsExist(args, common.Report) {
-		return reportOutputGenerator
+		return ReportOutputGenerator
 	}
-	return consoleOutputGenerator
+	return ConsoleOutputGenerator
 }
 
 //buildPredicateChain build chain of filters based on command criteria

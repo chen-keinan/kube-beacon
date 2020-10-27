@@ -10,7 +10,10 @@ import (
 
 //Test_CreateBenchmarkFilesIfNotExist test
 func Test_CreateBenchmarkFilesIfNotExist(t *testing.T) {
-	bFiles := GenerateK8sBenchmarkFiles()
+	bFiles, err := GenerateK8sBenchmarkFiles()
+	if err != nil {
+		t.Fatal(err)
+	}
 	// generate test with packr
 	assert.Equal(t, bFiles[0].Name, common.MasterNodeConfigurationFiles)
 	assert.Equal(t, bFiles[1].Name, common.APIServer)
@@ -20,7 +23,7 @@ func Test_CreateBenchmarkFilesIfNotExist(t *testing.T) {
 	assert.Equal(t, bFiles[5].Name, common.ControlPlaneConfiguration)
 	assert.Equal(t, bFiles[6].Name, common.WorkerNodes)
 	assert.Equal(t, bFiles[7].Name, common.Policies)
-	err := utils.CreateBenchmarkFolderIfNotExist()
+	err = utils.CreateBenchmarkFolderIfNotExist()
 	assert.NoError(t, err)
 	// save benchmark files to folder
 	err = SaveBenchmarkFilesIfNotExist(bFiles)

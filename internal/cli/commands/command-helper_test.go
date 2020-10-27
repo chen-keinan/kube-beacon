@@ -38,11 +38,11 @@ func Test_isArgsExist(t *testing.T) {
 //Test_isArgsExist
 func Test_GetProcessingFunction(t *testing.T) {
 	args := []string{"r"}
-	a := getResultProcessingFunction(args)
+	a := GetResultProcessingFunction(args)
 	name := GetFunctionName(a)
 	assert.True(t, strings.Contains(name, "commands.glob..func4"))
 	args = []string{}
-	a = getResultProcessingFunction(args)
+	a = GetResultProcessingFunction(args)
 	name = GetFunctionName(a)
 	assert.True(t, strings.Contains(name, "commands.glob..func3"))
 }
@@ -72,12 +72,15 @@ func Test_LoadAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bFiles := startup.GenerateK8sBenchmarkFiles()
+	bFiles, err := startup.GenerateK8sBenchmarkFiles()
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = startup.SaveBenchmarkFilesIfNotExist(bFiles)
 	if err != nil {
 		t.Fatal(err)
 	}
-	at := LoadAuditTests()
+	at := NewFileLoader().LoadAuditTests()
 	assert.True(t, len(at) != 0)
 	assert.True(t, strings.Contains(at[0].AuditTests[0].Name, "1.1.1"))
 }
@@ -128,7 +131,7 @@ func Test_executeTests(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "\n\n\n\n\n"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "default-token-ppzx7\n\n\n\n\n"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	sc := []*models.SubCategory{{AuditTests: []*models.AuditBench{ab}}}
 	executeTests(sc, kb.runAuditTest)
 	assert.False(t, ab.TestSucceed)

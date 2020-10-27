@@ -131,7 +131,7 @@ func Test_MultiCommandParams_OK(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -148,7 +148,7 @@ func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk,aaa"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -165,7 +165,7 @@ func Test_MultiCommandParams_NOK(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -182,7 +182,7 @@ func Test_MultiCommandParams_NOKWith_IN(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -200,7 +200,7 @@ func Test_MultiCommandParamsPass1stResultToNext(t *testing.T) {
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("ccc kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -220,7 +220,7 @@ func Test_MultiCommandParamsComplex(t *testing.T) {
 	executor.EXPECT().Exec("ccc").Return(&shell.CommandResult{Stdout: "aescbc"}, nil).Times(1)
 	executor.EXPECT().Exec("ddd").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
 	executor.EXPECT().Exec("eee").Return(&shell.CommandResult{Stdout: "secretbox"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -236,7 +236,7 @@ func Test_MultiCommandParamsComplexOppositeEmptyReturn(t *testing.T) {
 	defer ctrl.Finish()
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -252,7 +252,7 @@ func Test_MultiCommandParamsComplexOppositeWithNumber(t *testing.T) {
 	defer ctrl.Finish()
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -269,7 +269,7 @@ func Test_MultiCommand4_2_13(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
 	executor.EXPECT().Exec("ps -ef | grep kubelet |grep 'TLSCipherSuites' | grep -o 'TLSCipherSuites=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
 }
@@ -286,7 +286,7 @@ func Test_MultiCommand5_2_7(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "1234\n"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb 1234").Return(&shell.CommandResult{Stdout: "\n"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab)
 	assert.False(t, ab.TestSucceed)
 
@@ -304,7 +304,7 @@ func Test_MultiCommand5_3_4(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "\n\n\n\n\n"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "default-token-ppzx7\n\n\n\n\n"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, resultProcessor: getResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
 	kb.runAuditTest(ab)
 	assert.False(t, ab.TestSucceed)
 }
@@ -328,7 +328,7 @@ func Test_NewK8sAudit(t *testing.T) {
 	ka := NewK8sAudit(args)
 	assert.True(t, len(ka.PredicateParams) == 2)
 	assert.True(t, len(ka.PredicateChain) == 2)
-	assert.True(t, ka.resultProcessor != nil)
+	assert.True(t, ka.ResultProcessor != nil)
 }
 
 //Test_Help test
