@@ -1,6 +1,6 @@
 <html>
 <head>
- <meta name="google-site-verification" content="JdsP5pHyEPYHNFUFy4OFs80ojFRvNqsTaPI1k2ZoPYU" />
+<meta name="google-site-verification" content="JdsP5pHyEPYHNFUFy4OFs80ojFRvNqsTaPI1k2ZoPYU" />
 </head>
 <body>
 </body>
