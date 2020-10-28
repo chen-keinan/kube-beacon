@@ -341,7 +341,56 @@ categories:
       remediation: Refer to the secrets management options offered by your cloud provider or a third-party secrets management solution.
       check_type: multi_param
       impact: None
-      eval_expr: "'$0' == '';"
+      eval_expr: "'$0' != '';"
       default_value: By default, no external secret management is configured.
       references:
       - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets
+    -
+      name: 5.5.1 Configure Image Provenance using ImagePolicyWebhook admission controller
+      description: Configure Image Provenance for your deployment.
+      profile_applicability: Level 1 - Master Node
+      audit:
+      - kubectl get all -o custom-columns=:.spec.plugins[].configuration.imagePolicy.defaultAllow
+      remediation: Follow the Kubernetes documentation and setup image provenance.
+      check_type: multi_param
+      impact: You need to regularly maintain your provenance configuration based on container image updates.
+      eval_expr: "'$0' != ''; &&  '$0' == 'false';"
+      default_value: By default, image provenance is not set.
+      references:
+      - https://kubernetes.io/docs/admin/admission-controllers/#imagepolicywebhook
+      - https://github.com/kubernetes/community/blob/master/contributors/design-proposals/image-provenance.md
+      - https://hub.docker.com/r/dnurmi/anchore-toolbox/
+      - https://github.com/kubernetes/kubernetes/issues/22888
+    -
+      name: 5.7.1 Create administrative boundaries between resources using namespaces
+      description: Use namespaces to isolate your Kubernetes objects.
+      profile_applicability: Level 1 - Master Node
+      audit:
+      - 'kubectl get namespaces |awk ''{print $1}'' |sed -n ''1d;p'''
+      remediation: Follow the documentation and create namespaces for objects in your deployment as you need them.
+      check_type: multi_param
+      impact: You need to switch between namespaces for administration.
+      eval_expr: "'$0' == 'default'; ||  '$0' == 'kube-system';"
+      default_value: 'By default, Kubernetes starts with two initial namespaces: \n 1. default - The default namespace for objects with no other namespace\n 2. kube-system - The namespace for objects created by the Kubernetes system'
+      references:
+      - https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+      - http://blog.kubernetes.io/2016/08/security-best-practices-kubernetes-deployment.html
+    -
+      name: 5.7.2 Ensure that the seccomp profile is set to docker/default in your pod definitions
+      description: Enable docker/default seccomp profile in your pod definitions.
+      profile_applicability: Level 1 - Master Node
+      audit:
+      - 'sudo awk -v FS="feature-gates=AllAlpha=" ''NF>1{print $2}'' /etc/kubernetes/manifests/kube-apiserver.yaml'
+      - kubectl get all -o custom-columns=:.spec.metadata.annotations.seccomp.security.alpha.kubernetes.io/pod 2>/dev/null
+      remediation: Seccomp is an alpha feature currently. By default, all alpha features are disabled. So, you would need to enable alpha features in the apiserver by passing "--feature- gates=AllAlpha=true" argument.
+        Edit the /etc/kubernetes/apiserver file on the master node and set the KUBE_API_ARGS parameter to "--feature-gates=AllAlpha=true"
+        KUBE_API_ARGS="--feature-gates=AllAlpha=true"
+      check_type: multi_param
+      impact: If the docker/default seccomp profile is too restrictive for you, you would have to create/manage your own seccomp profiles. Also, you need to enable all alpha features for this to work. There is no individual switch to turn on this feature.
+      eval_expr: "'$0' == 'true'; &&  '$1' != '';"
+      default_value: By default, seccomp profile is set to unconfined which means that no seccomp profiles are enabled.
+      references:
+      - https://github.com/kubernetes/kubernetes/issues/39845
+      - https://github.com/kubernetes/kubernetes/pull/21790
+      - https://github.com/kubernetes/community/blob/master/contributors/design-proposals/seccomp.md#examples
+      - https://docs.docker.com/engine/security/seccomp/
