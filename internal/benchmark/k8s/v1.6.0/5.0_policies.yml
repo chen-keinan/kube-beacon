@@ -438,3 +438,25 @@ categories:
       references:
       - https://kubernetes.io/docs/concepts/policy/security-context/
       - https://learn.cisecurity.org/benchmarks
+    -
+      name: 5.7.4 The default namespace should not be used
+      description: Kubernetes provides a default namespace, where objects are placed if no namespace is specified for them. Placing objects in this namespace makes application of RBAC and other controls more difficult.
+      profile_applicability: Level 1 - Master Node
+      audit:
+      - 'kubectl get all -o go-template --template=''{{range .items}}
+        {{if eq .metadata.namespace "default"}}
+        {{if ne .metadata.name "kubernetes"}}
+        false
+        {{else}}
+        true
+        {{end}}
+        {{else}}
+        true
+        {{end}}
+        {{end}}'' | sed ''/^[[:space:]]*$/d'' |sed ''s/ //g'''
+      remediation: Ensure that namespaces are created to allow for appropriate segregation of Kubernetes resources and that all new resources are created in a specific namespace.
+      check_type: multi_param
+      impact: None
+      eval_expr: "'$0' == 'true';"
+      default_value: Unless a namespace is specific on object creation, the default namespace will be used
+      references:
