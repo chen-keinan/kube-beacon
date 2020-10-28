@@ -10,7 +10,7 @@ GOTEST=$(GOCMD) test
 GOCOPY=cp beacon ~/vagrant_file/.
 
 all:
-	$(info  "completed running make file for beacon project")
+	$(info  "completed running make file for kube-beacon project")
 fmt:
 	@go fmt ./...
 lint:
@@ -28,16 +28,16 @@ test:
 build:
 	go get -u github.com/gobuffalo/packr/packr
 	packr
-	GOOS=linux GOARCH=amd64 go build -v cmd/beacon/beacon.go;
+	GOOS=linux GOARCH=amd64 go build -v cmd/kube/beacon.go;
 	mv beacon ~/vagrant_file/.
 build_travis:
 	go get -u github.com/gobuffalo/packr/packr
 	packr
-	GOOS=linux GOARCH=amd64 go build -v cmd/beacon/beacon.go;
+	GOOS=linux GOARCH=amd64 go build -v cmd/kube/beacon.go;
 build_remote:
 	go get -u github.com/gobuffalo/packr/packr
 	packr
-	GOOS=linux GOARCH=amd64 go build -v -gcflags='-N -l' cmd/beacon/beacon.go
+	GOOS=linux GOARCH=amd64 go build -v -gcflags='-N -l' cmd/kube/beacon.go
 	mv beacon ~/vagrant_file/.
 
 .PHONY: install-req fmt test lint build ci build-binaries tidy imports
