@@ -1,10 +1,3 @@
-<html>
-<head>
-<meta name="google-site-verification" content="JdsP5pHyEPYHNFUFy4OFs80ojFRvNqsTaPI1k2ZoPYU" />
-</head>
-<body>
-</body>
-</html>
     
 # Kube-Beacon Project
 ###  Scan your kubernetes runtime !!
