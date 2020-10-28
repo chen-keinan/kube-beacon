@@ -294,7 +294,7 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - 'ps -ef | grep kubelet |grep '' --network-plugin'' | grep -o '' --network-plugin=[^"]\S*'' | awk -F "=" ''{print $2}'' |awk ''FNR <= 1'''
-      - ls /etc/cni/net.d -A1 |head -1
+      - ls /etc/cni/net.d -A1 2>/dev/null |head -1
       - 'grep type /etc/cni/net.d/#1 |grep -o ''"type":[^"]\S*'' | awk -F ":" ''{print $2}'' |awk ''FNR <= 1'' | sed ''s/"//g'' | sed ''s/,//g'''
       remediation: If the CNI plugin in use does not support network policies, consideration should be given to making use of a different plugin, or finding an alternate mechanism for restricting traffic in the Kubernetes cluster..
       check_type: multi_param
@@ -337,7 +337,7 @@ categories:
       description: Consider the use of an external secrets storage and management system, instead of using Kubernetes Secrets directly, if you have more complex secret management needs. Ensure the solution requires authentication to access secrets, has auditing of access to and use of secrets, and encrypts secrets. Some solutions also make it easier to rotate secrets.
       profile_applicability: Level 1 - Master Node
       audit:
-      - 'kubectl get all -o custom-columns=:.spec.volumes[].secret.secretName 2>/dev/null | sed ''s/<none>//g'' |sed -n ''1d;p'''
+      - 'kubectl get all -o custom-columns=:.spec.volumes[].csi.driver 2>/dev/null | sed ''s/<none>//g'' |sed -n ''1d;p'''
       remediation: Refer to the secrets management options offered by your cloud provider or a third-party secrets management solution.
       check_type: multi_param
       impact: None
