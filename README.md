@@ -1,3 +1,5 @@
+<meta name='k8s,Kubernetes,security,benchmark,cis,kube-bench,bencj' content='regex, regular expressions, regexp'>
+
 # Beacon Project
 ###  Scan your kubernetes runtime !!
 [![Go Report Card](https://goreportcard.com/badge/github.com/chen-keinan/beacon)](https://goreportcard.com/report/github.com/chen-keinan/beacon)
