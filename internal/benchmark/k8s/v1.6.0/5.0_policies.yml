@@ -381,7 +381,7 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - 'sudo awk -v FS="feature-gates=AllAlpha=" ''NF>1{print $2}'' /etc/kubernetes/manifests/kube-apiserver.yaml'
-      - kubectl get all -o custom-columns=:.spec.metadata.annotations.seccomp.security.alpha.kubernetes.io/pod 2>/dev/null
+      - 'kubectl get all -o custom-columns=:.spec.metadata.annotations.seccomp.security.alpha.kubernetes.io/pod 2>/dev/null | sed ''s/<none>//g'' |sed -n ''1d;p'''
       remediation: Seccomp is an alpha feature currently. By default, all alpha features are disabled. So, you would need to enable alpha features in the apiserver by passing "--feature- gates=AllAlpha=true" argument.
         Edit the /etc/kubernetes/apiserver file on the master node and set the KUBE_API_ARGS parameter to "--feature-gates=AllAlpha=true"
         KUBE_API_ARGS="--feature-gates=AllAlpha=true"
@@ -394,3 +394,47 @@ categories:
       - https://github.com/kubernetes/kubernetes/pull/21790
       - https://github.com/kubernetes/community/blob/master/contributors/design-proposals/seccomp.md#examples
       - https://docs.docker.com/engine/security/seccomp/
+    -
+      name: 5.7.3 Apply Security Context to Your Pods and Containers
+      description: Apply Security Context to Your Pods and Containers
+      profile_applicability: Level 1 - Master Node
+      audit:
+      - 'kubectl get pods --all-namespaces -o go-template --template=''{{range .items}}
+          {{if .spec.securityContext}}
+          true
+          {{if .spec.securityContext.seLinuxOptions}}
+          true
+          {{end}}
+          {{else}}
+          false
+          {{end}}
+          {{range .spec.containers}}
+          true
+          {{if .securityContext}}
+          {{if .securityContext.capabilities}}
+          true
+          {{end}}
+          {{if .securityContext.procMount}}
+          true
+          {{end}}
+          true
+          {{if .securityContext.seLinuxOptions}}
+          true
+          {{end}}
+          {{if .securityContext.windowsOptions}}
+          true
+          {{end}}
+          {{else}}
+          false
+          {{end}}
+          {{end}}{{end}}'' | sed ''/^[[:space:]]*$/d'' |sed ''s/ //g'''
+      remediation: Follow the Kubernetes documentation and apply security contexts to your pods. For a suggested list of security contexts, you may refer to the CIS Security Benchmark for Docker Containers.
+        Edit the /etc/kubernetes/apiserver file on the master node and set the KUBE_API_ARGS parameter to "--feature-gates=AllAlpha=true"
+        KUBE_API_ARGS="--feature-gates=AllAlpha=true"
+      check_type: multi_param
+      impact: If you incorrectly apply security contexts, you may have trouble running the pods.
+      eval_expr: "'$0' == 'true';"
+      default_value: By default, no security contexts are automatically applied to pods.
+      references:
+      - https://kubernetes.io/docs/concepts/policy/security-context/
+      - https://learn.cisecurity.org/benchmarks
