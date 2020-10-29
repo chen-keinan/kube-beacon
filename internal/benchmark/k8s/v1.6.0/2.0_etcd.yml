@@ -7,14 +7,14 @@ categories:
       audit_tests:
         - name: 2.1 Ensure that the --cert-file and --key-file arguments are set as appropriate
           description: Configure TLS encryption for the etcd service.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep etcd |grep 'cert-file' | grep -o 'cert-file=[^"]\S*' | awk -F
+            - ps -ef | grep etcd |grep ' --cert-file' | grep -o ' --cert-file=[^"]\S*' | awk -F
               "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="cert-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
-            - ps -ef | grep etcd |grep 'key-file' | grep -o 'key-file=[^"]\S*' | awk -F
+            - sudo awk -v FS="--cert-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - ps -ef | grep etcd |grep ' --key-file' | grep -o ' --key-file=[^"]\S*' | awk -F
               "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="key-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - sudo awk -v FS="--key-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
           remediation: |-
             Follow the etcd service documentation and configure TLS encryption.
             Then, edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and set the below parameters. --cert-file=</path/to/ca-file> --key-file=</path/to/key-file>
@@ -27,11 +27,11 @@ categories:
             - https://kubernetes.io/docs/admin/etcd/
         - name: 2.2 Ensure that the --client-cert-auth argument is set to true
           description: Enable client authentication on etcd service.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep etcd |grep 'client-cert-auth' | grep -o 'client-cert-auth=[^"]\S*'
+            - ps -ef | grep etcd |grep ' --client-cert-auth' | grep -o ' --client-cert-auth=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="client-cert-auth=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - sudo awk -v FS="--client-cert-auth=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
           remediation: |-
             Edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and set the below parameter.
             --client-cert-auth="true"
@@ -46,11 +46,11 @@ categories:
             - https://kubernetes.io/docs/admin/etcd/
         - name: 2.3 Ensure that the --auto-tls argument is not set to true
           description: Do not use self-signed certificates for TLS.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep etcd |grep 'auto-tls' | grep -o 'auto-tls=[^"]\S*' | awk -F
+            - ps -ef | grep etcd |grep ' --auto-tls' | grep -o ' --auto-tls=[^"]\S*' | awk -F
               "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="auto-tls=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - sudo awk -v FS="--auto-tls=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
           remediation: |-
             Edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and either remove the --auto-tls parameter or set it to false.
             --auto-tls=false
@@ -66,14 +66,14 @@ categories:
             set as appropriate
           description: etcd should be configured to make use of TLS encryption for peer
             connections.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep etcd |grep 'peer-cert-file' | grep -o 'peer-cert-file=[^"]\S*'
+            - ps -ef | grep etcd |grep ' --peer-cert-file' | grep -o ' --peer-cert-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="peer-cert-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
-            - ps -ef | grep etcd |grep 'peer-key-file' | grep -o 'peer-key-file=[^"]\S*'
+            - sudo awk -v FS="--peer-cert-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - ps -ef | grep etcd |grep ' --peer-key-file' | grep -o ' --peer-key-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="peer-key-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - sudo awk -v FS="--peer-key-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
           remediation: |-
             Follow the etcd service documentation and configure peer TLS encryption as appropriate for your etcd cluster.
             Then, edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and set the below parameters. --peer-client-file=</path/to/peer-cert-file> --peer-key-file=</path/to/peer-key-file>
@@ -89,11 +89,11 @@ categories:
             - https://kubernetes.io/docs/admin/etcd/
         - name: 2.5 Ensure that the --peer-client-cert-auth argument is set to true
           description: etcd should be configured for peer authentication.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep etcd |grep 'peer-client-cert-auth' | grep -o 'peer-client-cert-auth=[^"]\S*'
+            - ps -ef | grep etcd |grep ' --peer-client-cert-auth' | grep -o ' --peer-client-cert-auth=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="peer-client-cert-auth=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - sudo awk -v FS="--peer-client-cert-auth=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
           remediation: |-
             Edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and set the below parameter.
             --peer-client-cert-auth=true
@@ -111,11 +111,11 @@ categories:
         - name: 2.6 Ensure that the --peer-auto-tls argument is not set to true
           description: Do not use automatically generated self-signed certificates for
             TLS connections between peers.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep etcd |grep 'peer-auto-tls' | grep -o 'peer-auto-tls=[^"]\S*'
+            - ps -ef | grep etcd |grep ' --peer-auto-tls' | grep -o ' --peer-auto-tls=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="peer-auto-tls=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - sudo awk -v FS="--peer-auto-tls=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
           remediation: |-
             Edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and either remove the --peer-auto-tls parameter or set it to false.
             --peer-auto-tls=false
@@ -133,12 +133,12 @@ categories:
         - name: 2.7 Ensure that a unique Certificate Authority is used for etcd
           description: Use a different certificate authority for etcd from the one used
             for Kubernetes.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep etcd |grep 'trusted-ca-file' | grep -o 'trusted-ca-file=[^"]\S*'
+            - ps -ef | grep etcd |grep ' --trusted-ca-file' | grep -o ' --trusted-ca-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="trusted-ca-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
-            - ps -ef | grep apiserver |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
+            - sudo awk -v FS="--trusted-ca-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/etcd.yaml
+            - ps -ef | grep apiserver |grep ' --client-ca-file' | grep -o ' --client-ca-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
           remediation: |-
             Follow the etcd documentation and create a dedicated certificate authority setup for the etcd service.
