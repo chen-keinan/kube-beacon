@@ -34,7 +34,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect
-	golang.org/x/sys v0.0.0-20201029020603-3518587229cd // indirect
+	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
 	golang.org/x/tools v0.0.0-20201028224754-2c115999a7f0 // indirect
 	google.golang.org/genproto v0.0.0-20191108220845-16a3f7862a1a
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
