@@ -2,7 +2,7 @@
 ###Install dlv
 $ git clone https://github.com/go-delve/delve.git $GOPATH/src/github.com/go-delve/delve
 $ cd $GOPATH/src/github.com/go-delve/delve
-$ make install
+    $ make install
 
 ### export dlv bin path
 export PATH=$PATH:/home/vagrant/go/bin

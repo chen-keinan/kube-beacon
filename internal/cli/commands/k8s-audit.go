@@ -150,7 +150,7 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 	}
 	result, _ := bk.Command.Exec(cmd)
 	if result.Stderr != "" {
-		log.Console(fmt.Sprintf("Failed to execute command %s", result.Stderr))
+		log.Console(fmt.Sprintf("Failed to execute command %s\n %s", result.Stderr,cmd))
 	}
 	return result.Stdout
 
