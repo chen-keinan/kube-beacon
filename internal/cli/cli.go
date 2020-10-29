@@ -38,7 +38,7 @@ func InitCli() {
 //StartCLI initialize beacon cli
 func StartCLI(sa SanitizeArgs) {
 	// create cli data
-	cmdArgs := []string{"a"}
+	cmdArgs := []string{"a","i=1.3.0"}
 	cliArgs := sa(os.Args[1:])
 	cmdArgs = append(cmdArgs, cliArgs...)
 	cmds := make([]cli.Command, 0)

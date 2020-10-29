@@ -13,9 +13,16 @@ type Predicate func(tests *models.SubCategory, params string) *models.SubCategor
 var IncludeAuditTest Predicate = func(tests *models.SubCategory, params string) *models.SubCategory {
 	sat := make([]*models.AuditBench, 0)
 	spt := utils.GetAuditTestsList("i", params)
+	// check if param include category
+	for _, sp := range spt {
+		if strings.HasPrefix(tests.Name, sp) {
+			return tests
+		}
+	}
+	// check tests
 	for _, at := range tests.AuditTests {
 		for _, sp := range spt {
-			if strings.Contains(at.Name, sp) {
+			if strings.HasPrefix(at.Name, sp) {
 				sat = append(sat, at)
 			}
 		}
@@ -30,10 +37,16 @@ var IncludeAuditTest Predicate = func(tests *models.SubCategory, params string) 
 var ExcludeAuditTest Predicate = func(tests *models.SubCategory, params string) *models.SubCategory {
 	sat := make([]*models.AuditBench, 0)
 	spt := utils.GetAuditTestsList("e", params)
+	// if exclude category
+	for _, sp := range spt {
+		if strings.HasPrefix(tests.Name, sp) {
+			return &models.SubCategory{Name: tests.Name, AuditTests: []*models.AuditBench{}}
+		}
+	}
 	for _, at := range tests.AuditTests {
 		var skipTest bool
 		for _, sp := range spt {
-			if strings.Contains(at.Name, sp) {
+			if strings.HasPrefix(at.Name, sp) {
 				skipTest = true
 			}
 		}
