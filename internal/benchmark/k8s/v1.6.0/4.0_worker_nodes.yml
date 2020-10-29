@@ -9,7 +9,7 @@ categories:
             or more restrictive
           description: Ensure that the kubelet service file has permissions of 644 or
             more restrictive.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
           remediation: |
@@ -25,7 +25,7 @@ categories:
             - https://kubernetes.io/docs/admin/kubeadm/#kubelet-drop-in
         - name: 4.1.2 Ensure that the kubelet service file ownership is set to root:root
           description: Ensure that the kubelet service file ownership is set to root:root.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - stat -c %U:%G /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
           remediation: |-
@@ -44,7 +44,7 @@ categories:
           description: If kube-proxy is running, and if it is using a file-based kubeconfig
             file, ensure that the proxy kubeconfig file has permissions of 644 or more
             restrictive.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -61,7 +61,7 @@ categories:
         - name: 4.1.4 If proxy kubeconfig file exists ensure ownership is set to root:root
           description: If kube-proxy is running, ensure that the file ownership of its
             kubeconfig file is set to root:root.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -79,7 +79,7 @@ categories:
             to 644 or more restrictive
           description: Ensure that the kubelet.conf file has permissions of 644 or more
             restrictive.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - stat -c %a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
           remediation: |-
@@ -95,7 +95,7 @@ categories:
         - name: 4.1.6 Ensure that the --kubeconfig kubelet.conf file ownership is set
             to root:root
           description: Ensure that the kubelet.conf file ownership is set to root:root.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - stat -c %U:%G /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
           remediation: |-
@@ -111,7 +111,7 @@ categories:
             to 644 or more restrictive
           description: Ensure that the certificate authorities file has permissions of
             644 or more restrictive.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -128,7 +128,7 @@ categories:
             set to root:root
           description: Ensure that the certificate authorities file ownership is set to
             root:root.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -146,7 +146,7 @@ categories:
         set to 644 or more restrictive '
           description: Ensure that if the kubelet refers to a configuration file with
             the --config argument, that file has permissions of 644 or more restrictive.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - sudo stat -c %a /var/lib/kubelet/config.yaml
           remediation: |-
@@ -164,7 +164,7 @@ categories:
             set to root:root
           description: Ensure that if the kubelet refers to a configuration file with
             the --config argument, that file is owned by root:root.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - sudo stat -c %U:%G /var/lib/kubelet/config.yaml
           remediation: |-
@@ -179,7 +179,7 @@ categories:
             - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
         - name: 4.2.1 Ensure that the --anonymous-auth argument is set to false
           description: Disable anonymous requests to the Kubelet server.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -199,7 +199,7 @@ categories:
             - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubelet-authentication
         - name: 4.2.2 Ensure that the --authorization-mode argument is not set to AlwaysAllow
           description: Do not allow all requests. Enable explicit authorization.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -220,7 +220,7 @@ categories:
             - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubelet-authentication
         - name: 4.2.3 Ensure that the --client-ca-file argument is set as appropriate
           description: Enable Kubelet authentication using certificates.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -241,7 +241,7 @@ categories:
             - https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet-authentication-authorization/,
         - name: 4.2.4 Verify that the --read-only-port argument is set to 0
           description: Disable the read-only port.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --read-only-port' | grep -o ' --read-only-port=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -263,7 +263,7 @@ categories:
         - name: 4.2.5 Ensure that the --streaming-connection-idle-timeout argument is
             not set to 0
           description: Do not disable timeouts on streaming connections.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -286,7 +286,7 @@ categories:
         - name: 4.2.6 Ensure that the --protect-kernel-defaults argument is set to true
           description: Protect tuned kernel parameters from overriding kubelet default
             kernel parameter values.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -307,7 +307,7 @@ categories:
             - https://github.com/kubernetes/kubernetes/pull/18552
         - name: 4.2.7 Ensure that the --make-iptables-util-chains argument is set to true
           description: Allow Kubelet to manage iptables.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -328,7 +328,7 @@ categories:
             - https://kubernetes.io/docs/admin/kubelet/
         - name: 4.2.8 Ensure that the --hostname-override argument is not set
           description: Do not override node hostnames.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --hostname-override' | grep -o ' --hostname-override=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -350,7 +350,7 @@ categories:
             flag on the Kubelet can be used to limit the rate at which events are gathered.
             Setting this too low could result in relevant events not being logged, however
             the unlimited setting of 0 could result in a denial of service on the kubelet.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -374,7 +374,7 @@ categories:
         - name: 4.2.10 Ensure that the --tls-cert-file and --tls-private-key-file arguments
             are set as appropriate
           description: Setup TLS connection on the Kubelets.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -396,7 +396,7 @@ categories:
           references: []
         - name: 4.2.11 Ensure that the --rotate-certificates argument is not set to false
           description: Enable kubelet client certificate rotation.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -419,7 +419,7 @@ categories:
         - name: 4.2.12 Verify that the RotateKubeletServerCertificate argument is set
             to true
           description: Enable kubelet server certificate rotation.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep 'RotateKubeletServerCertificate' | grep -o 'RotateKubeletServerCertificate=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -437,7 +437,7 @@ categories:
             Ciphers
           description: Ensure that the Kubelet is configured to only use strong cryptographic
             ciphers.
-          profile_applicability: Level 1 - Worker Node
+          profile_applicability: Worker
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'

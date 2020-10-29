@@ -10,7 +10,7 @@ categories:
       name: 5.1.1 Ensure that the cluster-admin role is only used where required
       description: The RBAC role cluster-admin provides wide-ranging powers over the
         environment and should be used only where and when needed.
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Master
       audit:
       - tf=/dev/stdout &&  kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].name
         |grep cluster-admin > tf && awk '{ print $3 }' tf
@@ -36,7 +36,7 @@ categories:
         tokens for the Kubernetes API or credentials used by workloads in the cluster.
         Access to these secrets should be restricted to the smallest possible group
         of users to reduce the risk of privilege escalation.
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Master
       audit:
       - tf=/dev/stdout && kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
         |grep User  > tf && awk '{ print $1 }' tf
@@ -60,7 +60,7 @@ categories:
       description: |
         Kubernetes Roles and ClusterRoles provide access to resources based on sets of objects and actions that can be taken on those objects. It is possible to set either of these to be the wildcard "*" which matches all items.
         Use of wildcards is not optimal from a security perspective as it may allow for inadvertent access to be granted when new resources are added to the Kubernetes API either as CRDs or in later versions of the product.
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Worker
       audit:
       - kubectl get roles --all-namespaces -o yaml | grep '*'
       - cf=/dev/stdout && cf2=/dev/stdout && kubectl get clusterroles -o yaml | grep
@@ -77,7 +77,7 @@ categories:
       description: |-
         The ability to create pods in a namespace can provide a number of opportunities for privilege escalation, such as assigning privileged service accounts to these pods or mounting hostPaths with access to sensitive data (unless Pod Security Policies are implemented to restrict this access)
         As such, access to create new pods should be restricted to the smallest possible group of users.
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Master
       audit:
       - tf=/dev/stdout && kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
         |grep User  > tf && awk '{ print $1 }' tf
@@ -92,11 +92,9 @@ categories:
       references: []
     -
       name: 5.1.5 Ensure that default service accounts are not actively used.
-      description: 'The default service account should not be used to ensure that
+      description: The default service account should not be used to ensure that
         rights granted to applications can be more easily audited and reviewed.
-
-'
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Master
       audit:
       - 'kubectl get serviceaccounts --all-namespaces -o yaml |grep -A5 ''kind: ServiceAccount''
         |grep -A5 default |grep -o ''automountServiceAccountToken:[^"]\S*'' | awk
@@ -122,7 +120,7 @@ categories:
       description: Service accounts tokens should not be mounted in pods except where
         the workload running in the pod explicitly needs to communicate with the API
         server
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Master
       audit:
       - 'kubectl get serviceaccounts --all-namespaces -o yaml |grep -A5 ''kind: ServiceAccount''
         |grep -A5 default |grep -o ''automountServiceAccountToken:[^"]\S*'' | awk
@@ -143,7 +141,7 @@ categories:
       name: 5.2.1 Minimize the admission of privileged containers
       description: Do not generally permit containers to be run with the securityContext.privileged
         flag set to true.
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Master
       audit:
       - kubectl get psp -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.privileged}'''
@@ -162,7 +160,7 @@ categories:
         ID namespace
       description: Do not generally permit containers to be run with the hostPID flag
         set to true.
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Master
       audit:
       - kubectl get psp -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostPID}'''
@@ -180,7 +178,7 @@ categories:
         namespace
       description: Do not generally permit containers to be run with the hostIPC flag
         set to true.
-      profile_applicability: Level 1 - Worker Node
+      profile_applicability: Master
       audit:
       - kubectl get psp -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostIPC}'''
