@@ -7,11 +7,11 @@ categories:
       audit_tests:
         - name: 1.4.1 Ensure that the --profiling argument is set to false
           description: Disable profiling, if not needed.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep kube-scheduler |grep 'profiling' | grep -o 'profiling=[^"]\S*'
+            - ps -ef | grep kube-scheduler |grep ' --profiling' | grep -o ' --profiling=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="profiling=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-scheduler.yaml
+            - sudo awk -v FS="--profiling=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-scheduler.yaml
           remediation: |-
             Edit the Scheduler pod specification file /etc/kubernetes/manifests/kube- scheduler.yaml file on the master node and set the below parameter.
             --profiling=false
@@ -24,11 +24,11 @@ categories:
             - https://github.com/kubernetes/community/blob/master/contributors/devel/profiling.md
         - name: 1.4.2 Ensure that the --bind-address argument is set to 127.0.0.1
           description: Do not bind the scheduler service to non-loopback insecure addresses.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep kube-scheduler |grep 'bind-address' | grep -o 'bind-address=[^"]\S*'
+            - ps -ef | grep kube-scheduler |grep ' --bind-address' | grep -o ' --bind-address=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="bind-address=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-scheduler.yaml
+            - sudo awk -v FS=" --bind-address=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-scheduler.yaml
           remediation: Edit the Scheduler pod specification file /etc/kubernetes/manifests/kube-
             scheduler.yaml on the master node and ensure the correct value for the --bind-address
             parameter

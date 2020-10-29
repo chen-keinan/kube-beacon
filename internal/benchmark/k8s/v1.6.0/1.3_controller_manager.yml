@@ -10,8 +10,7 @@ categories:
           description: Activate garbage collector on pod termination, as appropriate.
           profile_applicability: Master
           audit:
-            - ps -ef | grep kube-controller-manager |grep ' --terminated-pod-gc-threshold'
-              | grep -o ' --terminated-pod-gc-threshold=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - ps -ef | grep kube-controller-manager |grep ' --terminated-pod-gc-threshold' | grep -o ' --terminated-pod-gc-threshold=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
             - sudo awk -v FS="--terminated-pod-gc-threshold=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-controller-manager.yaml
           remediation: |-
             Edit the Controller Manager pod specification file /etc/kubernetes/manifests/kube- controller-manager.yaml on the master node and set the --terminated-pod-gc- threshold to an appropriate threshold, for example:
@@ -27,8 +26,7 @@ categories:
           description: Disable profiling, if not needed.
           profile_applicability: Master
           audit:
-            - ps -ef | grep kube-controller-manager |grep ' --profiling' | grep -o ' --profiling=[^"]\S*'
-              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - ps -ef | grep kube-controller-manager |grep ' --profiling' | grep -o ' --profiling=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
             - sudo awk -v FS="--profiling=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-controller-manager.yaml
           remediation: |-
             Edit the Controller Manager pod specification file /etc/kubernetes/manifests/kube- controller-manager.yaml on the master node and set the below parameter.
@@ -45,8 +43,7 @@ categories:
           description: Use individual service account credentials for each controller.
           profile_applicability: Master
           audit:
-            - ps -ef | grep kube-controller-manager |grep ' --use-service-account-credentials'
-              | grep -o ' --use-service-account-credentials=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+            - ps -ef | grep kube-controller-manager |grep ' --use-service-account-credentials' | grep -o ' --use-service-account-credentials=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
             - sudo awk -v FS="--use-service-account-credentials=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-controller-manager.yaml
           remediation: |-
             Edit the Controller Manager pod specification file /etc/kubernetes/manifests/kube- controller-manager.yaml on the master node to set the below parameter.
@@ -75,8 +72,7 @@ categories:
             Edit the Controller Manager pod specification file /etc/kubernetes/manifests/kube- controller-manager.yaml on the master node and set the --service-account-private- key-file parameter to the private key file for service accounts.
             --service-account-private-key-file=<filename>
           check_type: multi_param
-          impact: You would need to securely maintain the key file and rotate the keys
-        based on your organization''s key rotation policy.
+          impact: You would need to securely maintain the key file and rotate the keys based on your organization''s key rotation policy.
           eval_expr: "'$0' != ''; && '$0' == '$1';"
           default_value: By default, --service-account-private-key-file it not set.
           references:
