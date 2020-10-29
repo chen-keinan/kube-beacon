@@ -9,11 +9,11 @@ categories:
           description: |-
             Kubernetes provides the option to use client certificates for user authentication. However as there is no way to revoke these certificates when a user leaves an organization or loses their credential, they are not suitable for this purpose.
             It is not possible to fully disable client certificate use within a cluster as it is used for component to component authentication.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep etcd |grep 'oidc-username-claim' | grep -o 'oidc-username-claim=[^"]\S*'
+            - ps -ef | grep kube-apiserver |grep ' --oidc-username-claim' | grep -o ' --oidc-username-claim=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="oidc-username-claim=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+            - sudo awk -v FS="--oidc-username-claim=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
           remediation: Alternative mechanisms provided by Kubernetes such as the use of
             OIDC should be implemented in place of client certificates.
           check_type: multi_param
@@ -26,9 +26,9 @@ categories:
         - name: 3.2.1 Ensure that a minimal audit policy is created
           description: Kubernetes can audit the details of requests made to the API server.
             The --audit-policy- file flag must be set for this logging to be enabled.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep kube-apiserver |grep 'audit-policy-file' | grep -o 'audit-policy-file=[^\"]\\S*'
+            - ps -ef | grep kube-apiserver |grep ' --audit-policy-file' | grep -o ' --audit-policy-file=[^\"]\\S*'
               | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'
           remediation: Create an audit policy file for your cluster.
           check_type: multi_param
@@ -43,9 +43,9 @@ categories:
         - name: 3.2.2 Ensure that the audit policy covers key security concerns
           description: Ensure that the audit policy created for the cluster covers key
             security concerns.
-          profile_applicability: Level 1 - Master Node
+          profile_applicability: Master
           audit:
-            - ps -ef | grep kube-apiserver |grep 'audit-policy-file' | grep -o 'audit-policy-file=[^\"]\\S*'
+            - ps -ef | grep kube-apiserver |grep ' --audit-policy-file' | grep -o ' --audit-policy-file=[^\"]\\S*'
               | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'
             - 'grep -A10 ''level: Metadata''  #0 | grep ''secrets'''
             - 'grep -A10 ''level: Metadata''  #0 | grep ''configmaps'''
