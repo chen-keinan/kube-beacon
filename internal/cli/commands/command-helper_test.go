@@ -88,7 +88,7 @@ func Test_LoadAuditTest(t *testing.T) {
 //Test_FilterAuditTests test
 func Test_FilterAuditTests(t *testing.T) {
 	at := &models.SubCategory{AuditTests: []*models.AuditBench{{Name: "1.2.1 aaa"}, {Name: "2.2.2"}}}
-	fab := FilterAuditTests([]filters.Predicate{filters.IncludeAuditTest}, []string{"1.2.1"}, at)
+	fab := FilterAuditTests([]filters.Predicate{filters.IncludeAudit}, []string{"1.2.1"}, at)
 	assert.Equal(t, fab.AuditTests[0].Name, "1.2.1 aaa")
 	assert.True(t, len(fab.AuditTests) == 1)
 }
@@ -111,9 +111,21 @@ func Test_buildPredicateChainParams(t *testing.T) {
 	assert.Equal(t, p[1], "i=1.2.1")
 }
 
+//Test_buildPredicateChainParamsExcludeNode test
+func Test_buildPredicateChainExcludeNode(t *testing.T) {
+	p := buildPredicateChainParams([]string{"a", "n=master"})
+	assert.True(t, len(p) == 2)
+	assert.Equal(t, p[0], "a")
+	assert.Equal(t, p[1], "n=master")
+	p = buildPredicateChainParams([]string{"a", "e=1.2.1"})
+	assert.True(t, len(p) == 2)
+	assert.Equal(t, p[0], "a")
+	assert.Equal(t, p[1], "e=1.2.1")
+}
+
 func Test_filteredAuditBenchTests(t *testing.T) {
 	asc := []*models.SubCategory{{AuditTests: []*models.AuditBench{{Name: "1.1.0 bbb"}}}}
-	fp := []filters.Predicate{filters.IncludeAuditTest, filters.ExcludeAuditTest}
+	fp := []filters.Predicate{filters.IncludeAudit, filters.ExcludeAudit}
 	st := []string{"i=1.1.0", "e=1.1.0"}
 	fr := filteredAuditBenchTests(asc, fp, st)
 	assert.True(t, len(fr) == 0)

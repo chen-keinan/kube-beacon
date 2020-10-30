@@ -130,7 +130,7 @@ func ExcludeAuditTest(tests []string, name string) bool {
 //GetAuditTestsList return processing function by specificTests
 func GetAuditTestsList(key, arg string) []string {
 	values := strings.ReplaceAll(arg, fmt.Sprintf("%s=", key), "")
-	return strings.Split(values, ",")
+	return strings.Split(strings.ToLower(values), ",")
 }
 
 //RemoveNewLineSuffix remove new line from suffix

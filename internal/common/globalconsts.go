@@ -39,4 +39,6 @@ const (
 	IncludeParam = "i="
 	//ExcludeParam param
 	ExcludeParam = "e="
+	//NodeParam param
+	NodeParam = "n="
 )
