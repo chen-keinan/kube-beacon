@@ -3,6 +3,7 @@ go:
   - 1.14
 env:
   - "PATH=/home/travis/gopath/bin:$PATH"
+  - "GOPATH=/home/travis/gopath"
 before_install:
   - go get github.com/mattn/goveralls
 script:
