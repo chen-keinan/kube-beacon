@@ -4,6 +4,9 @@ go:
 env:
   - "PATH=/home/travis/gopath/bin:$PATH"
 before_install:
+  - go get github.com/mattn/goveralls
+script:
+  - $GOPATH/bin/goveralls -service=travis-ci
   - make test_travis
   - make build_travis
 

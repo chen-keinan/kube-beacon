@@ -22,7 +22,6 @@ tidy:
 test:
 	$(GOCMD) get github.com/golang/mock/mockgen@latest
 	$(GOCMD) install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
-	mv coverage_badge.png ./pkg/images/coverage_badge.png
 	$(GOMOCKS)
 	$(GOTEST) ./... -coverprofile coverage.md fmt
 	$(GOCMD) tool cover -html=coverage.md -o coverage.html
