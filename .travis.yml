@@ -4,5 +4,6 @@ go:
 env:
   - "PATH=/home/travis/gopath/bin:$PATH"
 before_install:
+  - make test_travis
   - make build_travis
 

@@ -1,43 +1,53 @@
 SHELL := /bin/bash
 
 GOCMD=go
+MOVESANDBOX=mv beacon ~/vagrant_file/.
+GOPACKR=$(GOCMD) get -u github.com/gobuffalo/packr/packr && packr
 GOMOD=$(GOCMD) mod
+GOMOCKS=$(GOCMD) generate ./...
 GOBUILD=$(GOCMD) build
-GOLINT=${GOPATH}/bin/golangci-lint
-GORELEASER=/usr/local/bin/goreleaser
-GOIMPI=${GOPATH}/bin/impi
 GOTEST=$(GOCMD) test
+BINARY_NAME=beacon
 GOCOPY=cp beacon ~/vagrant_file/.
 
-all:
-	$(info  "completed running make file for kube-beacon project")
+all:test lint build
+
 fmt:
-	@go fmt ./...
+	$(GOCMD) fmt ./...
 lint:
+	$(GOMOCKS)
 	./lint.sh
 tidy:
 	$(GOMOD) tidy -v
 test:
-	#@go get github.com/golang/mock/mockgen@latest
-	#@go install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
+	$(GOCMD) get github.com/golang/mock/mockgen@latest
+	$(GOCMD) install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
 	gopherbadger -tags "unit"
 	mv coverage_badge.png ./pkg/images/coverage_badge.png
-	@go generate ./...
+	$(GOMOCKS)
 	$(GOTEST) ./... -coverprofile coverage.md fmt
-	go tool cover -html=coverage.md -o coverage.html
+	$(GOCMD) tool cover -html=coverage.md -o coverage.html
 build:
-	go get -u github.com/gobuffalo/packr/packr
-	packr
-	GOOS=linux GOARCH=amd64 go build -v cmd/kube/beacon.go;
-	mv beacon ~/vagrant_file/.
+	$(GOPACKR)
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/beacon.go;
+	$(MOVESANDBOX)
+install:build
+	cp $(BINARY_NAME) $(GOPATH)/bin/kube-beacon
+test_travis:
+	$(GOCMD) get github.com/golang/mock/mockgen@latest
+	$(GOCMD) install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
+	$(GOMOCKS)
+	$(GOTEST) ./... -coverprofile coverage.md fmt
+	$(GOCMD) tool cover -html=coverage.md -o coverage.html
 build_travis:
-	go get -u github.com/gobuffalo/packr/packr
-	packr
-	GOOS=linux GOARCH=amd64 go build -v cmd/kube/beacon.go;
+	$(GOPACKR)
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/beacon.go;
 build_remote:
-	go get -u github.com/gobuffalo/packr/packr
-	packr
-	GOOS=linux GOARCH=amd64 go build -v -gcflags='-N -l' cmd/kube/beacon.go
-	mv beacon ~/vagrant_file/.
+	$(GOPACKR)
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/beacon.go
+	$(MOVESANDBOX)
+setup:
+	$(GOMOD) download
+	$(GOMOD) tidy
 
-.PHONY: install-req fmt test lint build ci build-binaries tidy imports
+.PHONY: all build install test
