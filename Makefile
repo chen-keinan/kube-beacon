@@ -25,6 +25,7 @@ test:
 	$(GOMOCKS)
 	$(GOTEST) ./... -coverprofile coverage.md fmt
 	$(GOCMD) tool cover -html=coverage.md -o coverage.html
+	$(GOCMD) tool cover  -func coverage.md
 build:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/beacon.go;
