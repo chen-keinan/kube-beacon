@@ -47,7 +47,6 @@ func StartCLI(sa SanitizeArgs) {
 	commands := createCliBuilderData(cmdArgs, cmds)
 	if helpNeeded {
 		cmdArgs = cmdArgs[1:]
-		fmt.Println(cmdArgs)
 	}
 	status, err := invokeCommandCli(cmdArgs, commands)
 	if err != nil {
