@@ -35,12 +35,16 @@ func Test_StartCli(t *testing.T) {
 
 func Test_ArgsSanitizer(t *testing.T) {
 	args := []string{"--a", "-b"}
-	sArgs := ArgsSanitizer(args)
+	sArgs, helpNeed := ArgsSanitizer(args)
 	assert.Equal(t, sArgs[0], "a")
 	assert.Equal(t, sArgs[1], "b")
+	assert.False(t, helpNeed)
 	args = []string{}
-	sArgs = ArgsSanitizer(args)
+	sArgs, helpNeed = ArgsSanitizer(args)
 	assert.True(t, sArgs[0] == "")
+	args = []string{"--help"}
+	sArgs, helpNeed = ArgsSanitizer(args)
+	assert.True(t, helpNeed)
 }
 
 //Test_BeaconHelpFunc test
@@ -55,7 +59,7 @@ func Test_BeaconHelpFunc(t *testing.T) {
 //Test_createCliBuilderData test
 func Test_createCliBuilderData(t *testing.T) {
 	cmdArgs := []string{"a"}
-	cliArgs := ArgsSanitizer(os.Args[1:])
+	cliArgs, _ := ArgsSanitizer(os.Args[1:])
 	cmdArgs = append(cmdArgs, cliArgs...)
 	cmds := make([]cli.Command, 0)
 	// invoke cli
@@ -63,6 +67,7 @@ func Test_createCliBuilderData(t *testing.T) {
 	c := createCliBuilderData(cmdArgs, cmds)
 	_, ok := c["a"]
 	assert.True(t, ok)
+
 }
 
 //Test_InvokeCli test
