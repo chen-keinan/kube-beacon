@@ -40,11 +40,11 @@ func Test_ArgsSanitizer(t *testing.T) {
 	assert.Equal(t, sArgs[1], "b")
 	assert.False(t, helpNeed)
 	args = []string{}
-	sArgs, helpNeed = ArgsSanitizer(args)
+	sArgs, _ = ArgsSanitizer(args)
 	assert.True(t, sArgs[0] == "")
 	args = []string{"--help"}
-	sArgs, helpNeed = ArgsSanitizer(args)
-	assert.True(t, helpNeed)
+	_, helpNeed2nd := ArgsSanitizer(args)
+	assert.True(t, helpNeed2nd)
 }
 
 //Test_BeaconHelpFunc test

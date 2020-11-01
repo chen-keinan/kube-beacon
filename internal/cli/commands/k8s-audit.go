@@ -42,7 +42,7 @@ var ConsoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
 // ReportOutputGenerator print failed audit test to human report
 var ReportOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
 	for _, a := range at {
-		reports.GenerateAuditReport(a.AuditTests)
+		log.Table(reports.GenerateAuditReport(a.AuditTests))
 	}
 }
 
