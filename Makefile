@@ -30,8 +30,8 @@ build:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/beacon.go;
 	$(MOVESANDBOX)
-install:build
-	cp $(BINARY_NAME) $(GOPATH)/bin/kube-beacon
+install:build_travis
+	cp $(BINARY_NAME) $(GOPATH)/bin/$(BINARY_NAME)
 test_travis:
 	$(GOCMD) get github.com/golang/mock/mockgen@latest
 	$(GOCMD) install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;

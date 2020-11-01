@@ -39,12 +39,16 @@ func InitCli() {
 func StartCLI(sa SanitizeArgs) {
 	// create cli data
 	cmdArgs := []string{"a"}
-	cliArgs := sa(os.Args[1:])
-	cmdArgs = append(cmdArgs, cliArgs...)
+	cliArgs, helpNeeded := sa(os.Args[1:])
 	cmds := make([]cli.Command, 0)
+	cmdArgs = append(cmdArgs, cliArgs...)
 	// invoke cli
-	cmds = append(cmds, commands.NewK8sAudit(cmdArgs))
+	cmds = append(cmds, commands.NewK8sAudit(cliArgs))
 	commands := createCliBuilderData(cmdArgs, cmds)
+	if helpNeeded {
+		cmdArgs = cmdArgs[1:]
+		fmt.Println(cmdArgs)
+	}
 	status, err := invokeCommandCli(cmdArgs, commands)
 	if err != nil {
 		log.Console(err.Error())
@@ -78,7 +82,8 @@ func invokeCommandCli(args []string, commands map[string]cli.CommandFactory) (in
 }
 
 //ArgsSanitizer sanitize CLI arguments
-var ArgsSanitizer SanitizeArgs = func(str []string) []string {
+var ArgsSanitizer SanitizeArgs = func(str []string) ([]string, bool) {
+	var helpNeeded bool
 	args := make([]string, 0)
 	if len(str) == 0 {
 		args = append(args, "")
@@ -87,12 +92,15 @@ var ArgsSanitizer SanitizeArgs = func(str []string) []string {
 		arg = strings.Replace(arg, "--", "", -1)
 		arg = strings.Replace(arg, "-", "", -1)
 		args = append(args, arg)
+		if arg == "help" {
+			helpNeeded = true
+		}
 	}
-	return args
+	return args, helpNeeded
 }
 
 //SanitizeArgs sanitizer func
-type SanitizeArgs func(str []string) []string
+type SanitizeArgs func(str []string) ([]string, bool)
 
 // BeaconHelpFunc beacon help function with all supported commands
 func BeaconHelpFunc(app string) cli.HelpFunc {
