@@ -23,7 +23,6 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 ```sh
 git clone https://github.com/chen-keinan/kube-beacon
 cd kube-beacon
-make
 make install
 ```
 
