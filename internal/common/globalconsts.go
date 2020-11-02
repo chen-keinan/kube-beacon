@@ -41,4 +41,6 @@ const (
 	ExcludeParam = "e="
 	//NodeParam param
 	NodeParam = "n="
+	// Beacon Home env var
+	BeaconHomeEnvVar = "BEACON_HOME"
 )
