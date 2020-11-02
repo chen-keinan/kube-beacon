@@ -31,21 +31,26 @@ make install
 
 ## Quick Start
 
-execute beacon witout any flags , execute all tests
+Execute beacon without any flags , execute all tests
 
 ```
  ./beacon 
 
 ```
 
-execute beacon flags , execute all tests
+Execute beacon  with flags , execute test on demand
 
 ```
 Usage: Beacon [--version] [--help] <command> [<args>]
 
 Available commands are:
-  -r , --report,  run tests and generate failure report
   -i , --include, execute specific tests only,  example -i=1.2.3,1.4.5
   -e , --exclude, exclude tests from execution, example -e=1.2.3,1.4.5
   -n , --node,    execute specific node test,   example -n=master,-n=worker
+```
+
+Execute tests and generate failure tests report
+
+```
+./beacon -r
 ```
