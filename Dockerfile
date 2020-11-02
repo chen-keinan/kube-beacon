@@ -1,13 +1,20 @@
 # Use an official golang runtime as a parent image
-FROM golang:1.14
+FROM golang:1.15-alpine as builder
 
-# Set the working directory to /app
-RUN  apt-get update -y
+ENV GO111MODULE=on
 
-RUN  apt-get install -y gawk
+ADD . /src
 
-RUN mkdir -p /app
+WORKDIR /src/cmd/kube
 
-ADD beacon /app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o beacon .
 
-CMD ["/app/beacon"]
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+COPY --from=builder /src/cmd/kube/beacon .
+
+CMD ["./beacon"]
