@@ -1,4 +1,4 @@
-    
+
 # Kube-Beacon Project
 ###  Scan your kubernetes runtime !!
 [![Go Report Card](https://goreportcard.com/badge/github.com/chen-keinan/beacon)](https://goreportcard.com/report/github.com/chen-keinan/beacon)
@@ -16,12 +16,13 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 #### kubernetes cluster audit scan output: 
 ![k8s audit](./pkg/images/beacon.gif) 
 
-* [Installation](#nstallation)
+* [Installation](#installation)
 
-##installation
+## Installation
+
 ```sh
-git clone https://github.com/Shopify/kubeaudit.git
-cd kubeaudit
+git clone https://github.com/chen-keinan/kube-beacon
+cd kube-beacon
 make
 make install
 ```
