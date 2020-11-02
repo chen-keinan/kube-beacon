@@ -17,6 +17,8 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 ![k8s audit](./pkg/images/beacon.gif) 
 
 * [Installation](#installation)
+* [Quick Start](#quick-start)
+
 
 ## Installation
 
@@ -27,3 +29,23 @@ make install
 ```
 
 
+## Quick Start
+
+execute beacon witout any flags , execute all tests
+
+```
+ ./beacon 
+
+```
+
+execute beacon flags , execute all tests
+
+```
+Usage: Beacon [--version] [--help] <command> [<args>]
+
+Available commands are:
+  -r , --report,  run tests and generate failure report
+  -i , --include, execute specific tests only,  example -i=1.2.3,1.4.5
+  -e , --exclude, exclude tests from execution, example -e=1.2.3,1.4.5
+  -n , --node,    execute specific node test,   example -n=master,-n=worker
+```
