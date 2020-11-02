@@ -16,3 +16,14 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 #### kubernetes cluster audit scan output: 
 ![k8s audit](./pkg/images/beacon.gif) 
 
+* [Installation](#nstallation)
+
+##installation
+```sh
+git clone https://github.com/Shopify/kubeaudit.git
+cd kubeaudit
+make
+make install
+```
+
+

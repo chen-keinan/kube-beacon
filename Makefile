@@ -45,6 +45,10 @@ build_remote:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/beacon.go
 	$(MOVESANDBOX)
+build_local:
+	$(GOPACKR)
+	$(GOBUILD) cmd/kube/beacon.go
+	$(MOVESANDBOX)
 setup:
 	$(GOMOD) download
 	$(GOMOD) tidy
