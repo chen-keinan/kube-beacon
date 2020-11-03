@@ -53,7 +53,7 @@ func Test_BeaconHelpFunc(t *testing.T) {
 	bhf := BeaconHelpFunc(common.KubeBeacon)
 	helpFile := bhf(cm)
 	assert.True(t, strings.Contains(helpFile, "Available commands are:"))
-	assert.True(t, strings.Contains(helpFile, "Usage: Kube-Beacon [--version] [--help] <command> [<args>]"))
+	assert.True(t, strings.Contains(helpFile, "Usage: kube-beacon [--version] [--help] <command> [<args>]"))
 }
 
 //Test_createCliBuilderData test
