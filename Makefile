@@ -16,7 +16,7 @@ fmt:
 	$(GOCMD) fmt ./...
 lint:
 	$(GOMOCKS)
-	./lint.sh
+	./scripts/lint.sh
 tidy:
 	$(GOMOD) tidy -v
 test:
