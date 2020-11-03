@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/chen-keinan/beacon/internal/common"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -15,7 +16,9 @@ func GetHomeFolder() string {
 	if err != nil {
 		panic("Failed to fetch user home folder")
 	}
-	return path.Join(usr.HomeDir, ".beacon")
+	// User can set a custom BEACON_HOME from environment variable
+	usrHome := GetEnv(common.BeaconHomeEnvVar, usr.HomeDir)
+	return path.Join(usrHome, ".beacon")
 }
 
 //CreateHomeFolderIfNotExist create beacon home folder if not exist
@@ -72,4 +75,12 @@ func GetK8sBenchAuditFiles() ([]FilesInfo, error) {
 type FilesInfo struct {
 	Name string
 	Data string
+}
+
+// Get Environment Variable value or return default
+func GetEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }
