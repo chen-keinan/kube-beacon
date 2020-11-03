@@ -6,7 +6,7 @@
 [![Build Status](https://travis-ci.com/chen-keinan/kube-beacon.svg?branch=main)](https://travis-ci.com/chen-keinan/kube-beacon)
 [![Coverage Status](https://coveralls.io/repos/github/chen-keinan/kube-beacon/badge.svg?branch=main)](https://coveralls.io/github/chen-keinan/kube-beacon?branch=main)
 
-Beacon is a GO base audit scanner who perform audit check on a deployed kubernetes cluster and output a security report.
+Kube-Beacon is a GO base audit scanner who perform audit check on a deployed kubernetes cluster and output a security report.
 The audit tests are the full implementation of [CIS Kubernetes Benchmark specification](https://www.cisecurity.org/benchmark/kubernetes/) <br>
 
 #### Audit checks are performed  on master and worker nodes and the output audit report include :
@@ -31,17 +31,17 @@ make install
 
 ## Quick Start
 
-Execute beacon without any flags , execute all tests
+Execute kube-eacon without any flags , execute all tests
 
 ```
- ./beacon 
+ ./kube-beacon 
 
 ```
 
-Execute beacon  with flags , execute test on demand
+Execute kube-beacon  with flags , execute test on demand
 
 ```
-Usage: Beacon [--version] [--help] <command> [<args>]
+Usage: kube-Beacon [--version] [--help] <command> [<args>]
 
 Available commands are:
   -i , --include, execute specific tests only,  example -i=1.2.3,1.4.5
@@ -52,5 +52,5 @@ Available commands are:
 Execute tests and generate failure tests report
 
 ```
-./beacon -r
+./kube-beacon -r
 ```

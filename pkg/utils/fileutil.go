@@ -77,7 +77,7 @@ type FilesInfo struct {
 	Data string
 }
 
-// Get Environment Variable value or return default
+//GetEnv Get Environment Variable value or return default
 func GetEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
