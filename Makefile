@@ -45,6 +45,10 @@ build_remote:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go
 	$(MOVESANDBOX)
+build_docker:
+	docker build -t beacon.jfrog.io/docker/kube-beacon .
+	docker login beacon.jfrog.io -u $USER -p $PASSWORD
+	docker push beacon.jfrog.io/docker/kube-beacon
 build_beb:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go
