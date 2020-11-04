@@ -32,15 +32,17 @@ const (
 	//Synopsis help
 	Synopsis = "synopsis"
 	//BeaconCli Name
-	BeaconCli = "Beacon"
+	BeaconCli = "kube-beacon"
 	//BeaconVersion version
-	BeaconVersion = "1.0.0"
+	BeaconVersion = "0.1"
 	//IncludeParam param
 	IncludeParam = "i="
 	//ExcludeParam param
 	ExcludeParam = "e="
 	//NodeParam param
 	NodeParam = "n="
-	// Beacon Home env var
+	//BeaconHomeEnvVar Beacon Home env var
 	BeaconHomeEnvVar = "BEACON_HOME"
+	//KubeBeacon binary name
+	KubeBeacon = "kube-beacon"
 )

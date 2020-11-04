@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
@@ -97,4 +98,14 @@ func saveFilesIfNotExist(filesData []FilesInfo) error {
 		}
 	}
 	return nil
+}
+
+//Test_GetEnv test getting home beacon folder
+func Test_GetEnv(t *testing.T) {
+	os.Setenv(common.BeaconHomeEnvVar, "/home/beacon")
+	homeFolder := GetEnv(common.BeaconHomeEnvVar, "/home/user")
+	assert.Equal(t, homeFolder, "/home/beacon")
+	os.Unsetenv(common.BeaconHomeEnvVar)
+	homeFolder = GetEnv(common.BeaconHomeEnvVar, "/home/user")
+	assert.Equal(t, homeFolder, "/home/user")
 }
