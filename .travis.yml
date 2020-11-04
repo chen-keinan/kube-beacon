@@ -13,5 +13,5 @@ script:
   - goveralls -service=travis-pro
   - make test_travis
   - make build_travis
-  - ./build_docker
+  - ./scripts/build_docker.sh
 
