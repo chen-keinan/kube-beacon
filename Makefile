@@ -47,7 +47,7 @@ build_remote:
 	$(MOVESANDBOX)
 build_docker:
 	docker build -t beacon.jfrog.io/docker/kube-beacon .
-	docker login beacon.jfrog.io -u $USER -p $PASSWORD
+	@docker login beacon.jfrog.io -u $USER -p $PASSWORD
 	docker push beacon.jfrog.io/docker/kube-beacon
 build_beb:
 	$(GOPACKR)
