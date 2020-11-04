@@ -7,7 +7,7 @@ ADD . /src
 
 WORKDIR /src/cmd/kube
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o beacon .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o kube-beacon .
 
 FROM alpine:latest
 
@@ -15,6 +15,6 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /src/cmd/kube/beacon .
+COPY --from=builder /src/cmd/kube/kube-beacon .
 
-CMD ["./beacon"]
+CMD ["./kube-beacon"]
