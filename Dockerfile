@@ -17,4 +17,6 @@ WORKDIR /root/
 
 COPY --from=builder /src/cmd/kube/kube-beacon .
 
+RUN chmod 777 kube-beacon
+
 CMD ["./kube-beacon"]
