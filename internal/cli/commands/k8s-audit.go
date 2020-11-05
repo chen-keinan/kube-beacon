@@ -210,7 +210,7 @@ func evalCommand(at *models.AuditBench, permutationArr []string, testExec int) i
 	// eval command expression
 	testSucceeded, err := evalCommandExpr(strings.ReplaceAll(expr, common.EmptyValue, ""))
 	if err != nil {
-		log.Console(fmt.Sprintf("failed to evaluate command expr for audit test %s", at.Name))
+		log.Console(fmt.Sprintf("failed to evaluate command expr %s for audit test %s",expr, at.Name))
 	}
 	return testExec - testSucceeded
 }
