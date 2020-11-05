@@ -65,5 +65,5 @@ docker pull beacon.jfrog.io/docker-local/kube-beacon:latest
 2. execute docker image
 
 ```
-docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $(echo $HOME)/.kube:/root/.kube:ro -t beacon.jfrog.io/docker-local/kube-beacon
+docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $HOME/.kube:/root/.kube:ro -t beacon.jfrog.io/docker-local/kube-beacon
 ```
