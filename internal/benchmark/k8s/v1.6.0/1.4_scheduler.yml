@@ -11,7 +11,7 @@ categories:
           audit:
             - ps -ef | grep kube-scheduler |grep ' --profiling' | grep -o ' --profiling=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="--profiling=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-scheduler.yaml
+            -  awk -v FS="--profiling=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-scheduler.yaml
           remediation: |-
             Edit the Scheduler pod specification file /etc/kubernetes/manifests/kube- scheduler.yaml file on the master node and set the below parameter.
             --profiling=false
@@ -28,7 +28,7 @@ categories:
           audit:
             - ps -ef | grep kube-scheduler |grep ' --bind-address' | grep -o ' --bind-address=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS=" --bind-address=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-scheduler.yaml
+            -  awk -v FS=" --bind-address=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-scheduler.yaml
           remediation: Edit the Scheduler pod specification file /etc/kubernetes/manifests/kube-
             scheduler.yaml on the master node and ensure the correct value for the --bind-address
             parameter

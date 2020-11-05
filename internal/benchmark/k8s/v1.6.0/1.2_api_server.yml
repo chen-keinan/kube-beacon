@@ -13,7 +13,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --anonymous-auth' | grep -o ' --anonymous-auth=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--anonymous-auth=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--anonymous-auth=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.
         --anonymous-auth=false
@@ -31,7 +31,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --basic-auth-file' | grep -o ' --basic-auth-file=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--basic-auth-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--basic-auth-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Follow the documentation and configure alternate mechanisms for
         authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and remove the --basic-auth-file=<filename>
@@ -52,7 +52,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --token-auth-file' | grep -o ' --token-auth-file=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--token-auth-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--token-auth-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Follow the documentation and configure alternate mechanisms for
         authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and remove the --token-auth-file=<filename>
@@ -72,7 +72,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --anonymous-auth' | grep -o ' --anonymous-auth=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--anonymous-auth=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--anonymous-auth=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Follow the documentation and configure alternate mechanisms for
         authentication. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and remove the --token-auth-file=<filename>
@@ -90,9 +90,9 @@ categories:
       profile_applicability: Master
       audit:
       - ps -ef | grep kube-apiserver |grep ' --kubelet-client-certificate' | grep -o ' --kubelet-client-certificate=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--kubelet-client-certificate=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--kubelet-client-certificate=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       - ps -ef | grep kube-apiserver |grep ' --kubelet-client-key' | grep -o ' --kubelet-client-key=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--kubelet-client-key=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--kubelet-client-key=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Follow the Kubernetes documentation and set up the TLS connection between the apiserver and kubelets. Then, edit API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the kubelet client certificate and key parameters as below. --kubelet-client-certificate=<path/to/client-certificate-file> --kubelet-client-key=<path/to/client-key-file>
       check_type: multi_param
       impact: You require TLS to be configured on apiserver as well as kubelets.
@@ -111,7 +111,7 @@ categories:
       - ps -ef | grep kube-apiserver |grep ' --kubelet-certificate-authority' | grep
         -o ' --kubelet-certificate-authority=[^"]\S*' | awk -F "=" '{print $2}' |awk
         'FNR <= 1'
-      - sudo awk -v FS="--kubelet-certificate-authority=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--kubelet-certificate-authority=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Follow the Kubernetes documentation and setup the TLS connection
         between the apiserver and kubelets. Then, edit the API server pod specification
         file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and
@@ -132,7 +132,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --authorization-mode' | grep -o ' --authorization-mode=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--authorization-mode=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--authorization-mode=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --authorization-mode parameter to values other than AlwaysAllow. One such example could be as below.
         --authorization-mode=RBAC
@@ -151,7 +151,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --authorization-mode' | grep -o ' --authorization-mode=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--authorization-mode=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--authorization-mode=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and set the --authorization-mode parameter
         to a value that includes Node. --authorization-mode=Node,RBAC
@@ -170,7 +170,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --authorization-mode' | grep -o ' --authorization-mode=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--authorization-mode=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--authorization-mode=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and set the --authorization-mode parameter
         to a value that includes RBAC, for example:--authorization-mode=Node,RBAC
@@ -189,8 +189,8 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --enable-admission-plugins' | grep -o ' --enable-admission-plugins=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--enable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
-      - sudo awk -v FS="--admission-control-config-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--enable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--admission-control-config-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Follow the Kubernetes documentation and set the desired limits in a configuration file. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml and set the below parameters
          --enable-admission-plugins=...,EventRateLimit,... --admission-control-config-file=<path/to/configuration/file>
@@ -210,7 +210,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --enable-admission-plugins' | grep -o ' --enable-admission-plugins=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--enable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--enable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and either remove the --enable-admission-plugins
         parameter, or set it to a value that does not include AlwaysAdmit.
@@ -229,7 +229,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --enable-admission-plugins' | grep -o ' --enable-admission-plugins=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--enable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--enable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and set the --enable-admission-plugins parameter
         to include AlwaysPullImages.--enable-admission-plugins=...,AlwaysPullImages,...
@@ -256,7 +256,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --enable-admission-plugins' | grep -o ' --enable-admission-plugins=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--enable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--enable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to include SecurityContextDeny, unless PodSecurityPolicy is already in place.
         --enable-admission-plugins=...,SecurityContextDeny,...
@@ -277,7 +277,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --disable-admission-plugins' | grep -o ' --disable-admission-plugins=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--disable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--disable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Follow the documentation and create ServiceAccount objects as per
         your environment. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and ensure that the --disable-admission-plugins
@@ -299,7 +299,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --disable-admission-plugins' | grep -o ' --disable-admission-plugins=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--disable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--disable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and set the --disable-admission-plugins
         parameter to ensure it does not include NamespaceLifecycle.
@@ -317,7 +317,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --disable-admission-plugins' | grep -o ' --disable-admission-plugins=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--disable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--disable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Follow the documentation and create Pod Security Policy objects as per your environment. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to a value that includes PodSecurityPolicy:
         --enable-admission-plugins=...,PodSecurityPolicy,...
@@ -337,7 +337,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --disable-admission-plugins' | grep -o ' --disable-admission-plugins=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--disable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--disable-admission-plugins=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Follow the Kubernetes documentation and configure NodeRestriction plug-in on kubelets. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --enable-admission-plugins parameter to a value that includes NodeRestriction.
         --enable-admission-plugins=...,NodeRestriction,...
@@ -357,7 +357,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --insecure-bind-address' | grep -o ' --insecure-bind-address=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--insecure-bind-address=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--insecure-bind-address=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and remove the --insecure-bind-address parameter.
       check_type: multi_param
@@ -373,7 +373,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --insecure-port' | grep -o ' --insecure-port=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--insecure-port=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--insecure-port=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.
         --insecure-port=0
@@ -396,7 +396,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --secure-port' | grep -o ' --secure-port=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--secure-port=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--secure-port=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and either remove the --secure-port parameter
         or set it to a different (non-zero) desired port.
@@ -413,7 +413,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --profiling' | grep -o ' --profiling=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--profiling=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--profiling=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |
         Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the below parameter.
         --profiling=false
@@ -432,7 +432,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --audit-log-path' | grep -o ' --audit-log-path=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--audit-log-path=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--audit-log-path=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-path parameter to a suitable path and file where you would like audit logs to be written, for example:
         --audit-log-path=/var/log/apiserver/audit.log
@@ -452,7 +452,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --audit-log-maxage' | grep -o ' --audit-log-maxage=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--audit-log-maxage=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--audit-log-maxage=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxage parameter to 30 or as an appropriate number of days:
         --audit-log-maxage=30
@@ -472,7 +472,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --audit-log-maxbackup' | grep -o ' --audit-log-maxbackup=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--audit-log-maxbackup=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--audit-log-maxbackup=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxbackup parameter to 10 or to an appropriate value.
         --audit-log-maxbackup=10
@@ -492,7 +492,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --audit-log-maxsize' | grep -o ' --audit-log-maxsize=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--audit-log-maxsize=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--audit-log-maxsize=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --audit-log-maxsize parameter to an appropriate size in MB. For example, to set it as 100 MB:
         --audit-log-maxsize=100
@@ -511,7 +511,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --request-timeout' | grep -o ' --request-timeout=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--request-timeout=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--request-timeout=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml and set the below parameter as appropriate and if needed. For example,
         --request-timeout=300s
@@ -529,7 +529,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --service-account-lookup' | grep -o ' --service-account-lookup=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--service-account-lookup=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--service-account-lookup=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the below parameter.
         --service-account-lookup=true
@@ -550,7 +550,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --service-account-key-file' | grep -o ' --service-account-key-file=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--service-account-key-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--service-account-key-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the --service-account-key-file parameter to the public key file for service accounts:
         --service-account-key-file=<filename>
@@ -570,10 +570,10 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --etcd-certfile' | grep -o ' --etcd-certfile=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--etcd-certfile=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--etcd-certfile=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       - ps -ef | grep kube-apiserver |grep ' --etcd-keyfile' | grep -o ' --etcd-keyfile=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--etcd-keyfile=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--etcd-keyfile=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Follow the Kubernetes documentation and set up the TLS connection between the apiserver and etcd. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the etcd certificate and key file parameters.
         Impact:
@@ -595,10 +595,10 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --tls-cert-file' | grep -o ' --tls-cert-file=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--tls-cert-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--tls-cert-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       - ps -ef | grep kube-apiserver |grep ' --tls-private-key-file' | grep -o ' --tls-private-key-file=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--tls-private-key-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--tls-private-key-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Follow the Kubernetes documentation and set up the TLS connection on the apiserver. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the TLS certificate and private key file parameters.
          --tls-cert-file=<path/to/tls-certificate-file>
@@ -618,7 +618,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --client-ca-file' | grep -o ' --client-ca-file=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--client-ca-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--client-ca-file=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Follow the Kubernetes documentation and set up the TLS connection on the apiserver. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube- apiserver.yaml on the master node and set the client certificate authority file.
         --client-ca-file=<path/to/client-ca-file>
@@ -639,7 +639,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --etcd-cafile' | grep -o ' --etcd-cafile=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--etcd-cafile=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--etcd-cafile=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Follow the Kubernetes documentation and set up the TLS connection between the apiserver and etcd. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the etcd certificate authority file parameter.
         --etcd-cafile=<path/to/ca-file>
@@ -658,7 +658,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --encryption-provider-config' | grep -o
         ' --encryption-provider-config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--encryption-provider-config=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--encryption-provider-config=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: |-
         Follow the Kubernetes documentation and configure a EncryptionConfig file. Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the --encryption-provider-config parameter to the path of that file:
         --encryption-provider-config=</path/to/EncryptionConfig/File>
@@ -680,7 +680,7 @@ categories:
       - ps -ef | grep kube-apiserver |grep 'encryption-provider-config' | grep -o
         'encryption-provider-config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <=
         1'
-      - sudo awk -v FS="encryption-provider-config=" 'NF>1{print $2}'  /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="encryption-provider-config=" 'NF>1{print $2}'  /etc/kubernetes/manifests/kube-apiserver.yaml
       - 'grep -e aescbc #1 | grep -o ''aescbc[^"]\S*'''
       - 'grep -e kms #1 | grep -o ''kms[^"]\S*'''
       - 'grep -e secretbox #1 | grep -o ''secretbox[^"]\S*'''
@@ -706,7 +706,7 @@ categories:
       audit:
       - ps -ef | grep kube-apiserver |grep ' --ls-cipher-suites' | grep -o ' --tls-cipher-suites=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - sudo awk -v FS="--tls-cipher-suites=" 'NF>1{print $2}'  /etc/kubernetes/manifests/kube-apiserver.yaml
+      -  awk -v FS="--tls-cipher-suites=" 'NF>1{print $2}'  /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Follow the Kubernetes documentation and configure a EncryptionConfig
         file. In this file, choose aescbc, kms or secretbox as the encryption provider.
       check_type: multi_param

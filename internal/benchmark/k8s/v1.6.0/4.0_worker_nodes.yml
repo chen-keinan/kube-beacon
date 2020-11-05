@@ -132,7 +132,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo stat -c %U:%G #0'
+            - ' stat -c %U:%G #0'
           remediation: |-
             Remediation:
             Run the following command to modify the ownership of the --client-ca-file. chown root:root <filename>
@@ -148,7 +148,7 @@ categories:
             the --config argument, that file has permissions of 644 or more restrictive.
           profile_applicability: Worker
           audit:
-            - sudo stat -c %a /var/lib/kubelet/config.yaml
+            -  stat -c %a /var/lib/kubelet/config.yaml
           remediation: |-
             Remediation:
             Run the following command (using the config file location identied in the Audit step)
@@ -166,7 +166,7 @@ categories:
             the --config argument, that file is owned by root:root.
           profile_applicability: Worker
           audit:
-            - sudo stat -c %U:%G /var/lib/kubelet/config.yaml
+            -  stat -c %U:%G /var/lib/kubelet/config.yaml
           remediation: |-
             Run the following command (using the config file location identied in the Audit step)
             chown root:root /etc/kubernetes/kubelet.conf
@@ -183,7 +183,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep -A5 ''authentication'' #0 | grep -A1 ''anonymous''| grep  -o ''enabled:[^"]\S*''|
+            - ' grep -A5 ''authentication'' #0 | grep -A1 ''anonymous''| grep  -o ''enabled:[^"]\S*''|
         awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --anonymous-auth' | grep -o ' --anonymous-auth=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -203,7 +203,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep -A5 ''authorization'' #0 | grep  ''mode:[^"]\S*''| awk -F ":" ''{print
+            - ' grep -A5 ''authorization'' #0 | grep  ''mode:[^"]\S*''| awk -F ":" ''{print
         $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --authorization-mode' | grep -o ' --authorization-mode=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -224,7 +224,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep -A10 ''authentication'' #0 |grep -A1 ''x509'' |grep ''clientCAFile:[^"]\S*''|
+            - ' grep -A10 ''authentication'' #0 |grep -A1 ''x509'' |grep ''clientCAFile:[^"]\S*''|
         awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --client-ca-file' | grep -o ' --client-ca-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -245,7 +245,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --read-only-port' | grep -o ' --read-only-port=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''readOnlyPort'' #0 |grep ''readOnlyPort:[^"]\S*''| awk -F ":"
+            - ' grep ''readOnlyPort'' #0 |grep ''readOnlyPort:[^"]\S*''| awk -F ":"
         ''{print $2}'' |awk ''FNR <= 1'''
           remediation: |-
             If using a Kubelet config file, edit the file to set readOnlyPort to 0.
@@ -267,7 +267,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''streamingConnectionIdleTimeout'' #0 |grep ''streamingConnectionIdleTimeout:[^"]\S*''|
+            - ' grep ''streamingConnectionIdleTimeout'' #0 |grep ''streamingConnectionIdleTimeout:[^"]\S*''|
         awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --streamingConnectionIdleTimeout' | grep -o
               ' --streamingConnectionIdleTimeout=[^"]\S*' | awk -F "=" '{print $2}' |awk
@@ -290,7 +290,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''protectKernelDefaults'' #0 |grep ''protectKernelDefaults:[^"]\S*''|
+            - ' grep ''protectKernelDefaults'' #0 |grep ''protectKernelDefaults:[^"]\S*''|
         awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --protect-kernel-defaults' | grep -o ' --protect-kernel-defaults=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -311,7 +311,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''makeIPTablesUtilChains'' #0 |grep ''makeIPTablesUtilChains:[^"]\S*''|
+            - ' grep ''makeIPTablesUtilChains'' #0 |grep ''makeIPTablesUtilChains:[^"]\S*''|
         awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --make-iptables-util-chains' | grep -o ' --make-iptables-util-chains=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -354,7 +354,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''event-qps'' #0 |grep ''event-qps:[^"]\S*''| awk -F ":" ''{print
+            - ' grep ''event-qps'' #0 |grep ''event-qps:[^"]\S*''| awk -F ":" ''{print
         $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --event-qps' | grep -o ' --event-qps=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -378,9 +378,9 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''tlsCertFile'' #0 |grep ''tlsCertFile:[^"]\S*''| awk -F ":" ''{print
+            - ' grep ''tlsCertFile'' #0 |grep ''tlsCertFile:[^"]\S*''| awk -F ":" ''{print
         $2}'' |awk ''FNR <= 1'''
-            - 'sudo grep ''tlsPrivateKeyFile'' #0 |grep ''tlsPrivateKeyFile:[^"]\S*''| awk
+            - ' grep ''tlsPrivateKeyFile'' #0 |grep ''tlsPrivateKeyFile:[^"]\S*''| awk
         -F ":" ''{print $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --tls-cert-file' | grep -o ' --tls-cert-file=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -400,7 +400,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''rotateCertificates'' #0 |grep ''rotateCertificates:[^"]\S*''|
+            - ' grep ''rotateCertificates'' #0 |grep ''rotateCertificates:[^"]\S*''|
         awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
             - ps -ef | grep kubelet |grep ' --rotate-certificates' | grep -o ' --rotate-certificates=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -441,7 +441,7 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''TLSCipherSuites'' #0 |grep ''TLSCipherSuites:[^"]\S*''| awk -F
+            - ' grep ''TLSCipherSuites'' #0 |grep ''TLSCipherSuites:[^"]\S*''| awk -F
         ":" ''{print $2}'' |awk ''FNR <= 1'''
             - 'cf=/dev/stdout && echo #1 > cf && sed ''s/,/\n/g'' cf'
             - ps -ef | grep kubelet |grep 'TLSCipherSuites' | grep -o 'TLSCipherSuites=[^"]\S*'

@@ -13,7 +13,7 @@ categories:
           audit:
             - ps -ef | grep kube-apiserver |grep ' --oidc-username-claim' | grep -o ' --oidc-username-claim=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - sudo awk -v FS="--oidc-username-claim=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+            -  awk -v FS="--oidc-username-claim=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
           remediation: Alternative mechanisms provided by Kubernetes such as the use of
             OIDC should be implemented in place of client certificates.
           check_type: multi_param

@@ -45,4 +45,6 @@ const (
 	BeaconHomeEnvVar = "BEACON_HOME"
 	//KubeBeacon binary name
 	KubeBeacon = "kube-beacon"
+	//RootUser process user owner
+	RootUser = "root"
 )

@@ -54,3 +54,6 @@ Execute tests and generate failure tests report
 ```
 ./kube-beacon -r
 ```
+
+```docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/*  -v $(echo $HOME)/.kube:/root/.kube:ro  -t beacon.jfrog.io/docker-local/kube-beacon
+```

@@ -75,8 +75,9 @@ func (bk K8sAudit) Help() string {
 
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
+	// move kubectl config to root folder in ¬case root is the owner
+	shell.UpdateProcessOwnerConfig()
 	// load audit tests fro benchmark folder
-
 	auditTests := bk.FileLoader.LoadAuditTests()
 	// filter tests by cmd criteria
 	ft := filteredAuditBenchTests(auditTests, bk.PredicateChain, bk.PredicateParams)
@@ -210,7 +211,7 @@ func evalCommand(at *models.AuditBench, permutationArr []string, testExec int) i
 	// eval command expression
 	testSucceeded, err := evalCommandExpr(strings.ReplaceAll(expr, common.EmptyValue, ""))
 	if err != nil {
-		log.Console(fmt.Sprintf("failed to evaluate command expr %s for audit test %s",expr, at.Name))
+		log.Console(fmt.Sprintf("failed to evaluate command expr %s for audit test %s", expr, at.Name))
 	}
 	return testExec - testSucceeded
 }
