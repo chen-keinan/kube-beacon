@@ -1,11 +1,17 @@
 language: go
 go:
-  - 1.14
+  - 1.15
+
 env:
   - "PATH=/home/travis/gopath/bin:$PATH"
+
+services:
+  - docker
+
 before_install:
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/mattn/goveralls
+
 script:
   - go get github.com/golang/mock/mockgen@latest
   - go install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
@@ -13,5 +19,6 @@ script:
   - goveralls -service=travis-pro
   - make test_travis
   - make build_travis
-  - ./scripts/build_docker.sh
+  - echo "$PASSWORD" | docker login -u "$USER" --password-stdin beacon.jfrog.io
+  - make build_docker
 
