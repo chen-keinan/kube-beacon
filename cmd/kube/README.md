@@ -16,3 +16,9 @@ dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./k
 docker run --pid=host -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -t  beacon
 
 docker build ./ -t beacon -f Dockerfile
+
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+mkdir -p $HOME/.kube
+ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+https://github.com/oracle/vagrant-projects
