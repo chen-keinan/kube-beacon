@@ -3,6 +3,9 @@ kind: DaemonSet
 metadata:
   name: kube-Beacon
 spec:
+  selector:
+    matchLabels:
+      name: kube-beacon
   template:
     metadata:
       labels:
@@ -11,7 +14,7 @@ spec:
       hostPID: true
       containers:
       - name: kube-bench
-        image: aquasec/kube-bench:latest
+        image: beacon.jfrog.io/docker-local/kube-beacon:latest
         command: ["kube-beacon"]
         volumeMounts:
         - name: var-lib
@@ -21,7 +24,10 @@ spec:
           mountPath: /etc
           readOnly: true
         - name: usr-bin
-          mountPath: /usr/local/mount-from-host/bin
+          mountPath: /usr/bin
+          readOnly: true
+        - name: cni
+          mountPath: /*/cni/*
           readOnly: true
       restartPolicy: Never
       volumes:
@@ -34,3 +40,6 @@ spec:
       - name: usr-bin
         hostPath:
           path: "/usr/bin"
+      - name: cni
+        hostPath:
+          path: "/*/cni/*"

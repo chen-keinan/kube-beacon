@@ -9,9 +9,7 @@ WORKDIR /src/cmd/kube
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o kube-beacon .
 
-FROM alpine:latest
-
-RUN apk --no-cache add ca-certificates curl
+FROM golang:1.15
 
 WORKDIR /root/
 

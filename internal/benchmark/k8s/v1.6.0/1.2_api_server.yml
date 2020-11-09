@@ -394,8 +394,8 @@ categories:
       description: Do not disable the secure port.
       profile_applicability: Master
       audit:
-      - ps -ef | grep kube-apiserver |grep ' --secure-port' | grep -o ' --secure-port=[^"]\S*'
-        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      - 'ps -ef | grep kube-apiserver | grep '' --secure-port'' | grep -o '' --secure-port=[^"]\S*''
+        | awk -F "=" ''{print $2}'' |awk ''FNR <= 1'''
       -  awk -v FS="--secure-port=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
         apiserver.yaml on the master node and either remove the --secure-port parameter
