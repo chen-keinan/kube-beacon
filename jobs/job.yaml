@@ -11,7 +11,7 @@ spec:
       hostPID: true
       containers:
       - name: kube-beacon
-        image: beacon.jfrog.io/docker-local/kube-beacon:latest
+        image: kubebcon.jfrog.io/docker-local/kube-beacon:latest
         command: ["./kube-beacon"]
         volumeMounts:
         - name: var-lib-etcd
@@ -52,3 +52,5 @@ spec:
       - name: cni
         hostPath:
           path: "/*/cni/*"
+      tolerations:
+      - operator: "Exists"

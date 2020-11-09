@@ -23,4 +23,4 @@ mkdir -p $HOME/.kube
  sudo chown $(id -u):$(id -g) $HOME/.kube/config
 https://github.com/oracle/vagrant-projects
 
-kubectl taint nodes master-node node-role.kubernetes.io/master-
+    kubectl taint nodes master-node node-role.kubernetes.io/master-
