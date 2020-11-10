@@ -67,7 +67,7 @@ docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $
 
 ## Kube-beacon as pod in k8s
 
-Execute kube beacon as a pod in k8s cluster
+- Execute kube beacon as a pod in k8s cluster
 ```
 cd jobs
 ```
@@ -75,7 +75,7 @@ cd jobs
 kubectl apply -f job.yaml
 ```
 
-Check k8s pod status
+- Check k8s pod status
 ```
 kubectl get pods --all-namespaces
 
@@ -86,7 +86,7 @@ kube-system   fluentd-gke-7d5sl                                           2/2   
 kube-system   fluentd-gke-f6q5d                                           2/2     Running     0          6m59s
 ```
 
-Check k8s pod audit output
+- Check k8s pod audit output
 ```
 kubectl logs kube-beacon-sc8g9 
 ```
