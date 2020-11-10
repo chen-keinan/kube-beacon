@@ -18,8 +18,8 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 
 * [Installation](#installation)
 * [Quick Start](#quick-start)
-* [Kube-beacon as Docker](#kube-beacon as Docker)
-* [Kube-beacon as pod in k8s](#kube-beacon as pod in k8s)
+* [Kube-beacon as Docker] (#kube-beacon as Docker)
+* [Kube-beacon as pod in k8s] (#kube-beacon as pod in k8s)
 
 
 ## Installation
