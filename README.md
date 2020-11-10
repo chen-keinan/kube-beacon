@@ -60,3 +60,27 @@ Execute kube beacon via docker
 ```
 docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $HOME/.kube:/root/.kube:ro -v $(which kubectl):/usr/bin/kubectl -t beacon.jfrog.io/docker-local/kube-beacon
 ```
+
+Execute kube beacon as a pod in k8s cluster
+```
+cd jobs
+```
+```
+kubectl apply -f job.yaml
+```
+
+Check k8s pod status
+```
+kubectl get pods --all-namespaces
+
+NAMESPACE     NAME                                                        READY   STATUS      RESTARTS   AGE
+default       kube-beacon-sc8g9                                           0/1     Completed   0          111s
+kube-system   event-exporter-gke-8489df9489-skcvv                         2/2     Running     0          7m24s
+kube-system   fluentd-gke-7d5sl                                           2/2     Running     0          7m6s
+kube-system   fluentd-gke-f6q5d                                           2/2     Running     0          6m59s
+```
+
+Check k8s pod audit output
+```
+kubectl logs kube-beacon-sc8g9 
+```
