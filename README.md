@@ -57,13 +57,6 @@ Execute tests and generate failure tests report
 
 Execute kube beacon via docker 
 
-1. pull docker image
-
-```
-docker pull beacon.jfrog.io/docker-local/kube-beacon:latest
-```
-2. execute docker image
-
 ```
 docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $HOME/.kube:/root/.kube:ro -v $(which kubectl):/usr/bin/kubectl -t beacon.jfrog.io/docker-local/kube-beacon
 ```
