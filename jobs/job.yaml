@@ -29,9 +29,6 @@ spec:
         - name: usr-bin
           mountPath: /usr/bin
           readOnly: true
-        - name: cni
-          mountPath: /*/cni/*
-          readOnly: true
       restartPolicy: Never
       volumes:
       - name: var-lib-etcd
@@ -49,8 +46,5 @@ spec:
       - name: usr-bin
         hostPath:
           path: "/usr/bin"
-      - name: cni
-        hostPath:
-          path: "/*/cni/*"
       tolerations:
       - operator: "Exists"
