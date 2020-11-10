@@ -19,7 +19,7 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 * [Installation](#installation)
 * [Quick Start](#quick-start)
 * [Kube-beacon as Docker](#kube-beacon as Docker)
-* [Kube-beacon as pod in K8s](#kube-beacon as pod in K8s)
+* [Kube-beacon as pod in k8s](#kube-beacon as pod in Kk8s)
 
 
 ## Installation
@@ -65,7 +65,7 @@ Execute kube beacon via docker
 docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $HOME/.kube:/root/.kube:ro -v $(which kubectl):/usr/bin/kubectl -t beacon.jfrog.io/docker-local/kube-beacon
 ```
 
-## Kube-beacon as pod in K8s
+## Kube-beacon as pod in k8s
 
 Execute kube beacon as a pod in k8s cluster
 ```
