@@ -24,3 +24,4 @@ mkdir -p $HOME/.kube
 https://github.com/oracle/vagrant-projects
 
     kubectl taint nodes master-node node-role.kubernetes.io/master-
+    kubectl create clusterrolebinding default-admin --clusterrole cluster-admin --serviceaccount=default:default

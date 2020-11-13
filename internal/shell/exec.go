@@ -7,7 +7,7 @@ import (
 )
 
 //ShellToUse bash shell
-const ShellToUse = "sh"
+const ShellToUse = "bash"
 
 var shellExec *CommandExec
 var shellExecSync sync.Once

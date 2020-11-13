@@ -10,7 +10,7 @@ require (
 	github.com/go-openapi/strfmt v0.19.6 // indirect
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
-	github.com/gobuffalo/packr/v2 v2.8.0 // indirect
+	github.com/gobuffalo/packr/v2 v2.8.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/mock v1.4.4
 	github.com/gosuri/uilive v0.0.4 // indirect
@@ -32,9 +32,9 @@ require (
 	github.com/spf13/cobra v1.1.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.6.1
-	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
+	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9 // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect
-	golang.org/x/sys v0.0.0-20201107080550-4d91cf3a1aaf // indirect
+	golang.org/x/sys v0.0.0-20201113135734-0a15ea8d9b02 // indirect
 	golang.org/x/tools v0.0.0-20201028224754-2c115999a7f0
 	google.golang.org/genproto v0.0.0-20191108220845-16a3f7862a1a
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect

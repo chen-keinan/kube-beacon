@@ -153,8 +153,7 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 	if result.Stderr != "" {
 		log.Console(fmt.Sprintf("Failed to execute command %s\n %s", result.Stderr, cmd))
 	}
-	return result.Stdout
-
+	return bk.addDummyCommandResponse(at.EvalExpr, index, result.Stdout)
 }
 
 func (bk *K8sAudit) execCmdWithParams(arr []IndexValue, index int, prevResHolder []IndexValue, currCommand string, resArr []string) []string {
