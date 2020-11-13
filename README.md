@@ -30,11 +30,11 @@ cd kube-beacon
 make install
 ```
 
+- Note: kube-beacon require root user to be executed
 
 ## Quick Start
 
-Execute kube-eacon without any flags , execute all tests
-
+Execute kube-eacon without any flags , execute all tests 
 ```
  ./kube-beacon 
 
