@@ -75,8 +75,6 @@ func (bk K8sAudit) Help() string {
 
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
-	// move kubectl config to root folder in ¬case root is the owner
-	shell.UpdateProcessOwnerConfig()
 	// load audit tests fro benchmark folder
 	auditTests := bk.FileLoader.LoadAuditTests()
 	// filter tests by cmd criteria
