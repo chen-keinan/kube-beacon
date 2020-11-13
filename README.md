@@ -69,7 +69,7 @@ docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $
 
 - Execute kube beacon as a pod in k8s cluster
 
-- bind role to default
+- Add cluster role binding with role=cluster-admin
 ```
 kubectl create clusterrolebinding default-admin --clusterrole cluster-admin --serviceaccount=default:default
 ```
