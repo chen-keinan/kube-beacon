@@ -96,7 +96,7 @@ kube-system   fluentd-gke-f6q5d                                           2/2   
 kubectl logs kube-beacon-sc8g9 
 ```
 
--- cleanup
+- cleanup
 ```
 kubectl delete clusterrolebinding default-admin
 ```
