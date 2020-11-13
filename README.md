@@ -68,6 +68,11 @@ docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $
 ## Kube-beacon as pod in k8s
 
 - Execute kube beacon as a pod in k8s cluster
+
+- bind role to default
+```
+kubectl create clusterrolebinding default-admin --clusterrole cluster-admin --serviceaccount=default:default
+```
 ```
 cd jobs
 ```
@@ -89,4 +94,12 @@ kube-system   fluentd-gke-f6q5d                                           2/2   
 - Check k8s pod audit output
 ```
 kubectl logs kube-beacon-sc8g9 
+```
+
+-- cleanup
+```
+kubectl delete clusterrolebinding default-admin
+```
+```
+kubectl delete -f job.yaml
 ```
