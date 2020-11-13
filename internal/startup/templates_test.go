@@ -51,8 +51,10 @@ func Test_GetHelpSynopsis(t *testing.T) {
 
 //Test_SaveBenchmarkFilesIfNotExist test
 func Test_SaveBenchmarkFilesIfNotExist(t *testing.T) {
+	err := os.RemoveAll(utils.GetBenchmarkFolder())
+	assert.NoError(t, err)
 	filesData := make([]utils.FilesInfo, 0)
-	err := utils.CreateBenchmarkFolderIfNotExist()
+	err = utils.CreateBenchmarkFolderIfNotExist()
 	assert.NoError(t, err)
 	filesData = append(filesData, utils.FilesInfo{Name: common.Scheduler, Data: "bbb"})
 	err = SaveBenchmarkFilesIfNotExist(filesData)
