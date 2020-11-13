@@ -19,6 +19,6 @@ script:
   - goveralls -service=travis-pro
   - make test_travis
   - make build_travis
-  - echo "$PASSWORD" | docker login -u "$USER" --password-stdin beacon.jfrog.io
+  - echo "$PASSWORD" | docker login -u "$USER" --password-stdin kubebcon.jfrog.io
   - make build_docker
 
