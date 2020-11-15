@@ -40,6 +40,7 @@ type AuditBench struct {
 	TestSucceed          bool
 	CommandParams        map[int][]string
 	Category             string
+	Applicable           bool     `mapstructure:"applicable" yaml:"applicable"`
 }
 
 //AuditResult data

@@ -1,0 +1,70 @@
+---
+benchmark_type: k8s
+categories:
+-
+  name: Control Plane Components
+  sub_category:
+    name: 2.0 Control Plane Configuration
+    audit_tests:
+    - name: 2.1.1 Client certificate authentication should not be used for users (Not
+        Scored)
+      description: |-
+        Kubernetes provides the option to use client certificates for user authentication. However
+        as there is no way to revoke these certificates when a user leaves an organization or loses
+        their credential, they are not suitable for this purpose.
+        It is not possible to fully disable client certificate use within a cluster as it is used for
+        component to component authentication.
+      profile_applicability: Master
+      audit:
+      - ps -ef | grep kube-apiserver |grep ' --oidc-username-claim' | grep -o ' --oidc-username-claim=[^"]\S*'
+        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      - awk -v FS="--oidc-username-claim=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
+      remediation: Alternative mechanisms provided by Kubernetes such as the use of OIDC should be
+        implemented in place of client certificates.
+        You can remediate the availability of client certificates in your GKE cluster. See
+        Recommendation 6.8.2.
+      check_type: multi_param
+      impact: External mechanisms for authentication generally require additional software to be
+        deployed.
+      eval_expr: "'$0' != ''; && '$0' == '$1';"
+      default_value: See the GKE documentation for the default value.
+      applicable: true
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
+    - name: 2.2.1 Ensure that a minimal audit policy is created (Not Scored)
+      description: |-
+        Kubernetes can audit the details of requests made to the API server. The --audit-policyfile
+        flag must be set for this logging to be enabled.
+      profile_applicability: Master
+      audit:
+      - This control cannot be audited in GKE.
+      remediation: This control cannot be modified in GKE.
+      check_type: multi_param
+      impact: Audit logs will be created on the master nodes, which will consume disk space. Care should
+        be taken to avoid generating too large volumes of log information as this could impact the
+        available of the cluster nodes.
+      eval_expr:
+      default_value: See the GKE documentation for the default value.
+      applicable: false
+      references:
+      - https://kubernetes.io/docs/tasks/debug-application-cluster/audit/
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
+    - name: Ensure that the audit policy covers key security concerns (Not
+        Scored)
+          description: |-
+            Ensure that the audit policy created for the cluster covers key security concerns.
+          profile_applicability: Master
+          audit:
+          - This control cannot be audited in GKE.
+          remediation: This control cannot be modified in GKE.
+          check_type: multi_param
+          impact: Increasing audit logging will consume resources on the nodes or other log destination.
+          eval_expr:
+          default_value: See the GKE documentation for the default value.
+          applicable: false
+          references:
+          - https://github.com/k8scop/k8s-securitydashboard/blob/master/configs/kubernetes/adv-audit.yaml
+          - https://kubernetes.io/docs/tasks/debug-application-cluster/audit/#audit-policy
+          - https://github.com/falcosecurity/falco/blob/master/examples/k8s_audit_config/audit-policy.yaml
+          - https://github.com/kubernetes/kubernetes/blob/master/cluster/gce/gci/configure-helper.sh#L735
+          - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks

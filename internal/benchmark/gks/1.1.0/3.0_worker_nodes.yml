@@ -1,0 +1,29 @@
+---
+benchmark_type: k8s
+categories:
+-
+  name: Control Plane Components
+  sub_category:
+    name: 3.0 Worker Nodes
+    audit_tests:
+    - name: 3.1.1 Ensure that the proxy kubeconfig file permissions are set to 644 or
+        more restrictive (Scored)
+      description: |-
+        If kube-proxy is running, and if it is using a file-based kubeconfig file, ensure that the proxy
+        kubeconfig file has permissions of 644 or more restrictive.
+      profile_applicability: Master
+      audit:
+        - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+        - stat -c %a #0
+      remediation: Run the below command (based on the file location on your system) on the each worker
+        node. For example,
+        chmod 644 <proxy kubeconfig file>
+      check_type: multi_param
+      impact: External mechanisms for authentication generally require additional software to be
+        deployed.
+      eval_expr: "$1 <= 644;"
+      default_value: See the GKE documentation for the default value.
+      applicable: true
+      references:
+      - https://kubernetes.io/docs/admin/kube-proxy/
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
