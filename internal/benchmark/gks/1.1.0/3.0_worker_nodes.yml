@@ -164,8 +164,7 @@ categories:
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
-    - name: Ensure that the --streaming-connection-idle-timeout argument is
-        not set to 0 (Scored)
+    - name: Ensure that the --streaming-connection-idle-timeout argument is not set to 0 (Scored)
       description: Do not disable timeouts on streaming connections.
       profile_applicability: Worker
       audit:
@@ -187,3 +186,62 @@ categories:
       references:
       - https://kubernetes.io/docs/admin/kubelet/
       - https://github.com/kubernetes/kubernetes/pull/18552
+    - name: 3.2.6 Ensure that the --protect-kernel-defaults argument is set to true (Scored)
+      description: Protect tuned kernel parameters from overriding kubelet default
+        kernel parameter values.
+      profile_applicability: Worker
+      audit:
+      - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+        -F "=" '{print $2}' |awk 'FNR <= 1'
+      - ' grep ''protectKernelDefaults'' #0 |grep ''protectKernelDefaults:[^"]\S*''|
+            awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+      - ps -ef | grep kubelet |grep ' --protect-kernel-defaults' | grep -o ' --protect-kernel-defaults=[^"]\S*'
+        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      remediation: |-
+        If using a Kubelet config file, edit the file to set protectKernelDefaults: true.
+        If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+        --protect-kernel-defaults=true
+      check_type: multi_param
+      impact: You would have to re-tune kernel parameters to match kubelet parameters.
+      eval_expr: "'$1' == 'true'; || '$2' == 'true';"
+      default_value: See the GKE documentation for the default value.
+      references:
+      - https://kubernetes.io/docs/admin/kubelet/
+    - name: 3.2.7 Ensure that the --make-iptables-util-chains argument is set to true   (Scored)
+      description: Allow Kubelet to manage iptables.
+      profile_applicability: Worker
+      audit:
+      - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+        -F "=" '{print $2}' |awk 'FNR <= 1'
+      - ' grep ''makeIPTablesUtilChains'' #0 |grep ''makeIPTablesUtilChains:[^"]\S*''|
+            awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+      - ps -ef | grep kubelet |grep ' --make-iptables-util-chains' | grep -o ' --make-iptables-util-chains=[^"]\S*'
+        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      remediation: |-
+        If using a Kubelet config file, edit the file to set makeIPTablesUtilChains: true.
+        If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and remove the --make-iptables-util-chains argument from the KUBELET_SYSTEM_PODS_ARGS variable.
+      check_type: multi_param
+      impact: Kubelet would manage the iptables on the system and keep it in sync.
+        If you are using any other iptables management solution, then there might
+        be some conflicts
+      eval_expr: "('$1' != 'false'; && '$2' == ''; ) || '$2' == 'true';"
+      default_value: See the GKE documentation for the default value.
+      references:
+      - https://kubernetes.io/docs/admin/kubelet/
+    - name: 3.2.8 Ensure that the --hostname-override argument is not set (Scored)
+      description: Do not override node hostnames.
+      profile_applicability: Worker
+      audit:
+      - ps -ef | grep kubelet |grep ' --hostname-override' | grep -o ' --hostname-override=[^"]\S*'
+        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      remediation: Edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        on each worker node and remove the --hostname-override argument from the KUBELET_SYSTEM_PODS_ARGS
+        variable.
+      check_type: multi_param
+      impact: Some cloud providers may require this flag to ensure that hostname matches
+        names issued by the cloud provider. In these environments, this recommendation
+        should not apply.
+      eval_expr: "'$0' == '';"
+      default_value: See the GKE documentation for the default value.
+      references:
+      - https://kubernetes.io/docs/admin/kubelet/
