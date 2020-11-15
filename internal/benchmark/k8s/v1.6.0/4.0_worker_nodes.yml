@@ -392,8 +392,8 @@ categories:
           check_type: multi_param
           impact: ''
           eval_expr: "('$1' != ''; && '$2' != '';) || ('$3' != ''; && '$4' != '';)"
-          default_value: ''
-          references: []
+          default_value:
+          references:
         - name: 4.2.11 Ensure that the --rotate-certificates argument is not set to false
           description: Enable kubelet client certificate rotation.
           profile_applicability: Worker
