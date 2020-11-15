@@ -30,19 +30,19 @@ func Test_CreateHomeFolderIfNotExist(t *testing.T) {
 
 //Test_GetBenchmarkFolder test
 func Test_GetBenchmarkFolder(t *testing.T) {
-	a := GetBenchmarkFolder()
-	assert.True(t, strings.HasSuffix(a, ".beacon/benchmarks/v1.6.0"))
+	a := GetBenchmarkFolder("k8s", "v1.6.0")
+	assert.True(t, strings.HasSuffix(a, ".beacon/benchmarks/k8s/v1.6.0"))
 }
 
 //Test_CreateBenchmarkFolderIfNotExist test
 func Test_CreateBenchmarkFolderIfNotExist(t *testing.T) {
-	err := CreateBenchmarkFolderIfNotExist()
+	err := CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0")
 	assert.NoError(t, err)
-	_, err = os.Stat(GetBenchmarkFolder())
+	_, err = os.Stat(GetBenchmarkFolder("k8s", "v1.6.0"))
 	if os.IsNotExist(err) {
 		t.Fatal()
 	}
-	err = os.RemoveAll(GetBenchmarkFolder())
+	err = os.RemoveAll(GetBenchmarkFolder("k8s", "v1.6.0"))
 	assert.NoError(t, err)
 }
 
@@ -52,7 +52,7 @@ func Test_GetK8sBenchAuditFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = CreateBenchmarkFolderIfNotExist()
+	err = CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,11 +60,11 @@ func Test_GetK8sBenchAuditFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	f, err := GetK8sBenchAuditFiles()
+	f, err := GetK8sBenchAuditFiles("k8s", "v1.6.0")
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.RemoveAll(GetBenchmarkFolder())
+	err = os.RemoveAll(GetBenchmarkFolder("k8s", "v1.6.0"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,13 +75,13 @@ func Test_GetK8sBenchAuditFiles(t *testing.T) {
 
 //Test_GetK8sBenchAuditNoFolder test
 func Test_GetK8sBenchAuditNoFolder(t *testing.T) {
-	_, err := GetK8sBenchAuditFiles()
+	_, err := GetK8sBenchAuditFiles("k8s", "v1.6.0")
 	assert.True(t, err != nil)
 }
 
 func saveFilesIfNotExist(filesData []FilesInfo) error {
 	for _, fileData := range filesData {
-		filePath := filepath.Join(GetBenchmarkFolder(), fileData.Name)
+		filePath := filepath.Join(GetBenchmarkFolder("k8s", "v1.6.0"), fileData.Name)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			f, err := os.Create(filePath)
 			if err != nil {

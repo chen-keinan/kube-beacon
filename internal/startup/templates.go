@@ -63,6 +63,25 @@ func GenerateK8sBenchmarkFiles() ([]utils.FilesInfo, error) {
 	return fileInfo, nil
 }
 
+//GenerateGksBenchmarkFiles use packr to load benchmark audit test yaml
+func GenerateGksBenchmarkFiles() ([]utils.FilesInfo, error) {
+	fileInfo := make([]utils.FilesInfo, 0)
+	box := packr.NewBox("./../benchmark/gks/v1.1.0/")
+	// Add Master Node Configuration tests
+	cpc, err := box.FindString(common.GksControlPlaneConfiguration)
+	if err != nil {
+		return []utils.FilesInfo{}, fmt.Errorf("faild to load k8s benchmarks audit tests %s", err.Error())
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GksControlPlaneConfiguration, Data: cpc})
+	// Add Worker Nodes tests
+	wn, err := box.FindString(common.GksWorkerNodes)
+	if err != nil {
+		return []utils.FilesInfo{}, fmt.Errorf("faild to load k8s benchmarks audit tests %s", err.Error())
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GksWorkerNodes, Data: wn})
+	return fileInfo, nil
+}
+
 //GetHelpSynopsis get help synopsis file
 func GetHelpSynopsis() string {
 	box := packr.NewBox("./../cli/commands/help/")
@@ -75,9 +94,9 @@ func GetHelpSynopsis() string {
 }
 
 //SaveBenchmarkFilesIfNotExist create benchmark audit file if not exist
-func SaveBenchmarkFilesIfNotExist(filesData []utils.FilesInfo) error {
+func SaveBenchmarkFilesIfNotExist(spec, version string, filesData []utils.FilesInfo) error {
 	for _, fileData := range filesData {
-		filePath := filepath.Join(utils.GetBenchmarkFolder(), fileData.Name)
+		filePath := filepath.Join(utils.GetBenchmarkFolder(spec, version), fileData.Name)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			f, err := os.Create(filePath)
 			if err != nil {

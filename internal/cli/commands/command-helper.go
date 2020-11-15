@@ -48,7 +48,7 @@ func AddAllMessages(at *models.AuditBench, NumFailedTest int) []*models.AuditBen
 //command-helper.go
 //go:generate mockgen -destination=../../mocks/mock_TestLoader.go -package=mocks . TestLoader
 type TestLoader interface {
-	LoadAuditTests() []*models.SubCategory
+	LoadAuditTests(spec, version string) []*models.SubCategory
 }
 
 //AuditTestLoader object
@@ -61,9 +61,9 @@ func NewFileLoader() TestLoader {
 }
 
 //LoadAuditTests load audit test from benchmark folder
-func (tl AuditTestLoader) LoadAuditTests() []*models.SubCategory {
+func (tl AuditTestLoader) LoadAuditTests(spec, version string) []*models.SubCategory {
 	auditTests := make([]*models.SubCategory, 0)
-	auditFiles, err := utils.GetK8sBenchAuditFiles()
+	auditFiles, err := utils.GetK8sBenchAuditFiles(spec, version)
 	if err != nil {
 		panic(fmt.Sprintf("failed to read audit files %s", err))
 	}

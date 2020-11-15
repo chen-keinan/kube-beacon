@@ -16,8 +16,7 @@ categories:
         component to component authentication.
       profile_applicability: Master
       audit:
-      - ps -ef | grep kube-apiserver |grep ' --oidc-username-claim' | grep -o ' --oidc-username-claim=[^"]\S*'
-        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      - ps -ef | grep kube-apiserver |grep ' --oidc-username-claim' | grep -o ' --oidc-username-claim=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
       - awk -v FS="--oidc-username-claim=" 'NF>1{print $2}' /etc/kubernetes/manifests/kube-apiserver.yaml
       remediation: Alternative mechanisms provided by Kubernetes such as the use of OIDC should be
         implemented in place of client certificates.
@@ -49,22 +48,21 @@ categories:
       references:
       - https://kubernetes.io/docs/tasks/debug-application-cluster/audit/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
-    - name: Ensure that the audit policy covers key security concerns (Not
-        Scored)
-          description: |-
-            Ensure that the audit policy created for the cluster covers key security concerns.
-          profile_applicability: Master
-          audit:
-          - This control cannot be audited in GKE.
-          remediation: This control cannot be modified in GKE.
-          check_type: multi_param
-          impact: Increasing audit logging will consume resources on the nodes or other log destination.
-          eval_expr:
-          default_value: See the GKE documentation for the default value.
-          applicable: false
-          references:
-          - https://github.com/k8scop/k8s-securitydashboard/blob/master/configs/kubernetes/adv-audit.yaml
-          - https://kubernetes.io/docs/tasks/debug-application-cluster/audit/#audit-policy
-          - https://github.com/falcosecurity/falco/blob/master/examples/k8s_audit_config/audit-policy.yaml
-          - https://github.com/kubernetes/kubernetes/blob/master/cluster/gce/gci/configure-helper.sh#L735
-          - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
+    - name: Ensure that the audit policy covers key security concerns (Not Scored)
+      description: |-
+        Ensure that the audit policy created for the cluster covers key security concerns.
+      profile_applicability: Master
+      audit:
+      - This control cannot be audited in GKE.
+      remediation: This control cannot be modified in GKE.
+      check_type: multi_param
+      impact: Increasing audit logging will consume resources on the nodes or other log destination.
+      eval_expr:
+      default_value: See the GKE documentation for the default value.
+      applicable: false
+      references:
+      - https://github.com/k8scop/k8s-securitydashboard/blob/master/configs/kubernetes/adv-audit.yaml
+      - https://kubernetes.io/docs/tasks/debug-application-cluster/audit/#audit-policy
+      - https://github.com/falcosecurity/falco/blob/master/examples/k8s_audit_config/audit-policy.yaml
+      - https://github.com/kubernetes/kubernetes/blob/master/cluster/gce/gci/configure-helper.sh#L735
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks

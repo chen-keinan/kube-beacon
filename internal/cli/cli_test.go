@@ -17,8 +17,8 @@ import (
 
 //Test_StartCli tests
 func Test_StartCli(t *testing.T) {
-	InitCli()
-	files, err := utils.GetK8sBenchAuditFiles()
+	InitBenchmarkSpecData("k8s", "v1.6.0")
+	files, err := utils.GetK8sBenchAuditFiles("k8s", "v1.6.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,16 +35,16 @@ func Test_StartCli(t *testing.T) {
 
 func Test_ArgsSanitizer(t *testing.T) {
 	args := []string{"--a", "-b"}
-	sArgs, helpNeed := ArgsSanitizer(args)
-	assert.Equal(t, sArgs[0], "a")
-	assert.Equal(t, sArgs[1], "b")
-	assert.False(t, helpNeed)
+	ad := ArgsSanitizer(args)
+	assert.Equal(t, ad.filters[0], "a")
+	assert.Equal(t, ad.filters[1], "b")
+	assert.False(t, ad.help)
 	args = []string{}
-	sArgs, _ = ArgsSanitizer(args)
-	assert.True(t, sArgs[0] == "")
+	ad = ArgsSanitizer(args)
+	assert.True(t, ad.filters[0] == "")
 	args = []string{"--help"}
-	_, helpNeed2nd := ArgsSanitizer(args)
-	assert.True(t, helpNeed2nd)
+	ad = ArgsSanitizer(args)
+	assert.True(t, ad.help)
 }
 
 //Test_BeaconHelpFunc test
@@ -59,11 +59,11 @@ func Test_BeaconHelpFunc(t *testing.T) {
 //Test_createCliBuilderData test
 func Test_createCliBuilderData(t *testing.T) {
 	cmdArgs := []string{"a"}
-	cliArgs, _ := ArgsSanitizer(os.Args[1:])
-	cmdArgs = append(cmdArgs, cliArgs...)
+	ad := ArgsSanitizer(os.Args[1:])
+	cmdArgs = append(cmdArgs, ad.filters...)
 	cmds := make([]cli.Command, 0)
 	// invoke cli
-	cmds = append(cmds, commands.NewK8sAudit(cmdArgs))
+	cmds = append(cmds, commands.NewK8sAudit(cmdArgs, ad.specType, ad.specVersion))
 	c := createCliBuilderData(cmdArgs, cmds)
 	_, ok := c["a"]
 	assert.True(t, ok)
@@ -82,8 +82,8 @@ func Test_InvokeCli(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "1234"}, nil).Times(1)
 	tl := mocks.NewMockTestLoader(ctrl)
-	tl.EXPECT().LoadAuditTests().Return([]*models.SubCategory{{Name: "te", AuditTests: []*models.AuditBench{ab}}})
-	kb := &commands.K8sAudit{Command: executor, ResultProcessor: commands.GetResultProcessingFunction([]string{}), FileLoader: tl, OutputGenerator: commands.ConsoleOutputGenerator}
+	tl.EXPECT().LoadAuditTests("k8s", "v1.6.0").Return([]*models.SubCategory{{Name: "te", AuditTests: []*models.AuditBench{ab}}})
+	kb := &commands.K8sAudit{Command: executor, ResultProcessor: commands.GetResultProcessingFunction([]string{}), FileLoader: tl, OutputGenerator: commands.ConsoleOutputGenerator, Spec: "k8s", Version: "v1.6.0"}
 	cmdArgs := []string{"a"}
 	cmds := make([]cli.Command, 0)
 	// invoke cli

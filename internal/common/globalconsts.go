@@ -15,6 +15,10 @@ const (
 	WorkerNodes = "4.0_worker_nodes.yml"
 	//ControlPlaneConfiguration file name
 	ControlPlaneConfiguration = "3.0_control_plane_configuration.yml"
+	//GksWorkerNodes worker spec
+	GksWorkerNodes = "3.0_worker_nodes.yml"
+	//GksControlPlaneConfiguration file name
+	GksControlPlaneConfiguration = "2.0_control_plane_configuration.yml"
 	//Policies file name
 	Policies = "5.0_policies.yml"
 	//GrepRegex for tests

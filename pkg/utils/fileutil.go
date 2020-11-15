@@ -35,13 +35,13 @@ func CreateHomeFolderIfNotExist() error {
 }
 
 //GetBenchmarkFolder return benchmark folder
-func GetBenchmarkFolder() string {
-	return filepath.Join(GetHomeFolder(), "benchmarks/v1.6.0/")
+func GetBenchmarkFolder(spec, version string) string {
+	return filepath.Join(GetHomeFolder(), fmt.Sprintf("benchmarks/%s/%s/", spec, version))
 }
 
 //CreateBenchmarkFolderIfNotExist create beacon benchmark folder if not exist
-func CreateBenchmarkFolderIfNotExist() error {
-	benchmarkFolder := GetBenchmarkFolder()
+func CreateBenchmarkFolderIfNotExist(spec, version string) error {
+	benchmarkFolder := GetBenchmarkFolder(spec, version)
 	_, err := os.Stat(benchmarkFolder)
 	if os.IsNotExist(err) {
 		errDir := os.MkdirAll(benchmarkFolder, 0750)
@@ -53,15 +53,15 @@ func CreateBenchmarkFolderIfNotExist() error {
 }
 
 //GetK8sBenchAuditFiles return k8s benchmark file
-func GetK8sBenchAuditFiles() ([]FilesInfo, error) {
+func GetK8sBenchAuditFiles(spec, version string) ([]FilesInfo, error) {
 	filesData := make([]FilesInfo, 0)
-	folder := GetBenchmarkFolder()
+	folder := GetBenchmarkFolder(spec, version)
 	filesInfo, err := ioutil.ReadDir(filepath.Join(folder))
 	if err != nil {
 		return nil, err
 	}
 	for _, fileInfo := range filesInfo {
-		filePath := filepath.Join(GetBenchmarkFolder(), filepath.Clean(fileInfo.Name()))
+		filePath := filepath.Join(GetBenchmarkFolder(spec, version), filepath.Clean(fileInfo.Name()))
 		fData, err := ioutil.ReadFile(filepath.Clean(filePath))
 		if err != nil {
 			return nil, err

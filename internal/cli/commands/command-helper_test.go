@@ -60,7 +60,7 @@ func Test_getSpecificTestsToExecute(t *testing.T) {
 
 //Test_LoadAuditTest test
 func Test_LoadAuditTest(t *testing.T) {
-	err := os.RemoveAll(utils.GetBenchmarkFolder())
+	err := os.RemoveAll(utils.GetBenchmarkFolder("k8s", "v1.6.0"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +68,7 @@ func Test_LoadAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = utils.CreateBenchmarkFolderIfNotExist()
+	err = utils.CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,11 +76,38 @@ func Test_LoadAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = startup.SaveBenchmarkFilesIfNotExist(bFiles)
+	err = startup.SaveBenchmarkFilesIfNotExist("k8s", "v1.6.0", bFiles)
 	if err != nil {
 		t.Fatal(err)
 	}
-	at := NewFileLoader().LoadAuditTests()
+	at := NewFileLoader().LoadAuditTests("k8s", "v1.6.0")
+	assert.True(t, len(at) != 0)
+	assert.True(t, strings.Contains(at[0].AuditTests[0].Name, "1.1.1"))
+}
+
+//Test_LoadGksAuditTest test
+func Test_LoadGksAuditTest(t *testing.T) {
+	err := os.RemoveAll(utils.GetBenchmarkFolder("gks", "v1.1.0"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = utils.CreateHomeFolderIfNotExist()
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = utils.CreateBenchmarkFolderIfNotExist("gks", "v1.1.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	bFiles, err := startup.GenerateK8sBenchmarkFiles()
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = startup.SaveBenchmarkFilesIfNotExist("gks", "v1.1.0", bFiles)
+	if err != nil {
+		t.Fatal(err)
+	}
+	at := NewFileLoader().LoadAuditTests("k8s", "v1.6.0")
 	assert.True(t, len(at) != 0)
 	assert.True(t, strings.Contains(at[0].AuditTests[0].Name, "1.1.1"))
 }

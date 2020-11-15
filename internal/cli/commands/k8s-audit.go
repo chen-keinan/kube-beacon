@@ -26,6 +26,8 @@ type K8sAudit struct {
 	FileLoader      TestLoader
 	PredicateChain  []filters.Predicate
 	PredicateParams []string
+	Spec            string
+	Version         string
 }
 
 // ResultProcessor process audit results
@@ -58,13 +60,15 @@ var reportResultProcessor ResultProcessor = func(at *models.AuditBench, NumFaile
 }
 
 //NewK8sAudit new audit object
-func NewK8sAudit(args []string) *K8sAudit {
+func NewK8sAudit(args []string, spec, version string) *K8sAudit {
 	return &K8sAudit{Command: shell.NewShellExec(),
 		PredicateChain:  buildPredicateChain(args),
 		PredicateParams: buildPredicateChainParams(args),
 		ResultProcessor: GetResultProcessingFunction(args),
 		OutputGenerator: getOutputGeneratorFunction(args),
-		FileLoader:      NewFileLoader()}
+		FileLoader:      NewFileLoader(),
+		Spec:            spec,
+		Version:         version}
 
 }
 
@@ -76,7 +80,7 @@ func (bk K8sAudit) Help() string {
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
 	// load audit tests fro benchmark folder
-	auditTests := bk.FileLoader.LoadAuditTests()
+	auditTests := bk.FileLoader.LoadAuditTests(bk.Spec, bk.Version)
 	// filter tests by cmd criteria
 	ft := filteredAuditBenchTests(auditTests, bk.PredicateChain, bk.PredicateParams)
 	//execute audit tests and show it in progress bar
