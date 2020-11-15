@@ -93,6 +93,10 @@ func (bk *K8sAudit) Run(args []string) int {
 // runAuditTest execute category of audit tests
 func (bk *K8sAudit) runAuditTest(at *models.AuditBench) []*models.AuditBench {
 	auditRes := make([]*models.AuditBench, 0)
+	if at.NonApplicable {
+		auditRes = append(auditRes, at)
+		return auditRes
+	}
 	cmdTotalRes := make([]string, 0)
 	// execute audit test command
 	for index := range at.AuditCommand {

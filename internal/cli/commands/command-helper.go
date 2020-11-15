@@ -14,6 +14,11 @@ import (
 
 func printTestResults(at []*models.AuditBench) {
 	for _, a := range at {
+		if a.NonApplicable {
+			na := colorstring.Color("[blue][Not applicable]")
+			log.Console(fmt.Sprintf("%s %s\n", na, a.Name))
+			continue
+		}
 		if a.TestSucceed {
 			pass := colorstring.Color("[green][Pass]")
 			log.Console(fmt.Sprintf("%s %s\n", pass, a.Name))

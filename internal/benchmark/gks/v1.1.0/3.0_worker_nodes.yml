@@ -13,8 +13,9 @@ categories:
         kubeconfig file has permissions of 644 or more restrictive.
       profile_applicability: Master
       audit:
-        - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-        - stat -c %a #0
+      - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*'
+        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      - 'stat -c %a #0'
       remediation: Run the below command (based on the file location on your system) on the each worker
         node. For example,
         chmod 644 <proxy kubeconfig file>
@@ -22,7 +23,7 @@ categories:
       impact: None
       eval_expr: "$1 <= 644;"
       default_value: See the GKE documentation for the default value.
-      applicable: true
+      non_applicable: false
       references:
       - https://kubernetes.io/docs/admin/kube-proxy/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -32,8 +33,8 @@ categories:
         root:root.
       profile_applicability: Master
       audit:
-      - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - stat -c %U:%G #0
+      - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*' | awk -F "=" '{print $2}' | awk 'FNR <= 1'
+      - 'stat -c %U:%G #0'
       remediation: Run the below command (based on the file location on your system) on the each worker
         node. For example,
         chown root:root <proxy kubeconfig file>
@@ -41,7 +42,7 @@ categories:
       impact: None
       eval_expr: "'$1' == 'root:root';"
       default_value: See the GKE documentation for the default value.
-      applicable: true
+      non_applicable: false
       references:
       - hthttps://kubernetes.io/docs/admin/kube-proxy/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -52,14 +53,14 @@ categories:
       profile_applicability: Master
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - stat -c %a #0
+      - 'stat -c %a #0'
       remediation: Run the following command (using the config file location identied in the Audit step)
         chmod 644 /var/lib/kubelet/config.yaml
       check_type: multi_param
       impact: None
       eval_expr: "$1 <= 644;"
       default_value: See the GKE documentation for the default value.
-      applicable: true
+      non_applicable: false
       references:
       - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -71,14 +72,14 @@ categories:
       profile_applicability: Master
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - stat -c %U:%G #0
+      - 'stat -c %U:%G #0'
       remediation: Run the following command (using the config file location identied in the Audit step)
         chown root:root /etc/kubernetes/kubelet.conf
       check_type: multi_param
       impact: None
       eval_expr: "'$1' == 'root:root';"
       default_value: See the GKE documentation for the default value.
-      applicable: true
+      non_applicable: false
       references:
       - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -95,7 +96,7 @@ categories:
       impact: Anonymous requests will be rejected.
       eval_expr: "'$1' == 'false'; || '$2' == 'false';"
       default_value: See the GKE documentation for the default value.
-      applicable: true
+      non_applicable: false
       references:
       - https://kubernetes.io/docs/admin/kubelet/
       - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubeletauthentication
@@ -164,7 +165,7 @@ categories:
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
-    - name: Ensure that the --streaming-connection-idle-timeout argument is not set to 0 (Scored)
+    - name: 3.2.5 Ensure that the --streaming-connection-idle-timeout argument is not set to 0 (Scored)
       description: Do not disable timeouts on streaming connections.
       profile_applicability: Worker
       audit:
