@@ -238,7 +238,7 @@ categories:
           default_value: By default, --client-ca-file argument is not set.
           references:
             - https://kubernetes.io/docs/admin/kubelet/
-            - https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet-authentication-authorization/,
+            - https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet-authentication-authorization/
         - name: 4.2.4 Verify that the --read-only-port argument is set to 0
           description: Disable the read-only port.
           profile_applicability: Worker

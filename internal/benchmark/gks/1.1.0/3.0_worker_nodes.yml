@@ -122,3 +122,68 @@ categories:
       references:
       - https://kubernetes.io/docs/admin/kubelet/
       - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubeletauthentication
+    - name: 3.2.3 Ensure that the --client-ca-file argument is set as appropriate (Scored)
+      description: Enable Kubelet authentication using certificates.
+      profile_applicability: Worker
+      audit:
+      - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+        -F "=" '{print $2}' |awk 'FNR <= 1'
+      - ' grep -A10 ''authentication'' #0 |grep -A1 ''x509'' |grep ''clientCAFile:[^"]\S*''|
+            awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+      - ps -ef | grep kubelet |grep ' --client-ca-file' | grep -o ' --client-ca-file=[^"]\S*'
+        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      remediation: |-
+        If using a Kubelet config file, edit the file to set authentication: x509: clientCAFile to the location of the client CA file.
+        If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_AUTHZ_ARGS variable.
+        --client-ca-file=<path/to/client-ca-file>
+      check_type: multi_param
+      impact: You require TLS to be configured on apiserver as well as kubelets.
+      eval_expr: "'$1' != ''; || '$2' != '';"
+      default_value: See the GKE documentation for the default value.
+      references:
+      - https://kubernetes.io/docs/admin/kubelet/
+      - https://kubernetes.io/docs/reference/command-line-tools-reference/kubeletauthentication-authorization/
+    - name: 3.2.4 Ensure that the --read-only-port argument is set to 0 (Scored)
+      description: Disable the read-only port.
+      profile_applicability: Worker
+      audit:
+      - ps -ef | grep kubelet |grep ' --read-only-port' | grep -o ' --read-only-port=[^"]\S*'
+        | awk -F "=" '{print $2}' |awk 'FNR <= 1'
+      - ' grep ''readOnlyPort'' #0 |grep ''readOnlyPort:[^"]\S*''| awk -F ":"
+           ''{print $2}'' |awk ''FNR <= 1'''
+      remediation: |-
+        If using a Kubelet config file, edit the file to set readOnlyPort to 0.
+        If using command line arguments, edit the kubelet service file
+        /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and
+        set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+        --read-only-port=0
+      check_type: multi_param
+      impact: Removal of the read-only port will require that any service which made
+        use of it will need to be re-configured to use the main Kubelet API.
+      eval_expr: "'$0' != ''; || '$1' == '0';"
+      default_value: See the GKE documentation for the default value.
+      references:
+      - https://kubernetes.io/docs/admin/kubelet/
+    - name: Ensure that the --streaming-connection-idle-timeout argument is
+        not set to 0 (Scored)
+      description: Do not disable timeouts on streaming connections.
+      profile_applicability: Worker
+      audit:
+      - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
+        -F "=" '{print $2}' |awk 'FNR <= 1'
+      - ' grep ''streamingConnectionIdleTimeout'' #0 |grep ''streamingConnectionIdleTimeout:[^"]\S*''|
+            awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+      - ps -ef | grep kubelet |grep ' --streamingConnectionIdleTimeout' | grep -o
+        ' --streamingConnectionIdleTimeout=[^"]\S*' | awk -F "=" '{print $2}' |awk
+        'FNR <= 1'
+      remediation: |-
+        If using a Kubelet config file, edit the file to set streamingConnectionIdleTimeout to a value other than 0.
+        If using command line arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+        --streaming-connection-idle-timeout=5m
+      check_type: multi_param
+      impact: Long-lived connections could be interrupted.
+      eval_expr: "'$1' != '0'; && '$2' != '0s';"
+      default_value: See the GKE documentation for the default value.
+      references:
+      - https://kubernetes.io/docs/admin/kubelet/
+      - https://github.com/kubernetes/kubernetes/pull/18552
