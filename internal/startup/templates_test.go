@@ -39,7 +39,7 @@ func Test_CreateBenchmarkFilesIfNotExist(t *testing.T) {
 	assert.Equal(t, bFiles[6].Name, common.WorkerNodes)
 	assert.Equal(t, bFiles[7].Name, common.Policies)
 	assert.NoError(t, err)
-	err = os.RemoveAll(utils.GetBenchmarkFolder("k8s", "v1.6.0"))
+	err = os.RemoveAll(utils.GetHomeFolder())
 	assert.NoError(t, err)
 }
 
@@ -63,7 +63,7 @@ func Test_CreateGksBenchmarkFilesIfNotExist(t *testing.T) {
 	assert.Equal(t, bFiles[0].Name, common.GksControlPlaneConfiguration)
 	assert.Equal(t, bFiles[1].Name, common.GksWorkerNodes)
 	assert.NoError(t, err)
-	err = os.RemoveAll(utils.GetBenchmarkFolder("gks", "v1.1.0"))
+	err = os.RemoveAll(utils.GetHomeFolder())
 	assert.NoError(t, err)
 }
 
@@ -83,7 +83,7 @@ func Test_SaveBenchmarkFilesIfNotExist(t *testing.T) {
 	filesData = append(filesData, utils.FilesInfo{Name: common.Scheduler, Data: "bbb"})
 	err = SaveBenchmarkFilesIfNotExist("k8s", "v1.6.0", filesData)
 	assert.NoError(t, err)
-	err = os.RemoveAll(utils.GetBenchmarkFolder("k8s", "v1.6.0"))
+	err = os.RemoveAll(utils.GetHomeFolder())
 	assert.NoError(t, err)
 }
 
@@ -97,6 +97,6 @@ func Test_SaveGksBenchmarkFilesIfNotExist(t *testing.T) {
 	filesData = append(filesData, utils.FilesInfo{Name: common.Scheduler, Data: "bbb"})
 	err = SaveBenchmarkFilesIfNotExist("gks", "v1.1.0", filesData)
 	assert.NoError(t, err)
-	err = os.RemoveAll(utils.GetBenchmarkFolder("gks", "v1.1.0"))
+	err = os.RemoveAll(utils.GetHomeFolder())
 	assert.NoError(t, err)
 }
