@@ -95,7 +95,7 @@ func invokeCommandCli(args []string, commands map[string]cli.CommandFactory) (in
 
 //ArgsSanitizer sanitize CLI arguments
 var ArgsSanitizer SanitizeArgs = func(str []string) ArgsData {
-	ad := ArgsData{specType: "k8s", specVersion: "v1.6.0"}
+	ad := ArgsData{specType: "k8s"}
 	args := make([]string, 0)
 	if len(str) == 0 {
 		args = append(args, "")
@@ -118,6 +118,12 @@ var ArgsSanitizer SanitizeArgs = func(str []string) ArgsData {
 		default:
 			args = append(args, arg)
 		}
+	}
+	if ad.specType == "k8s" && len(ad.specVersion) == 0 {
+		ad.specVersion = "v1.6.0"
+	}
+	if ad.specType == "gks" && len(ad.specVersion) == 0 {
+		ad.specVersion = "v1.1.0"
 	}
 	ad.filters = args
 	return ad

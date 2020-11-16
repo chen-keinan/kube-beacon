@@ -6,4 +6,4 @@ Available commands are:
   -e , --exclude, ignore specific audit tests,  example -e=1.2.3,1.4.5
   -n , --node,    execute audit tests on specific node,   example -n=master,-n=worker
   -s , --spec,    execute specific audit tests spec,   example -s=gks, default=k8s
-  -v , --version, execute specific audit tests spec version,    example -v=1.1.0,default=1.6.0
+  -v , --version, execute specific audit tests spec version,    example -v=1.1.0,default=latest
