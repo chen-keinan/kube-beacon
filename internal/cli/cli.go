@@ -109,8 +109,12 @@ var ArgsSanitizer SanitizeArgs = func(str []string) ArgsData {
 			args = append(args, arg)
 		case strings.HasPrefix(arg, "s="):
 			ad.specType = arg[len("s="):]
+		case strings.HasPrefix(arg, "spec="):
+			ad.specType = arg[len("spec="):]
 		case strings.HasPrefix(arg, "v="):
 			ad.specVersion = fmt.Sprintf("v%s", arg[len("v="):])
+		case strings.HasPrefix(arg, "version="):
+			ad.specVersion = fmt.Sprintf("v%s", arg[len("version="):])
 		default:
 			args = append(args, arg)
 		}
