@@ -46,9 +46,12 @@ Execute kube-beacon  with flags , execute test on demand
 Usage: kube-Beacon [--version] [--help] <command> [<args>]
 
 Available commands are:
-  -i , --include, execute specific tests only,  example -i=1.2.3,1.4.5
-  -e , --exclude, exclude tests from execution, example -e=1.2.3,1.4.5
-  -n , --node,    execute specific node test,   example -n=master,-n=worker
+  -r , --report :  run audit tests and generate failure report
+  -i , --include: execute only specific audit test,   example -i=1.2.3,1.4.5
+  -e , --exclude, ignore specific audit tests,  example -e=1.2.3,1.4.5
+  -n , --node,    execute audit tests on specific node,   example -n=master,-n=worker
+  -s , --spec,    execute specific audit tests spec,   example -s=gks, default=k8s
+  -v , --version, execute specific audit tests spec version,    example -v=1.1.0,default=1.6.0
 ```
 
 Execute tests and generate failure tests report
