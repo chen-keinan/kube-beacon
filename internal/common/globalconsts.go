@@ -17,6 +17,8 @@ const (
 	ControlPlaneConfiguration = "3.0_control_plane_configuration.yml"
 	//GksWorkerNodes worker spec
 	GksWorkerNodes = "3.0_worker_nodes.yml"
+	//GksPolicies policies spec
+	GksPolicies = "4.0_policies.yml"
 	//GksControlPlaneConfiguration file name
 	GksControlPlaneConfiguration = "2.0_control_plane_configuration.yml"
 	//Policies file name

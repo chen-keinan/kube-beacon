@@ -52,6 +52,7 @@ func Test_CreateGksBenchmarkFilesIfNotExist(t *testing.T) {
 	// generate test with packr
 	assert.Equal(t, bFiles[0].Name, common.GksControlPlaneConfiguration)
 	assert.Equal(t, bFiles[1].Name, common.GksWorkerNodes)
+	assert.Equal(t, bFiles[2].Name, common.GksPolicies)
 
 	err = utils.CreateBenchmarkFolderIfNotExist("gks", "v1.1.0")
 	assert.NoError(t, err)
@@ -62,6 +63,7 @@ func Test_CreateGksBenchmarkFilesIfNotExist(t *testing.T) {
 	bFiles, err = utils.GetK8sBenchAuditFiles("gks", "v1.1.0")
 	assert.Equal(t, bFiles[0].Name, common.GksControlPlaneConfiguration)
 	assert.Equal(t, bFiles[1].Name, common.GksWorkerNodes)
+	assert.Equal(t, bFiles[2].Name, common.GksPolicies)
 	assert.NoError(t, err)
 	err = os.RemoveAll(utils.GetHomeFolder())
 	assert.NoError(t, err)

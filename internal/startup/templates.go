@@ -79,6 +79,11 @@ func GenerateGksBenchmarkFiles() ([]utils.FilesInfo, error) {
 		return []utils.FilesInfo{}, fmt.Errorf("faild to load k8s benchmarks audit tests %s", err.Error())
 	}
 	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GksWorkerNodes, Data: wn})
+	gkp, err := box.FindString(common.GksPolicies)
+	if err != nil {
+		return []utils.FilesInfo{}, fmt.Errorf("faild to load k8s benchmarks audit tests %s", err.Error())
+	}
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GksPolicies, Data: gkp})
 	return fileInfo, nil
 }
 
