@@ -46,8 +46,8 @@ build_remote:
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go
 	$(MOVESANDBOX)
 build_docker:
-	docker build -t kubebcon.jfrog.io/docker-local/kube-beacon .
-	docker push kubebcon.jfrog.io/docker-local/kube-beacon
+	docker build -t kbeacon.jfrog.io/docker-local/kube-beacon .
+	docker push kbeacon.jfrog.io/docker-local/kube-beacon
 build_docker_local:
 	docker build -t beacon:8082/docker-local/kube-beacon .
 	docker push beacon:8082/docker-local/kube-beacon:latest
