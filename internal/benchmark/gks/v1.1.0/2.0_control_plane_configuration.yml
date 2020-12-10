@@ -27,7 +27,6 @@ categories:
         deployed.
       eval_expr: "'$0' != ''; && '$0' == '$1';"
       default_value: See the GKE documentation for the default value.
-      non_applicable: false
       references:
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
     - name: 2.2.1 Ensure that a minimal audit policy is created (Not Scored)
@@ -44,7 +43,7 @@ categories:
         available of the cluster nodes.
       eval_expr:
       default_value: See the GKE documentation for the default value.
-      non_applicable: true
+      type: non_applicable
       references:
       - https://kubernetes.io/docs/tasks/debug-application-cluster/audit/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -59,7 +58,7 @@ categories:
       impact: Increasing audit logging will consume resources on the nodes or other log destination.
       eval_expr:
       default_value: See the GKE documentation for the default value.
-      non_applicable: true
+      type: non_applicable
       references:
       - https://github.com/k8scop/k8s-securitydashboard/blob/master/configs/kubernetes/adv-audit.yaml
       - https://kubernetes.io/docs/tasks/debug-application-cluster/audit/#audit-policy

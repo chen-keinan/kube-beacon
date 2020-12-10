@@ -23,7 +23,6 @@ categories:
       impact: None
       eval_expr: "$1 <= 644;"
       default_value: See the GKE documentation for the default value.
-      non_applicable: false
       references:
       - https://kubernetes.io/docs/admin/kube-proxy/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -42,7 +41,6 @@ categories:
       impact: None
       eval_expr: "'$1' == 'root:root';"
       default_value: See the GKE documentation for the default value.
-      non_applicable: false
       references:
       - hthttps://kubernetes.io/docs/admin/kube-proxy/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -60,7 +58,6 @@ categories:
       impact: None
       eval_expr: "$1 <= 644;"
       default_value: See the GKE documentation for the default value.
-      non_applicable: false
       references:
       - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -79,7 +76,6 @@ categories:
       impact: None
       eval_expr: "'$1' == 'root:root';"
       default_value: See the GKE documentation for the default value.
-      non_applicable: false
       references:
       - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
@@ -96,7 +92,6 @@ categories:
       impact: Anonymous requests will be rejected.
       eval_expr: "'$1' == 'false'; || '$2' == 'false';"
       default_value: See the GKE documentation for the default value.
-      non_applicable: false
       references:
       - https://kubernetes.io/docs/admin/kubelet/
       - https://kubernetes.io/docs/admin/kubelet-authentication-authorization/#kubeletauthentication

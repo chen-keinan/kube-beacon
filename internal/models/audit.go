@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/mapstructure"
 	"strings"
@@ -40,7 +41,8 @@ type AuditBench struct {
 	TestSucceed          bool
 	CommandParams        map[int][]string
 	Category             string
-	NonApplicable        bool `mapstructure:"non_applicable" yaml:"non_applicable"`
+	NonApplicable        bool
+	TestType             string `mapstructure:"type" yaml:"type"`
 }
 
 //AuditResult data
@@ -66,6 +68,9 @@ func (at *AuditBench) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	at.CommandParams = make(map[int][]string)
 	for index, command := range at.AuditCommand {
 		findIndex(command, "#", index, at.CommandParams)
+	}
+	if at.TestType == common.NonApplicableTest || at.TestType == common.ManualTest {
+		at.NonApplicable = true
 	}
 	return nil
 }

@@ -20,6 +20,27 @@ categories:
         gcloud services enable containerscanning.googleapis.com
       check_type: multi_param
       impact: None
+      type: manual
+      eval_expr: "'$0' == 'Container';"
+      default_value: By default, GCR Container Analysis is disabled.
+      references:
+      - https://cloud.google.com/container-registry/docs/container-analysis
+    -
+      name: 5.1.2 Minimize user access to GCR (Not Scored)
+      description: Restrict user access to GCR, limiting interaction with build images to only authorized
+        personnel and service accounts.
+      profile_applicability: Master
+      audit:
+      - gcloud services list --enabled --filter containerregistry | grep 'Container Registry API' | awk '{print $2}'
+      remediation: |-
+        Using Google Cloud Console
+        1. Go to GCR by visiting https://console.cloud.google.com/gcr
+        2. Select Settings and Click Enable Vulnerability Scanning.
+        Using Command Line
+        gcloud services enable containerscanning.googleapis.com
+      check_type: multi_param
+      impact: None
+      type: manual
       eval_expr: "'$0' == 'Container';"
       default_value: By default, GCR Container Analysis is disabled.
       references:

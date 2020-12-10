@@ -15,7 +15,7 @@ import (
 func printTestResults(at []*models.AuditBench) {
 	for _, a := range at {
 		if a.NonApplicable {
-			na := colorstring.Color("[blue][Not applicable]")
+			na := colorstring.Color("[orange][Warn]")
 			log.Console(fmt.Sprintf("%s %s\n", na, a.Name))
 			continue
 		}

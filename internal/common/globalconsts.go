@@ -55,4 +55,8 @@ const (
 	KubeBeacon = "kube-beacon"
 	//RootUser process user owner
 	RootUser = "root"
+	//NonApplicableTest test is not applicable
+	NonApplicableTest = "non_applicable"
+	//ManualTest test can only be manual executed
+	ManualTest = "manual"
 )
