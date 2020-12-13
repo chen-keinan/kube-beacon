@@ -22,6 +22,7 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 * [Quick Start](#quick-start)
 * [Kube-beacon as Docker](#Kube-beacon-as-Docker)
 * [Kube-beacon as pod in k8s](#Kube-beacon-as-pod-in-k8s)
+* [Kube-beacon as pod in gke](#Kube-beacon-as-pod-in-gke)
 
 
 ## Installation
@@ -84,6 +85,16 @@ cd jobs
 ```
 kubectl apply -f k8s.yaml
 ```
+
+## Kube-beacon as pod in gke
+
+```
+cd jobs
+```
+```
+kubectl apply -f gke.yaml
+```
+
 
 - Check k8s pod status
 ```
