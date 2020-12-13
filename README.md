@@ -22,7 +22,7 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 * [Quick Start](#quick-start)
 * [Kube-beacon as Docker](#Kube-beacon-as-Docker)
 * [Kube-beacon as pod in k8s](#Kube-beacon-as-pod-in-k8s)
-* [What Next !!](#What-Next-!!)
+* [Next Steps...](#Next-Steps...)
 
 
 
@@ -120,7 +120,7 @@ kubectl delete clusterrolebinding default-admin
 kubectl delete -f k8s.yaml
 ```
 
-## What Next !!
+## Next Steps...
 - add eks support
 - intgration with terraform
 - post scan hooks
