@@ -22,7 +22,6 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 * [Quick Start](#quick-start)
 * [Kube-beacon as Docker](#Kube-beacon-as-Docker)
 * [Kube-beacon as pod in k8s](#Kube-beacon-as-pod-in-k8s)
-* [Kube-beacon as pod in gke](#Kube-beacon-as-pod-in-gke)
 
 
 ## Installation
@@ -68,7 +67,7 @@ Execute tests and generate failure tests report
 Execute kube beacon via docker 
 
 ```
-docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $HOME/.kube:/root/.kube:ro -v $(which kubectl):/usr/bin/kubectl -t beacon.jfrog.io/docker-local/kube-beacon
+docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $HOME/.kube:/root/.kube:ro -v $(which kubectl):/usr/bin/kubectl -t kbeacon.jfrog.io/docker-local/kube-beacon
 ```
 
 ## Kube-beacon as pod in k8s
@@ -82,15 +81,14 @@ kubectl create clusterrolebinding default-admin --clusterrole cluster-admin --se
 ```
 cd jobs
 ```
+- simple k8s cluster run following job
+
 ```
 kubectl apply -f k8s.yaml
 ```
 
-## Kube-beacon as pod in gke
+- gke cluster run the following jon
 
-```
-cd jobs
-```
 ```
 kubectl apply -f gke.yaml
 ```
@@ -112,7 +110,7 @@ kube-system   fluentd-gke-f6q5d                                           2/2   
 kubectl logs kube-beacon-sc8g9 
 ```
 
-- cleanup
+- cleanup (remove role and delete pod)
 ```
 kubectl delete clusterrolebinding default-admin
 ```
