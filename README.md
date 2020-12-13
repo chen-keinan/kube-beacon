@@ -106,5 +106,5 @@ kubectl logs kube-beacon-sc8g9
 kubectl delete clusterrolebinding default-admin
 ```
 ```
-kubectl delete -f job.yaml
+kubectl delete -f k8s.yaml
 ```
