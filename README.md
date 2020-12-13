@@ -82,7 +82,7 @@ kubectl create clusterrolebinding default-admin --clusterrole cluster-admin --se
 cd jobs
 ```
 ```
-kubectl apply -f job.yaml
+kubectl apply -f k8s.yaml
 ```
 
 - Check k8s pod status
