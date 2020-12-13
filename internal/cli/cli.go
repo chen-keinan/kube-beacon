@@ -31,9 +31,9 @@ func InitBenchmarkSpecData(spec, version string) {
 		if version == "v1.6.0" {
 			filesData, err = startup.GenerateK8sBenchmarkFiles()
 		}
-	case "gks":
+	case "gke":
 		if version == "v1.1.0" {
-			filesData, err = startup.GenerateGksBenchmarkFiles()
+			filesData, err = startup.GenerateGkeBenchmarkFiles()
 		}
 	}
 	if err != nil {
@@ -122,7 +122,7 @@ var ArgsSanitizer SanitizeArgs = func(str []string) ArgsData {
 	if ad.specType == "k8s" && len(ad.specVersion) == 0 {
 		ad.specVersion = "v1.6.0"
 	}
-	if ad.specType == "gks" && len(ad.specVersion) == 0 {
+	if ad.specType == "gke" && len(ad.specVersion) == 0 {
 		ad.specVersion = "v1.1.0"
 	}
 	ad.filters = args

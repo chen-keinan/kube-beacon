@@ -36,13 +36,17 @@ type ResultProcessor func(at *models.AuditBench, NumFailedTest int) []*models.Au
 
 // ConsoleOutputGenerator print audit tests to stdout
 var ConsoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
-	granTotal := make([]models.AuditTestTotals, 0)
+	grandTotal := make([]models.AuditTestTotals, 0)
 	for _, a := range at {
 		log.Console(fmt.Sprintf("%s %s\n", "[Category]", a.Name))
 		categoryTotal := printTestResults(a.AuditTests)
-		granTotal = append(granTotal, categoryTotal)
+		grandTotal = append(grandTotal, categoryTotal)
 	}
-	finalTotal := calculateFinalTotal(granTotal)
+	printFinalResults(grandTotal)
+}
+
+func printFinalResults(grandTotal []models.AuditTestTotals) {
+	finalTotal := calculateFinalTotal(grandTotal)
 	passTest := colorstring.Color("[green]Pass:")
 	failTest := colorstring.Color("[red]Fail:")
 	warnTest := colorstring.Color("[yellow]Warn:")

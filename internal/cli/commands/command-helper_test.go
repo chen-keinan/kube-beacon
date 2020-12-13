@@ -85,9 +85,9 @@ func Test_LoadAuditTest(t *testing.T) {
 	assert.True(t, strings.Contains(at[0].AuditTests[0].Name, "1.1.1"))
 }
 
-//Test_LoadGksAuditTest test
-func Test_LoadGksAuditTest(t *testing.T) {
-	err := os.RemoveAll(utils.GetBenchmarkFolder("gks", "v1.1.0"))
+//Test_LoadGkeAuditTest test
+func Test_LoadGkeAuditTest(t *testing.T) {
+	err := os.RemoveAll(utils.GetBenchmarkFolder("gke", "v1.1.0"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +95,7 @@ func Test_LoadGksAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = utils.CreateBenchmarkFolderIfNotExist("gks", "v1.1.0")
+	err = utils.CreateBenchmarkFolderIfNotExist("gke", "v1.1.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func Test_LoadGksAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = startup.SaveBenchmarkFilesIfNotExist("gks", "v1.1.0", bFiles)
+	err = startup.SaveBenchmarkFilesIfNotExist("gke", "v1.1.0", bFiles)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -11,7 +11,7 @@ spec:
       hostPID: true
       containers:
       - name: kube-beacon
-        image: kubebcon.jfrog.io/docker-local/kube-beacon:latest
+        image: kbeacon.jfrog.io/docker-local/kube-beacon:latest
         command: ["./kube-beacon"]
         volumeMounts:
         - name: var-lib-etcd

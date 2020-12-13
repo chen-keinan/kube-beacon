@@ -15,14 +15,14 @@ const (
 	WorkerNodes = "4.0_worker_nodes.yml"
 	//ControlPlaneConfiguration file name
 	ControlPlaneConfiguration = "3.0_control_plane_configuration.yml"
-	//GksWorkerNodes worker spec
-	GksWorkerNodes = "3.0_worker_nodes.yml"
-	//GksPolicies policies spec
-	GksPolicies = "4.0_policies.yml"
-	//GksManagedServices manages service spec
-	GksManagedServices = "5.0_managed_services.yml"
-	//GksControlPlaneConfiguration file name
-	GksControlPlaneConfiguration = "2.0_control_plane_configuration.yml"
+	//GkeWorkerNodes worker spec
+	GkeWorkerNodes = "3.0_worker_nodes.yml"
+	//GkePolicies policies spec
+	GkePolicies = "4.0_policies.yml"
+	//GkeManagedServices manages service spec
+	GkeManagedServices = "5.0_managed_services.yml"
+	//GkeControlPlaneConfiguration file name
+	GkeControlPlaneConfiguration = "2.0_control_plane_configuration.yml"
 	//Policies file name
 	Policies = "5.0_policies.yml"
 	//GrepRegex for tests

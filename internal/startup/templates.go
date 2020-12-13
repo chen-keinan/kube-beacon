@@ -63,32 +63,32 @@ func GenerateK8sBenchmarkFiles() ([]utils.FilesInfo, error) {
 	return fileInfo, nil
 }
 
-//GenerateGksBenchmarkFiles use packr to load benchmark audit test yaml
-func GenerateGksBenchmarkFiles() ([]utils.FilesInfo, error) {
+//GenerateGkeBenchmarkFiles use packr to load benchmark audit test yaml
+func GenerateGkeBenchmarkFiles() ([]utils.FilesInfo, error) {
 	fileInfo := make([]utils.FilesInfo, 0)
-	box := packr.NewBox("./../benchmark/gks/v1.1.0/")
+	box := packr.NewBox("./../benchmark/gke/v1.1.0/")
 	// Add Master Node Configuration tests
-	cpc, err := box.FindString(common.GksControlPlaneConfiguration)
+	cpc, err := box.FindString(common.GkeControlPlaneConfiguration)
 	if err != nil {
 		return []utils.FilesInfo{}, fmt.Errorf("faild to load k8s benchmarks audit tests %s", err.Error())
 	}
-	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GksControlPlaneConfiguration, Data: cpc})
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GkeControlPlaneConfiguration, Data: cpc})
 	// Add Worker Nodes tests
-	wn, err := box.FindString(common.GksWorkerNodes)
+	wn, err := box.FindString(common.GkeWorkerNodes)
 	if err != nil {
 		return []utils.FilesInfo{}, fmt.Errorf("faild to load k8s benchmarks audit tests %s", err.Error())
 	}
-	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GksWorkerNodes, Data: wn})
-	gkp, err := box.FindString(common.GksPolicies)
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GkeWorkerNodes, Data: wn})
+	gkp, err := box.FindString(common.GkePolicies)
 	if err != nil {
 		return []utils.FilesInfo{}, fmt.Errorf("faild to load k8s benchmarks audit tests %s", err.Error())
 	}
-	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GksPolicies, Data: gkp})
-	gms, err := box.FindString(common.GksManagedServices)
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GkePolicies, Data: gkp})
+	gms, err := box.FindString(common.GkeManagedServices)
 	if err != nil {
 		return []utils.FilesInfo{}, fmt.Errorf("faild to load k8s benchmarks audit tests %s", err.Error())
 	}
-	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GksManagedServices, Data: gms})
+	fileInfo = append(fileInfo, utils.FilesInfo{Name: common.GkeManagedServices, Data: gms})
 	return fileInfo, nil
 }
 
