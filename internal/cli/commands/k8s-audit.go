@@ -12,6 +12,7 @@ import (
 	"github.com/chen-keinan/beacon/pkg/filters"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/chen-keinan/beacon/ui"
+	"github.com/mitchellh/colorstring"
 	"strconv"
 	"strings"
 )
@@ -35,10 +36,32 @@ type ResultProcessor func(at *models.AuditBench, NumFailedTest int) []*models.Au
 
 // ConsoleOutputGenerator print audit tests to stdout
 var ConsoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
+	granTotal := make([]models.AuditTestTotals, 0)
 	for _, a := range at {
 		log.Console(fmt.Sprintf("%s %s\n", "[Category]", a.Name))
-		printTestResults(a.AuditTests)
+		categoryTotal := printTestResults(a.AuditTests)
+		granTotal = append(granTotal, categoryTotal)
 	}
+	finalTotal := calculateFinalTotal(granTotal)
+	passTest := colorstring.Color("[green]Pass:")
+	failTest := colorstring.Color("[red]Fail:")
+	warnTest := colorstring.Color("[yellow]Warn:")
+	title := colorstring.Color("[blue]Test Result Total")
+	log.Console(fmt.Sprintf("%s %s %d , %s %d , %s %d ", title, passTest, finalTotal.Pass, warnTest, finalTotal.Warn, failTest, finalTotal.Fail))
+}
+
+func calculateFinalTotal(granTotal []models.AuditTestTotals) models.AuditTestTotals {
+	var (
+		warn int
+		fail int
+		pass int
+	)
+	for _, total := range granTotal {
+		warn = warn + total.Warn
+		fail = fail + total.Fail
+		pass = pass + total.Pass
+	}
+	return models.AuditTestTotals{Pass: pass, Fail: fail, Warn: warn}
 }
 
 // ReportOutputGenerator print failed audit test to human report

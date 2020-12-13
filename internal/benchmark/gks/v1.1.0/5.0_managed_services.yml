@@ -11,7 +11,6 @@ categories:
       description: Scan images stored in Google Container Registry (GCR) for vulnerabilities.
       profile_applicability: Master
       audit:
-      - gcloud services list --enabled --filter containerregistry | grep 'Container Registry API' | awk '{print $2}'
       remediation: |-
         Using Google Cloud Console
         1. Go to GCR by visiting https://console.cloud.google.com/gcr
@@ -21,7 +20,7 @@ categories:
       check_type: multi_param
       impact: None
       type: manual
-      eval_expr: "'$0' == 'Container';"
+      eval_expr:
       default_value: By default, GCR Container Analysis is disabled.
       references:
       - https://cloud.google.com/container-registry/docs/container-analysis
@@ -31,7 +30,6 @@ categories:
         personnel and service accounts.
       profile_applicability: Master
       audit:
-      - gcloud services list --enabled --filter containerregistry | grep 'Container Registry API' | awk '{print $2}'
       remediation: |-
         Using Google Cloud Console
         1. Go to GCR by visiting https://console.cloud.google.com/gcr
@@ -41,7 +39,751 @@ categories:
       check_type: multi_param
       impact: None
       type: manual
-      eval_expr: "'$0' == 'Container';"
+      eval_expr:
       default_value: By default, GCR Container Analysis is disabled.
       references:
       - https://cloud.google.com/container-registry/docs/container-analysis
+    -
+      name: 5.1.3 Minimize cluster access to read-only for GCR (Not Scored)
+      description: RConfigure the Cluster Service Account with Storage Object Viewer Role to only allow readonly
+        access to GCR.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: A separate dedicated service account may be required for use by build servers and other
+        robot users pushing or managing container images.
+        Any account granted the Storage Object Viewer role at the project level can view all objects
+        stored in GCS for the project.
+      type: manual
+      eval_expr:
+      default_value: The default permissions for the cluster Service account is dependent on the initial
+        configuration and IAM policy.
+      references:
+      - https://cloud.google.com/container-registry/docs/access-control
+    -
+      name: 5.1.4 Minimize Container Registries to only those approved (Not Scored)
+      description: Use Binary Authorization to allowlist (whitelist) only approved container registries.
+        access to GCR.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: All container images to be deployed to the cluster must be hosted within an approved
+        container image registry. If public registries are not on the allowlist, a process for bringing
+        commonly used container images into an approved private registry and keeping them up to
+        date will be required.
+      type: manual
+      eval_expr:
+      default_value: By default, Binary Authorization is disabled along with container registry allowlisting.
+        configuration and IAM policy.
+      references:
+      - https://cloud.google.com/binary-authorization/docs/policy-yaml-reference
+    -
+      name: 5.2.1 Ensure GKE clusters are not running using the Compute Engine
+        default service account (Scored)
+      description: Create and use minimally privileged Service accounts to run GKE cluster nodes instead of
+        using the Compute Engine default Service account. Unnecessary permissions could be
+        abused in the case of a node compromise.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Instances are automatically granted the https://www.googleapis.com/auth/cloud-platform
+        scope to allow full access to all Google Cloud APIs. This is so that the IAM permissions of the
+        instance are completely determined by the IAM roles of the Service account. Thus if
+        Kubernetes workloads were using cluster access scopes to perform actions using Google
+        APIs, they may no longer be able to, if not permitted by the permissions of the Service
+        account. To remediate, follow Recommendation 6.2.2.
+        The Service account roles listed here are the minimum required to run the cluster.
+        Additional roles may be required to pull from a private instance of Google Container
+        Registry (GCR).
+      type: manual
+      eval_expr:
+      default_value: By default, nodes use the Compute Engine default service account when you create a new
+        cluster.
+      references:
+      - https://cloud.google.com/compute/docs/access/serviceaccounts#compute_engine_default_service_account
+    -
+      name: 5.2.2 Prefer using dedicated GCP Service Accounts and Workload
+        Identity (Not Scored)
+      description: Kubernetes workloads should not use cluster node service accounts to authenticate to
+        Google Cloud APIs. Each Kubernetes Workload that needs to authenticate to other Google
+        services using Cloud IAM should be provisioned a dedicated Service account. Enabling
+        Workload Identity manages the distribution and rotation of Service account keys for the
+        workloads to use.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: During the Workload Identity beta, a GCP project can have a maximum of 20 clusters with
+        Workload Identity enabled.
+        Workload Identity replaces the need to use Metadata Concealment and as such, the two
+        approaches are incompatible. The sensitive metadata protected by Metadata Concealment
+        is also protected by Workload Identity.
+        When Workload Identity is enabled, you can no longer use the Compute Engine default
+        Service account. Correspondingly, Workload Identity can't be used with Pods running in
+        the host network. You may also need to modify workloads in order for them to use
+        Workoad Identity as described within https://cloud.google.com/kubernetesengine/
+        docs/how-to/workload-identity
+        GKE infrastructure pods such as Stackdriver will continue to use the Node's Service
+        account.
+      type: manual
+      eval_expr:
+      default_value: By default, Workload Identity is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
+    -
+      name: 5.3.1 Ensure Kubernetes Secrets are encrypted using keys managed in
+        Cloud KMS (Scored)
+      description: Encrypt Kubernetes secrets, stored in etcd, at the application-layer using a customermanaged
+        key in Cloud KMS.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: To use the Cloud KMS CryptoKey to protect etcd in the cluster, the 'Kubernetes Engine
+        Service Agent' Service account must hold the 'Cloud KMS CryptoKey Encrypter/Decrypter'
+        role.
+      type: manual
+      eval_expr:
+      default_value: By default, Application-layer Secrets Encryption is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/encrypting-secrets
+    -
+      name: 5.4.1 Ensure legacy Compute Engine instance metadata APIs are
+        Disabled (Scored)
+      description: Disable the legacy GCE instance metadata APIs for GKE nodes. Under some circumstances,
+        these can be used from within a pod to extract the node's credentials.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Any workloads using the legacy GCE metadata endpoint will no longer be able to retrieve
+        metadata from the endpoint. Use Workload Identity instead.
+      type: manual
+      eval_expr:
+      default_value: In GKE cluster versions 1.12 and newer, the --metadata=disable-legacyendpoints=true setting is automatically enabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/protecting-clustermetadata#disable-legacy-apis
+    -
+      name: 5.4.2 Ensure the GKE Metadata Server is Enabled (Scored)
+      description: Running the GKE Metadata Server prevents workloads from accessing sensitive instance
+        metadata and facilitates Workload Identity
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: The GKE Metadata Server must be run when using Workload Identity. Because Workload
+        Identity replaces the need to use Metadata Concealment, the two approaches are
+        incompatible.
+        When the GKE Metadata Server and Workload Identity are enabled, unless the Pod is
+        running on the host network, Pods cannot use the the Compute Engine default service
+        account.
+        You may also need to modify workloads in order for them to use Workoad Identity as
+        described within https://cloud.google.com/kubernetes-engine/docs/how-to/workloadidentity.
+      type: manual
+      eval_expr:
+      default_value: By default, running pods to have full access to the node's underlying metadata server.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/protecting-clustermetadata#concealment
+    -
+      name: 5.5.1 Ensure Container-Optimized OS (COS) is used for GKE node images
+        (Scored)
+      description: Use Container-Optimized OS (COS) as a managed, optimized and hardened base OS that
+        limits the host's attack surface.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: If modifying an existing cluster's Node pool to run COS, the upgrade operation used is longrunning
+        and will block other operations on the cluster (including delete) until it has run to
+        completion.
+        COS nodes also provide an option with containerd as the main container runtime directly
+        integrated with Kubernetes instead of docker. Thus, on these nodes, Docker cannot view or
+        access containers or images managed by Kubernetes. Your applications should not interact
+        with Docker directly. For general troubleshooting or debugging, use crictl instead.
+      type: manual
+      eval_expr:
+      default_value: Container-Optimized OS (COS) is the default option for a cluster node image.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/node-images
+      - https://cloud.google.com/container-optimized-os/docs/
+      - https://cloud.google.com/container-optimized-os/docs/concepts/security
+    -
+      name: 5.5.2 Ensure Node Auto-Repair is enabled for GKE nodes (Scored)
+      description: Nodes in a degraded state are an unknown quantity and so may pose a security risk.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: If multiple nodes require repair, Kubernetes Engine might repair them in parallel.
+        Kubernetes Engine limits number of repairs depending on the size of the cluster (bigger
+        clusters have a higher limit) and the number of broken nodes in the cluster (limit decreases
+        if many nodes are broken).
+        Node auto-repair is not available on Alpha Clusters.
+      type: manual
+      eval_expr:
+      default_value: Node auto-repair is enabled by default.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/node-auto-repair
+    -
+      name: 5.5.3 Ensure Node Auto-Upgrade is enabled for GKE nodes (Scored)
+      description: Node auto-upgrade keeps nodes at the current Kubernetes and OS security patch level to
+        mitigate known vulnerabilities.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Enabling node auto-upgrade does not cause your nodes to upgrade immediately. Automatic
+        upgrades occur at regular intervals at the discretion of the Kubernetes Engine team.
+        To prevent upgrades occurring during a peak period for your cluster, you should define a
+        maintenance window. A maintenance window is a four-hour timeframe that you choose in
+        which automatic upgrades should occur. Upgrades can occur on any day of the week, and at
+        any time within the timeframe. To prevent upgrades from occurring during certain dates,
+        you should define a maintenance exclusion. A maintenance exclusion can span multiple
+        days.
+      type: manual
+      eval_expr:
+      default_value: Node auto-upgrade is enabled by default.
+        Even if a cluster has been created with node auto-upgrade enabled, this only applies to the
+        default Node pool. Subsequent node pools do not have node auto-upgrade enabled by
+        default.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/node-auto-upgrades
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/maintenance-windowsand-exclusions
+    -
+      name: 5.5.4 When creating New Clusters - Automate GKE version management
+        using Release Channels (Not Scored)
+      description: Subscribe to the Regular or Stable Release Channel to automate version upgrades to the
+        GKE cluster and to reduce version management complexity to the number of features and
+        level of stability required.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Once release channels are enabled on a cluster, they cannot be disabled. To stop using
+        release channels, you must recreate the cluster without the --release-channel flag.
+        Node auto-upgrade is enabled (and cannot be disabled), so your cluster is updated
+        automatically from releases available in the chosen release channel.
+      type: manual
+      eval_expr:
+      default_value: Currently, release channels are not enabled by default.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels
+    -
+      name: 5.5.5 Ensure Shielded GKE Nodes are Enabled (Not Scored)
+      description: Shielded GKE Nodes provides verifiable integrity via secure boot, virtual trusted platform
+        module (vTPM)-enabled measured boot, and integrity monitoring.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: After you enable Shielded GKE Nodes in a cluster, any nodes created in a Node pool without
+        Shielded GKE Nodes enabled, or created outside of any Node pool, aren't able to join the cluster.
+        Shielded GKE Nodes can only be used with Container-Optimized OS (COS), COS with
+        containerd, and Ubuntu node images.
+      type: manual
+      eval_expr:
+      default_value: Currently, Shielded GKE Nodes are not enabled by default.
+        If Shielded GKE Nodes are enabled, Integrity Monitoring (through Stackdriver) is enabled
+        by default and Secure Boot is disabled by default.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/shielded-gke-nodes
+    -
+      name: 5.5.6 Ensure Integrity Monitoring for Shielded GKE Nodes is Enabled (Scored)
+      description: Enable Integrity Monitoring for Shielded GKE Nodes to be notified of inconsistencies during
+        the node boot sequence.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: None.
+      type: manual
+      eval_expr:
+      default_value: Integrity Monitoring is disabled by default on GKE clusters. Integrity Monitoring is enabled
+        by default for Shielded GKE Nodes; however, if Secure Boot is enabled at creation time,
+        Integrity Monitoring is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/shielded-gkenodes#system_integrity_monitoring
+    -
+      name: 5.5.7 Ensure Secure Boot for Shielded GKE Nodes is Enabled (Scored)
+      description: Enable Secure Boot for Shielded GKE Nodes to verify the digital signature of node boot
+        components.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Secure Boot will not permit the use of third-party unsigned kernel modules.
+      type: manual
+      eval_expr:
+      default_value: IntBy default, Secure Boot is disabled in GKE clusters. By default, Secure Boot is disabled when
+        Shielded GKE Nodes is enabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/shielded-gkenodes#secure_boot
+    -
+      name: 5.6.1 Enable VPC Flow Logs and Intranode Visibility (Scored)
+      description: Enable VPC Flow Logs and Intranode Visibility to see pod-level traffic, even for traffic
+        within a worker node.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: This is a beta feature. Enabling it on existing cluster causes the cluster master and the
+        cluster nodes to restart, which might cause disruption.
+      type: manual
+      eval_expr:
+      default_value: By default, Intranode Visibility is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/intranode-visibility
+    -
+      name: 5.6.2 Ensure use of VPC-native clusters (Scored)
+      description: Create Alias IPs for the node network CIDR range in order to subsequently configure IPbased
+        policies and firewalling for pods. A cluster that uses Alias IPs is called a 'VPC-native'
+        cluster.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: You cannot currently migrate an existing cluster that uses routes for Pod routing to a
+        cluster that uses Alias IPs.
+        Cluster IPs for internal services remain only available from within the cluster. If you want
+        to access a Kubernetes Service from within the VPC, but from outside of the cluster, use an
+        internal load balancer.
+      type: manual
+      eval_expr:
+      default_value: By default, VPC-native (using alias IP) is enabled when you create a new cluster in the
+        Google Cloud Console, however this is disabled when creating a new cluster using the
+        gcloud CLI, unless the --enable-ip-alias argument is specified.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/alias-ips
+      - https://cloud.google.com/vpc/docs/alias-ip
+    -
+      name: 5.6.3 Ensure Master Authorized Networks is Enabled (Scored)
+      description: Enable Master Authorized Networks to restrict access to the cluster's control plane (master
+        endpoint) to only an allowlist (whitelist) of authorized IPs.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: When implementing Master Authorized Networks, be careful to ensure all desired
+        networks are on the allowlist (whitelist) to prevent inadvertently blocking external access
+        to your cluster's control plane.
+      type: manual
+      eval_expr:
+      default_value: By default, Master Authorized Networks is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/authorized-networks
+    -
+      name: 5.6.4 Ensure clusters are created with Private Endpoint Enabled and
+        Public Access Disabled (Scored)
+      description: Disable access to the Kubernetes API from outside the node network if it is not required.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: To enable a Private Endpoint, the cluster has to also be configured with private nodes, a
+        private master IP range and IP aliasing enabled.
+        If the Private Endpoint flag --enable-private-endpoint is passed to the gcloud CLI, or the
+        external IP address undefined in the Google Cloud Console during cluster creation, then all
+        access from a public IP address is prohibited.
+      type: manual
+      eval_expr:
+      default_value: By default, the Private Endpoint is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters
+    -
+      name: 5.6.5 Ensure clusters are created with Private Nodes (Scored)
+      description: Disable public IP addresses for cluster nodes, so that they only have private IP addresses.
+        Private Nodes are nodes with no public IP addresses.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: To enable Private Nodes, the cluster has to also be configured with a private master IP
+        range and IP Aliasing enabled.
+        Private Nodes do not have outbound access to the public internet. If you want to provide
+        outbound Internet access for your private nodes, you can use Cloud NAT or you can
+        manage your own NAT gateway.
+        To access Google Cloud APIs and services from private nodes, Private Google Access needs
+        to be set on Kubernetes Engine Cluster Subnets.
+      type: manual
+      eval_expr:
+      default_value: By default, Private Nodes are disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters
+    -
+      name: 5.6.6 Consider firewalling GKE worker nodes (Not Scored)
+      description: Reduce the network attack surface of GKE nodes by using Firewalls to restrict ingress and
+        egress traffic.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: All instances targeted by a firewall rule, either using a tag or a service account will be
+        affected. Ensure there are no adverse effects on other instances using the target tag or
+        service account before implementing the firewall rule.
+      type: manual
+      eval_expr:
+      default_value: Every VPC network has two implied firewall rules. These rules exist, but are not shown in the Cloud Console
+        The implied allow egress rule An egress rule whose action is allow, destination is
+        0.0.0.0/0, and priority is the lowest possible (65535) lets any instance send traffic
+        to any destination, except for traffic blocked by GCP. Outbound access may be
+        restricted by a higher priority firewall rule. Internet access is allowed if no other
+        firewall rules deny outbound traffic and if the instance has an external IP address or
+        uses a NAT instance.
+        The implied deny ingress rule An ingress rule whose action is deny, source is
+        0.0.0.0/0, and priority is the lowest possible (65535) protects all instances by
+        blocking incoming traffic to them. Incoming access may be allowed by a higher
+        priority rule. Note that the default network includes some additional rules that
+        override this one, allowing certain types of incoming traffic.
+        The implied rules cannot be removed, but they have the lowest possible priorities.
+      references:
+      - https://cloud.google.com/vpc/docs/firewalls
+      - https://cloud.google.com/vpc/docs/using-firewalls
+    -
+      name: 5.6.7 Ensure Network Policy is Enabled and set as appropriate (Not
+        Scored)
+      description: Use Network Policy to restrict pod to pod traffic within a cluster and segregate workloads.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Network Policy requires the Network Policy add-on. This add-on is included automatically
+        when a cluster with Network Policy is created, but for an existing cluster, needs to be
+        added prior to enabling Network Policy.
+        Enabling/Disabling Network Policy causes a rolling update of all cluster nodes, similar to
+        performing a cluster upgrade. This operation is long-running and will block other
+        operations on the cluster (including delete) until it has run to completion.
+        If Network Policy is used, a cluster must have at least 2 nodes of type n1-standard-1 or
+        higher. The recommended minimum size cluster to run Network Policy enforcement is 3
+        n1-standard-1 instances.
+        Enabling Network Policy enforcement consumes additional resources in nodes. Specifically,
+        it increases the memory footprint of the kube-system process by approximately 128MB,
+        and requires approximately 300 millicores of CPU.
+      type: manual
+      eval_expr:
+      default_value: By default, Network Policy is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/network-policy
+    -
+      name: 5.6.7 Ensure Network Policy is Enabled and set as appropriate (Not
+        Scored)
+      description: Use Network Policy to restrict pod to pod traffic within a cluster and segregate workloads.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Network Policy requires the Network Policy add-on. This add-on is included automatically
+        when a cluster with Network Policy is created, but for an existing cluster, needs to be
+        added prior to enabling Network Policy.
+        Enabling/Disabling Network Policy causes a rolling update of all cluster nodes, similar to
+        performing a cluster upgrade. This operation is long-running and will block other
+        operations on the cluster (including delete) until it has run to completion.
+        If Network Policy is used, a cluster must have at least 2 nodes of type n1-standard-1 or
+        higher. The recommended minimum size cluster to run Network Policy enforcement is 3
+        n1-standard-1 instances.
+        Enabling Network Policy enforcement consumes additional resources in nodes. Specifically,
+        it increases the memory footprint of the kube-system process by approximately 128MB,
+        and requires approximately 300 millicores of CPU.
+      type: manual
+      eval_expr:
+      default_value: By default, Network Policy is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/network-policy
+    -
+      name: 5.6.7 Ensure Network Policy is Enabled and set as appropriate (Not
+        Scored)
+      description: Use Network Policy to restrict pod to pod traffic within a cluster and segregate workloads.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Network Policy requires the Network Policy add-on. This add-on is included automatically
+        when a cluster with Network Policy is created, but for an existing cluster, needs to be
+        added prior to enabling Network Policy.
+        Enabling/Disabling Network Policy causes a rolling update of all cluster nodes, similar to
+        performing a cluster upgrade. This operation is long-running and will block other
+        operations on the cluster (including delete) until it has run to completion.
+        If Network Policy is used, a cluster must have at least 2 nodes of type n1-standard-1 or
+        higher. The recommended minimum size cluster to run Network Policy enforcement is 3
+        n1-standard-1 instances.
+        Enabling Network Policy enforcement consumes additional resources in nodes. Specifically,
+        it increases the memory footprint of the kube-system process by approximately 128MB,
+        and requires approximately 300 millicores of CPU.
+      type: manual
+      eval_expr:
+      default_value: By default, Network Policy is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/network-policy
+    -
+      name: 5.6.8 Ensure use of Google-managed SSL Certificates (Not Scored)
+      description: Encrypt traffic to HTTPS load balancers using Google-managed SSL certificates.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Google-managed SSL Certificates are less flexible than certificates you obtain and manage
+        yourself. Managed certificates support a single, non-wildcard domain. Self-managed
+        certificates can support wildcards and multiple subject alternative names (SANs).
+      type: manual
+      eval_expr:
+      default_value: By default, Google-managed SSL Certificates are not created when an Ingress resource is
+        defined.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/managed-certs
+    -
+      name: 5.7.1 Ensure Stackdriver Kubernetes Logging and Monitoring is Enabled
+        (Scored)
+      description: Send logs and metrics to a remote aggregator to mitigate the risk of local tampering in the
+        event of a breach.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Stackdriver Kubernetes Engine Monitoring and Legacy Stackdriver are incompatible
+        because they have different data models. To move from Legacy Stackdriver to Stackdriver
+        Kubernetes Engine Monitoring, you must manually change a number of your Stackdriver
+        artifacts, including alerting policies, group filters, and log queries. See
+        https://cloud.google.com/monitoring/kubernetes-engine/migration.
+      type: manual
+      eval_expr:
+      default_value: Stackdriver Kubernetes Engine monitoring is enabled by default starting in GKE version
+        1.14; Legacy Stackdriver Logging and Monitoring support is enabled by default for earlier
+        versions.
+      references:
+      - https://cloud.google.com/monitoring/kubernetes-engine/
+      - https://cloud.google.com/monitoring/kubernetes-engine/legacystackdriver/monitoring
+      - https://cloud.google.com/monitoring/kubernetes-engine/legacystackdriver/logging
+      - https://cloud.google.com/monitoring/kubernetes-engine/migration
+    -
+      name: 5.7.2 Enable Linux auditd logging (Not Scored)
+      description: Run the auditd logging daemon to obtain verbose operating system logs from GKE nodes
+        running Container-Optimized OS (COS).
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Increased logging activity on a node increases resource usage on that node, which may
+        affect the performance of your workload and may incur additional resource costs. Audit
+        logs sent to Stackdriver consume log quota from the project. You may need to increase your
+        log quota and storage to accommodate the additional logs.
+        Note that the provided logging daemonset only works on nodes running Container-
+        Optimized OS (COS).
+      type: manual
+      eval_expr:
+      default_value: By default, the auditd logging daemonset is not launched when a GKE cluster is created.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/linux-auditd-logging
+    -
+      name: 5.8.1 Ensure Basic Authentication using static passwords is Disabled
+        (Scored)
+      description: Disable Basic Authentication (basic auth) for API server authentication as it uses static
+        passwords which need to be rotated.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Users will no longer be able to authenticate with a static password. You will have to
+        configure and use alternate authentication mechanisms, such as OpenID Connect tokens.
+      type: manual
+      eval_expr:
+      default_value: Clusters created from GKE version 1.12 have Basic Authentication and Client Certificate
+        issuance disabled by default.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-yourcluster#restrict_authn_methods
+    -
+      name: 5.8.2 Ensure authentication using Client Certificates is Disabled (Scored)
+      description: Disable Client Certificates, which require certificate rotation, for authentication. Instead,
+        use another authentication method like OpenID Connect.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Users will no longer be able to authenticate with the pre-provisioned x509 certificate. You
+        will have to configure and use alternate authentication mechanisms, such as OpenID
+        Connect tokens.
+      type: manual
+      eval_expr:
+      default_value: Clusters created from GKE version 1.12 have Basic Authentication and Client Certificate
+        issuance disabled by default.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-yourcluster#restrict_authn_methods
+    -
+      name: 5.8.3 Manage Kubernetes RBAC users with Google Groups for GKE (Not
+        Scored)
+      description: Cluster Administrators should leverage G Suite Groups and Cloud IAM to assign Kubernetes
+        user roles to a collection of users, instead of to individual emails using only Cloud IAM.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: When migrating to using security groups, an audit of RoleBindings and
+        ClusterRoleBindings is required to ensure all users of the cluster are managed using the
+        new groups and not individually.
+        When managing RoleBindings and ClusterRoleBindings, be wary of inadvertently
+        removing bindings required by service accounts.
+      type: manual
+      eval_expr:
+      default_value: Google Groups for GKE is disabled by default.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-accesscontrol#google-groups-for-gke
+    -
+      name: 5.8.4 Ensure Legacy Authorization (ABAC) is Disabled (Scored)
+      description: Legacy Authorization, also known as Attribute-Based Access Control (ABAC) has been
+        superseded by Role-Based Access Control (RBAC) and is not under active development.
+        RBAC is the recommended way to manage permissions in Kubernetes.
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Once the cluster has the legacy authorizer disabled, you must grant your user the ability to
+        create authorization roles using RBAC to ensure that your role-based access control
+        permissions take effect.
+      type: manual
+      eval_expr:
+      default_value: Kubernetes Engine clusters running GKE version 1.8 and later disable the legacy
+        authorization system by default, and thus role-based access control permissions take effect
+        with no special action required.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-accesscontrol
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-yourcluster#leave_abac_disabled_default_for_110
+    -
+      name: 5.9.1 Enable Customer-Managed Encryption Keys (CMEK) for GKE Persistent Disks (PD) (Not Scored)
+      description: Use Customer-Managed Encryption Keys (CMEK) to encrypt node boot and dynamicallyprovisioned
+        attached Google Compute Engine Persistent Disks (PDs) using keys managed
+        within Cloud Key Management Service (Cloud KMS).
+      profile_applicability: Master
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: While GKE CMEK is in beta, encryption of dynamically-provisioned attached disks requires
+        the use of the self-provisioned Compute Engine Persistent Disk CSI Driver v0.5.1 or higher.
+        If you are configuring CMEK with a regional cluster, the cluster must run GKE 1.14 or
+        higher.
+      type: manual
+      eval_expr:
+      default_value: Persistent disks are encrypted at rest by default, but are not encrypted using Customer-
+        Managed Encryption Keys by default. By default, the Compute Engine Persistent Disk CSI
+        Driver is not provisioned within the cluster.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/using-cmek
+      - https://cloud.google.com/compute/docs/disks/customer-managed-encryption
+      - https://cloud.google.com/security/encryption-at-rest/default-encryption/
+    -
+      name: 5.10.1 Ensure Kubernetes Web UI is Disabled (Scored)
+      description: The Kubernetes Web UI (Dashboard) has been a historical source of vulnerability and
+        should only be deployed when necessary.
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Users will be required to manage cluster resources using the Google Cloud Console or the
+        command line. These require appropriate permissions. To use the command line, this
+        requires the installation of the command line client, kubectl, on the user's device (this is
+        already included in Cloud Shell) and knowledge of command line operations.
+      type: manual
+      eval_expr:
+      default_value: The Kubernetes web UI (Dashboard) does not have admin access by default in GKE 1.7 and
+        higher. The Kubernetes web UI is disabled by default in GKE 1.10 and higher. In GKE 1.15
+        and higher, the Kubernetes web UI add-on KubernetesDashboard is no longer supported as
+        a managed add-on.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-yourcluster#disable_kubernetes_dashboard
+    -
+      name: 5.10.2 Ensure that Alpha clusters are not used for production workloads
+        (Scored)
+      description: Alpha clusters are not covered by an SLA and are not production-ready.
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Users and workloads will not be able to take advantage of features included within Alpha
+        clusters.
+      type: manual
+      eval_expr:
+      default_value: By default, Kubernetes Alpha features are disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/concepts/alpha-clusters
+    -
+      name: 5.10.3 Ensure Pod Security Policy is Enabled and set as appropriate (Not
+        Scored)
+      description: Pod Security Policy should be used to prevent privileged containers where possible and
+        enforce namespace and workload configurations.
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: If you enable the Pod Security Policy controller without first defining and authorizing any
+        actual policies, no users, controllers, or service accounts can create or update Pods. If you
+        are working with an existing cluster, you should define and authorize policies before
+        enabling the controller.
+      type: manual
+      eval_expr:
+      default_value: By default, Pod Security Policy is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/pod-security-policies
+      - https://kubernetes.io/docs/concepts/policy/pod-security-policy
+    -
+      name: 5.10.4 Consider GKE Sandbox for running untrusted workloads (Not
+        Scored)
+      description: Use GKE Sandbox to restrict untrusted workloads as an additional layer of protection when
+        running in a multi-tenant environment.
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Using GKE Sandbox requires the node image to be set to Container-Optimized OS with
+        containerd (cos_containerd).
+        It is not currently possible to use GKE Sandbox along with the following Kubernetes
+        features
+        • Accelerators such as GPUs or TPUs
+        • Istio
+        • Monitoring statistics at the level of the Pod or container
+        • Hostpath storage
+        • Per-container PID namespace
+        • CPU and memory limits are only applied for Guaranteed Pods and Burstable Pods,
+        and only when CPU and memory limits are specified for all containers running in the
+        Pod
+        • Pods using PodSecurityPolicies that specify host namespaces, such as hostNetwork,
+        hostPID, or hostIPC
+        • Pods using PodSecurityPolicy settings such as privileged mode
+        • VolumeDevices
+        • Portforward
+        • Linux kernel security modules such as Seccomp, Apparmor, or Selinux Sysctl,
+        NoNewPrivileges, bidirectional MountPropagation, FSGroup, or ProcMount
+      type: manual
+      eval_expr:
+      default_value: By default, GKE Sandbox is disabled.
+      references:
+      - https://cloud.google.com/kubernetes-engine/docs/how-to/sandbox-pods
+    -
+      name: 5.10.5 Ensure use of Binary Authorization (Scored)
+      description: Binary Authorization helps to protect supply-chain security by only allowing images with
+        verifiable cryptographically signed metadata into the cluster.
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: Care must be taken when defining policy in order to prevent inadvertent denial of
+        container image deployments. Depending on policy, attestations for existing container
+        images running within the cluster may need to be created before those images are
+        redeployed or pulled as part of the pod churn.
+        To prevent key system images from being denied deployment, consider the use of global
+        policy evaluation mode, which uses a global policy provided by Google and exempts a list of
+        Google-provided system images from further policy evaluation.
+      type: manual
+      eval_expr:
+      default_value: By default, Binary Authorization is disabled.
+      references:
+      - https://cloud.google.com/binary-authorization/
+    -
+      name: 5.10.6 Enable Cloud Security Command Center (Cloud SCC) (Not Scored)
+      description: Enable Cloud Security Command Center (Cloud SCC) to provide a centralized view of
+        security for your GKE clusters.
+      audit:
+      remediation:
+      check_type: multi_param
+      impact: None.
+      type: manual
+      eval_expr:
+      default_value: By default, Cloud SCC is disabled.
+      references:
+      - https://cloud.google.com/security-command-center/
+      - https://cloud.google.com/security-command-center/docs/quickstart-scc-setup
+ 

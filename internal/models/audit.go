@@ -13,6 +13,13 @@ type Audit struct {
 	Categories    []Category `yaml:"categories"`
 }
 
+//AuditTestTotals model
+type AuditTestTotals struct {
+	Warn int
+	Pass int
+	Fail int
+}
+
 //Category data model
 type Category struct {
 	Name        string       `yaml:"name"`

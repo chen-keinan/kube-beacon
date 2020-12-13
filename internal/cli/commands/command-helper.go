@@ -12,21 +12,30 @@ import (
 	"strings"
 )
 
-func printTestResults(at []*models.AuditBench) {
+func printTestResults(at []*models.AuditBench) models.AuditTestTotals {
+	var (
+		warnCounter int
+		passCounter int
+		failCounter int
+	)
 	for _, a := range at {
 		if a.NonApplicable {
-			na := colorstring.Color("[yellow][Warn]")
-			log.Console(fmt.Sprintf("%s %s\n", na, a.Name))
+			warnTest := colorstring.Color("[yellow][Warn]")
+			log.Console(fmt.Sprintf("%s %s\n", warnTest, a.Name))
+			warnCounter++
 			continue
 		}
 		if a.TestSucceed {
-			pass := colorstring.Color("[green][Pass]")
-			log.Console(fmt.Sprintf("%s %s\n", pass, a.Name))
+			passTest := colorstring.Color("[green][Pass]")
+			log.Console(fmt.Sprintf("%s %s\n", passTest, a.Name))
+			passCounter++
 		} else {
-			fail := colorstring.Color("[red][Fail]")
-			log.Console(fmt.Sprintf("%s %s\n", fail, a.Name))
+			failTest := colorstring.Color("[red][Fail]")
+			log.Console(fmt.Sprintf("%s %s\n", failTest, a.Name))
+			failCounter++
 		}
 	}
+	return models.AuditTestTotals{Fail: failCounter, Pass: passCounter, Warn: warnCounter}
 }
 
 //AddFailedMessages add failed audit test to report data
