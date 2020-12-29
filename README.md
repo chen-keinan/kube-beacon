@@ -122,7 +122,7 @@ kubectl delete -f k8s.yaml
 
 ## Next steps
 - add eks support
-- intgration with terraform
+- integration with terraform
 - post scan hooks
 
 
