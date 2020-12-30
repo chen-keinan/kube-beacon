@@ -121,8 +121,8 @@ kubectl delete -f k8s.yaml
 ```
 
 ## Next steps
-- Add eks support
-- Integration with terraform
+- Add support for Amazon EKS scanning
+- Integration (plugin) with terraform
 - Post scan hooks
 
 
