@@ -22,6 +22,8 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 * [Quick Start](#quick-start)
 * [Kube-beacon as Docker](#Kube-beacon-as-Docker)
 * [Kube-beacon as pod in k8s](#Kube-beacon-as-pod-in-k8s)
+* [Next steps](#Next-steps)
+
 
 
 ## Installation
@@ -52,7 +54,7 @@ Available commands are:
   -i , --include: execute only specific audit test,   example -i=1.2.3,1.4.5
   -e , --exclude, ignore specific audit tests,  example -e=1.2.3,1.4.5
   -n , --node,    execute audit tests on specific node,   example -n=master,-n=worker
-  -s , --spec,    execute specific audit tests spec,   example -s=gks, default=k8s
+  -s , --spec,    execute specific audit tests spec,   example -s=gke, default=k8s
   -v , --version, execute specific audit tests spec version,    example -v=1.1.0,default=1.6.0
 ```
 
@@ -117,3 +119,9 @@ kubectl delete clusterrolebinding default-admin
 ```
 kubectl delete -f k8s.yaml
 ```
+
+## Next steps
+- Add support for Amazon EKS scanning
+- Post scan hooks
+
+
