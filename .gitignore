@@ -16,3 +16,4 @@ fmtcoverage.html
 coverage.md
 coverage.out
 kube-beacon.deb
+*.iml
