@@ -15,7 +15,6 @@ all:test lint build
 fmt:
 	$(GOCMD) fmt ./...
 lint:
-	$(GOMOCKS)
 	./scripts/lint.sh
 tidy:
 	$(GOMOD) tidy -v
