@@ -3,21 +3,26 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"github.com/chen-keinan/beacon/internal/bplugin"
 	"github.com/chen-keinan/beacon/internal/cli/commands"
 	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/startup"
+	"github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/cli"
+	"go.uber.org/zap"
 	"os"
+	"plugin"
 	"strings"
 )
 
 var log = logger.GetLog()
 
-//InitBenchmarkSpecData initialize benchmark spec file and save if to file system
-func InitBenchmarkSpecData(spec, version string) {
-	err = utils.CreateHomeFolderIfNotExist()
+//initBenchmarkSpecData initialize benchmark spec file and save if to file system
+func initBenchmarkSpecData(spec, version string) {
+	fm := utils.NewKFolder()
+	err := utils.CreateHomeFolderIfNotExist(fm)
 	if err != nil {
 		panic(err)
 	}
@@ -45,8 +50,53 @@ func InitBenchmarkSpecData(spec, version string) {
 	}
 }
 
-//InitBenchmarkSpecData init beacon cli , folder , templates and etc
-var err error
+//initBenchmarkSpecData initialize benchmark spec file and save if to file system
+func initPluginFolders() {
+	fm := utils.NewKFolder()
+	err := utils.CreatePluginsSourceFolderIfNotExist(fm)
+	if err != nil {
+		panic(err)
+	}
+	err = utils.CreatePluginsCompiledFolderIfNotExist(fm)
+	if err != nil {
+		panic(err)
+	}
+
+}
+
+//loadAuditBenchPluginSymbols load API call plugin symbols
+func loadAuditBenchPluginSymbols(log *zap.Logger) bplugin.K8sBenchAuditResultHook {
+	pl, err := bplugin.NewPluginLoader()
+	if err != nil {
+		log.Error(fmt.Sprintf("failed to load plugin symbol %s", err.Error()))
+	}
+	plugins, err := pl.Plugins()
+	if err != nil {
+		log.Error(fmt.Sprintf("failed to load plugin symbol %s", err.Error()))
+	}
+	apiPlugin := bplugin.K8sBenchAuditResultHook{Plugins: make([]plugin.Symbol, 0)}
+	for _, name := range plugins {
+		sym, err := pl.Compile(name, common.K8sBenchAuditResultHook)
+		if err != nil {
+			continue
+		}
+		apiPlugin.Plugins = append(apiPlugin.Plugins, sym)
+	}
+	return apiPlugin
+}
+
+// init new plugin worker , accept audit result chan and audit result plugin hooks
+func initPluginWorker() {
+	plChan := make(chan models.KubeAuditResults)
+	log, err := zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+	k8sHooks := loadAuditBenchPluginSymbols(log)
+	pluginData := bplugin.NewPluginWorkerData(plChan, k8sHooks)
+	worker := bplugin.NewPluginWorker(pluginData, log)
+	worker.Invoke()
+}
 
 //StartCLI initialize beacon cli
 func StartCLI(sa SanitizeArgs) {
@@ -62,7 +112,11 @@ func StartCLI(sa SanitizeArgs) {
 		cmdArgs = cmdArgs[1:]
 	}
 	// init cli folder and templates
-	InitBenchmarkSpecData(ad.specType, ad.specVersion)
+	initBenchmarkSpecData(ad.specType, ad.specVersion)
+	// init plugin folders
+	initPluginFolders()
+	// init plugin worker
+	initPluginWorker()
 	status, err := invokeCommandCli(cmdArgs, commands)
 	if err != nil {
 		log.Console(err.Error())

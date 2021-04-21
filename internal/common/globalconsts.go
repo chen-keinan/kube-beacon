@@ -59,4 +59,6 @@ const (
 	NonApplicableTest = "non_applicable"
 	//ManualTest test can only be manual executed
 	ManualTest = "manual"
+	//K8sBenchAuditResultHook hook name
+	K8sBenchAuditResultHook = "K8sBenchAuditResultHook"
 )

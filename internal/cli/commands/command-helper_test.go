@@ -60,11 +60,12 @@ func Test_getSpecificTestsToExecute(t *testing.T) {
 
 //Test_LoadAuditTest test
 func Test_LoadAuditTest(t *testing.T) {
+	fm:=utils.NewKFolder()
 	err := os.RemoveAll(utils.GetBenchmarkFolder("k8s", "v1.6.0"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = utils.CreateHomeFolderIfNotExist()
+	err = utils.CreateHomeFolderIfNotExist(fm)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +92,8 @@ func Test_LoadGkeAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = utils.CreateHomeFolderIfNotExist()
+	fm:=utils.NewKFolder()
+	err = utils.CreateHomeFolderIfNotExist(fm)
 	if err != nil {
 		t.Fatal(err)
 	}
