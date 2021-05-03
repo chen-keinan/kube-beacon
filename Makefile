@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 GOCMD=go
-MOVESANDBOX=mv kube-beacon ~/vagrant_file/.
+MOVESANDBOX=mv ~/vms/kube-beacon/kube-beacon ~/vms-local/kube-beacon
 GOPACKR=$(GOCMD) get -u github.com/gobuffalo/packr/packr && packr
 GOMOD=$(GOCMD) mod
 GOMOCKS=$(GOCMD) generate ./...
@@ -27,6 +27,7 @@ test:
 	$(GOCMD) tool cover  -func coverage.md
 build:
 	$(GOPACKR)
+	export PATH=$GOPATH/bin:$PATH;
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/kube-beacon.go;
 install:build_travis
 	cp $(BINARY_NAME) $(GOPATH)/bin/$(BINARY_NAME)
