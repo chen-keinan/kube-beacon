@@ -53,7 +53,7 @@ func (kf KFolder) GetHomeFolder() (string, error) {
 	}
 	// User can set a custom KUBE_KNARK_HOME from environment variable
 	usrHome := GetEnv(common.BeaconHomeEnvVar, usr.HomeDir)
-	return path.Join(usrHome, "..beacon"), nil
+	return path.Join(usrHome, ".beacon"), nil
 }
 
 //GetPluginSourceSubFolder return plugins source folder path
@@ -85,11 +85,11 @@ func CreatePluginsCompiledFolderIfNotExist(fm FolderMgr) error {
 
 //CreatePluginsSourceFolderIfNotExist plugins source folder if not exist
 func CreatePluginsSourceFolderIfNotExist(fm FolderMgr) error {
-	ebpfFolder, err := GetPluginSourceSubFolder(fm)
+	pluginfFolder, err := GetPluginSourceSubFolder(fm)
 	if err != nil {
 		return err
 	}
-	return fm.CreateFolder(ebpfFolder)
+	return fm.CreateFolder(pluginfFolder)
 }
 
 //GetHomeFolder return beacon home folder
