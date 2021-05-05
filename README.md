@@ -128,6 +128,7 @@ The Kube-Beacon expose hook for user plugins [Example](https://github.com/chen-k
 ##### Copy plugin to folder (.beacon folder is created on the 1st startup)
 ```
 cp <plugin>.go ~/.beacon/plugins/source/<plugin>.go
+```
 
 ## Next steps
 - Add support for Amazon EKS scanning
