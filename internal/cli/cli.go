@@ -86,14 +86,13 @@ func loadAuditBenchPluginSymbols(log *zap.Logger) bplugin.K8sBenchAuditResultHoo
 }
 
 // init new plugin worker , accept audit result chan and audit result plugin hooks
-func initPluginWorker() {
-	plChan := make(chan models.KubeAuditResults)
+func initPluginWorker(plChan chan models.KubeAuditResults, completedChan chan bool) {
 	log, err := zap.NewProduction()
 	if err != nil {
 		panic(err)
 	}
 	k8sHooks := loadAuditBenchPluginSymbols(log)
-	pluginData := bplugin.NewPluginWorkerData(plChan, k8sHooks)
+	pluginData := bplugin.NewPluginWorkerData(plChan, k8sHooks, completedChan)
 	worker := bplugin.NewPluginWorker(pluginData, log)
 	worker.Invoke()
 }
@@ -106,7 +105,9 @@ func StartCLI(sa SanitizeArgs) {
 	cmds := make([]cli.Command, 0)
 	cmdArgs = append(cmdArgs, ad.filters...)
 	// invoke cli
-	cmds = append(cmds, commands.NewK8sAudit(ad.filters, ad.specType, ad.specVersion))
+	plChan := make(chan models.KubeAuditResults)
+	completedChan := make(chan bool)
+	cmds = append(cmds, commands.NewK8sAudit(ad.filters, ad.specType, ad.specVersion, plChan, completedChan))
 	commands := createCliBuilderData(cmdArgs, cmds)
 	if ad.help {
 		cmdArgs = cmdArgs[1:]
@@ -116,7 +117,7 @@ func StartCLI(sa SanitizeArgs) {
 	// init plugin folders
 	initPluginFolders()
 	// init plugin worker
-	initPluginWorker()
+	initPluginWorker(plChan, completedChan)
 	status, err := invokeCommandCli(cmdArgs, commands)
 	if err != nil {
 		log.Console(err.Error())

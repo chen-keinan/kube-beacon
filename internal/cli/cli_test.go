@@ -6,6 +6,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/shell"
+	m2 "github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/golang/mock/gomock"
 	"github.com/mitchellh/cli"
@@ -63,7 +64,7 @@ func Test_createCliBuilderData(t *testing.T) {
 	cmdArgs = append(cmdArgs, ad.filters...)
 	cmds := make([]cli.Command, 0)
 	// invoke cli
-	cmds = append(cmds, commands.NewK8sAudit(cmdArgs, ad.specType, ad.specVersion))
+	cmds = append(cmds, commands.NewK8sAudit(cmdArgs, ad.specType, ad.specVersion,make(chan m2.KubeAuditResults)))
 	c := createCliBuilderData(cmdArgs, cmds)
 	_, ok := c["a"]
 	assert.True(t, ok)
