@@ -37,10 +37,8 @@ func (pm *PluginWorker) Invoke() {
 	go func() {
 		ae := <-pm.cmd.plChan
 		if len(pm.cmd.plugins.Plugins) > 0 {
-			log.Console("sending plugin result")
-			for _, pl := range pm.cmd.plugins.Plugins {
-				log.Console("running plugin")
-				err := ExecuteK8sAuditResults(pl, ae)
+ 			for _, pl := range pm.cmd.plugins.Plugins {
+ 				err := ExecuteK8sAuditResults(pl, ae)
 				if err != nil {
 					pm.log.Error(fmt.Sprintf("failed to execute plugins %s", err.Error()))
 				}
