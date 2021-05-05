@@ -69,7 +69,7 @@ Execute tests and generate failure tests report
 Execute kube beacon via docker 
 
 ```
-docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $HOME/.kube:/root/.kube:ro -v $(which kubectl):/usr/bin/kubectl -t kbeacon.jfrog.io/docker-local/kube-beacon
+docker run --pid=host  -v /etc:/etc:ro -v /var:/var:ro -v /*/cni/*:/*/cni/* -v $HOME/.kube:/root/.kube:ro -v $(which kubectl):/usr/bin/kubectl -t chenkeinan/kube-beacon
 ```
 
 ## Kube-beacon as pod in k8s
