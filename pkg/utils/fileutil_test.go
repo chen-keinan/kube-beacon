@@ -18,7 +18,7 @@ func Test_GetHomeFolder(t *testing.T) {
 
 //Test_CreateHomeFolderIfNotExist test
 func Test_CreateHomeFolderIfNotExist(t *testing.T) {
-	fm:=NewKFolder()
+	fm := NewKFolder()
 	err := CreateHomeFolderIfNotExist(fm)
 	assert.NoError(t, err)
 	_, err = os.Stat(GetHomeFolder())
@@ -49,7 +49,7 @@ func Test_CreateBenchmarkFolderIfNotExist(t *testing.T) {
 
 //Test_GetK8sBenchAuditFiles test
 func Test_GetK8sBenchAuditFiles(t *testing.T) {
-	fm:=NewKFolder()
+	fm := NewKFolder()
 	err := CreateHomeFolderIfNotExist(fm)
 	if err != nil {
 		t.Fatal(err)

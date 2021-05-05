@@ -101,6 +101,4 @@ func Test_InvokeCli(t *testing.T) {
 	a, err := invokeCommandCli(cmdArgs, c)
 	assert.NoError(t, err)
 	assert.True(t, a == 0)
-
-
 }

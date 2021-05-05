@@ -1,4 +1,5 @@
 package bplugin
+
 import (
 	"fmt"
 	"github.com/chen-keinan/beacon/pkg/models"

@@ -20,7 +20,6 @@ func TestPluginLoader_Plugins(t *testing.T) {
 	assert.Equal(t, plFiles[0], "test_plugin.go")
 }
 
-
 func TestExecuteNetEvt(t *testing.T) {
 	pl, err := pluginSetUp("k8s_bench_audit_result_hook.go")
 	assert.NoError(t, err)
@@ -28,7 +27,7 @@ func TestExecuteNetEvt(t *testing.T) {
 	assert.NoError(t, err)
 	sym, err := pl.Compile(plFiles[0], common.K8sBenchAuditResultHook)
 	assert.NoError(t, err)
-		err = ExecuteK8sAuditResults(sym, models.KubeAuditResults{})
+	err = ExecuteK8sAuditResults(sym, models.KubeAuditResults{})
 	assert.NoError(t, err)
 }
 
