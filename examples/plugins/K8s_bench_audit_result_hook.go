@@ -18,7 +18,7 @@ func K8sBenchAuditResultHook(k8sAuditResults models.KubeAuditResults) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", "http://localhost:8090/audir-results", strings.NewReader(sb.String()))
+	req, err := http.NewRequest("POST", "http://localhost:8090/audit-results", strings.NewReader(sb.String()))
 	if err != nil {
 		return err
 	}
