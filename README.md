@@ -11,6 +11,7 @@ Kube-Beacon is an open source audit scanner who perform audit check on a deploye
 
 The audit tests are the full implementation of [CIS Kubernetes Benchmark specification](https://www.cisecurity.org/benchmark/kubernetes/) <br>
 
+NEW !! audit result now can be published to an external system via user plugin (go plugin) 
 #### Audit checks are performed  on master and worker nodes and the output audit report include :
 * root cause of the security issue
 * proposed remediation for security issue
@@ -22,6 +23,7 @@ The audit tests are the full implementation of [CIS Kubernetes Benchmark specifi
 * [Quick Start](#quick-start)
 * [Kube-beacon as Docker](#Kube-beacon-as-Docker)
 * [Kube-beacon as pod in k8s](#Kube-beacon-as-pod-in-k8s)
+* [User Plugin Usage](#user-plugin-usage)
 * [Next steps](#Next-steps)
 
 
@@ -120,8 +122,14 @@ kubectl delete clusterrolebinding default-admin
 kubectl delete -f k8s.yaml
 ```
 
+## User Plugin Usage (via go plugins)
+The Kube-Beacon expose hook for user plugins [Example](https://github.com/chen-keinan/kube-beacon/tree/master/examples/plugins) :
+- **K8sBenchAuditResultHook** - this hook accepts audit benchmark results as found by running benchmark spec
+ 
+##### Copy plugin to folder (.beacon folder is created on the 1st startup)
+```
+cp <plugin>.go ~/.beacon/plugins/source/<plugin>.go
+
 ## Next steps
 - Add support for Amazon EKS scanning
-- Post scan hooks
-
 
