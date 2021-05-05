@@ -17,3 +17,8 @@ coverage.md
 coverage.out
 kube-beacon.deb
 *.iml
+cf
+cf2
+tf
+tfr
+kube-beacon

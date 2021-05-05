@@ -45,14 +45,14 @@ build_travis:
 build_remote:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go
-	$(MOVESANDBOX)
 build_docker:
 	docker build -t kbeacon.jfrog.io/docker-local/kube-beacon .
 	docker push kbeacon.jfrog.io/docker-local/kube-beacon
 build_docker_local:
 	docker build -t beacon:8082/docker-local/kube-beacon .
 	docker push beacon:8082/docker-local/kube-beacon:latest
-
+dlv:
+	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./kube-beacon
 build_beb:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go
