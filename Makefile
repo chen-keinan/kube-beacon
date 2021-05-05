@@ -28,6 +28,8 @@ test:
 build:
 	$(GOPACKR)
 	export PATH=$GOPATH/bin:$PATH;
+	export PATH=$PATH:/home/vagrant/go/bin
+	export PATH=$PATH:/home/root/go/bin
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/kube-beacon.go;
 install:build_travis
 	cp $(BINARY_NAME) $(GOPATH)/bin/$(BINARY_NAME)

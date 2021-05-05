@@ -6,6 +6,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/filters"
+	m2 "github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -60,7 +61,7 @@ func Test_getSpecificTestsToExecute(t *testing.T) {
 
 //Test_LoadAuditTest test
 func Test_LoadAuditTest(t *testing.T) {
-	fm:=utils.NewKFolder()
+	fm := utils.NewKFolder()
 	err := os.RemoveAll(utils.GetBenchmarkFolder("k8s", "v1.6.0"))
 	if err != nil {
 		t.Fatal(err)
@@ -92,7 +93,7 @@ func Test_LoadGkeAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fm:=utils.NewKFolder()
+	fm := utils.NewKFolder()
 	err = utils.CreateHomeFolderIfNotExist(fm)
 	if err != nil {
 		t.Fatal(err)
@@ -172,8 +173,14 @@ func Test_executeTests(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "\n\n\n\n\n"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "default-token-ppzx7\n\n\n\n\n"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	sc := []*models.SubCategory{{AuditTests: []*models.AuditBench{ab}}}
 	executeTests(sc, kb.runAuditTest)
 	assert.False(t, ab.TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
