@@ -10,6 +10,88 @@ import (
 	"path/filepath"
 )
 
+//PluginSourceSubFolder plugin source folder
+const PluginSourceSubFolder = "plugins/source"
+
+//CompilePluginSubFolder plugins complied folder
+const CompilePluginSubFolder = "plugins/compile"
+
+//FolderMgr defines the interface for kube-knark folder
+//fileutil.go
+//go:generate mockgen -destination=./mocks/mock_FolderMgr.go -package=mocks . FolderMgr
+type FolderMgr interface {
+	CreateFolder(folderName string) error
+	GetHomeFolder() (string, error)
+}
+
+//KFolder kube-knark folder object
+type KFolder struct {
+}
+
+//NewKFolder return KFolder instance
+func NewKFolder() FolderMgr {
+	return &KFolder{}
+}
+
+//CreateFolder create new kube beacon folder
+func (kf KFolder) CreateFolder(folderName string) error {
+	_, err := os.Stat(folderName)
+	if os.IsNotExist(err) {
+		errDir := os.MkdirAll(folderName, 0750)
+		if errDir != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//GetHomeFolder return kube-knark home folder
+func (kf KFolder) GetHomeFolder() (string, error) {
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	// User can set a custom KUBE_KNARK_HOME from environment variable
+	usrHome := GetEnv(common.BeaconHomeEnvVar, usr.HomeDir)
+	return path.Join(usrHome, ".beacon"), nil
+}
+
+//GetPluginSourceSubFolder return plugins source folder path
+func GetPluginSourceSubFolder(fm FolderMgr) (string, error) {
+	folder, err := fm.GetHomeFolder()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(folder, PluginSourceSubFolder), nil
+}
+
+//GetCompilePluginSubFolder return plugin compiled folder path
+func GetCompilePluginSubFolder(fm FolderMgr) (string, error) {
+	folder, err := fm.GetHomeFolder()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(folder, CompilePluginSubFolder), nil
+}
+
+//CreatePluginsCompiledFolderIfNotExist create plugins compiled folder if not exist
+func CreatePluginsCompiledFolderIfNotExist(fm FolderMgr) error {
+	ebpfFolder, err := GetCompilePluginSubFolder(fm)
+	if err != nil {
+		return err
+	}
+	return fm.CreateFolder(ebpfFolder)
+}
+
+//CreatePluginsSourceFolderIfNotExist plugins source folder if not exist
+func CreatePluginsSourceFolderIfNotExist(fm FolderMgr) error {
+	pluginfFolder, err := GetPluginSourceSubFolder(fm)
+	if err != nil {
+		return err
+	}
+	return fm.CreateFolder(pluginfFolder)
+}
+
 //GetHomeFolder return beacon home folder
 func GetHomeFolder() string {
 	usr, err := user.Current()
@@ -22,9 +104,12 @@ func GetHomeFolder() string {
 }
 
 //CreateHomeFolderIfNotExist create beacon home folder if not exist
-func CreateHomeFolderIfNotExist() error {
-	beaconFolder := GetHomeFolder()
-	_, err := os.Stat(beaconFolder)
+func CreateHomeFolderIfNotExist(fm FolderMgr) error {
+	beaconFolder, err := fm.GetHomeFolder()
+	if err != nil {
+		return err
+	}
+	_, err = os.Stat(beaconFolder)
 	if os.IsNotExist(err) {
 		errDir := os.MkdirAll(beaconFolder, 0750)
 		if errDir != nil {

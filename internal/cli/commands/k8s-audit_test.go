@@ -6,6 +6,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/shell"
+	m2 "github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -131,9 +132,15 @@ func Test_MultiCommandParams_OK(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 //Test_MultiCommandParams_OK_With_IN test
@@ -148,9 +155,15 @@ func Test_MultiCommandParams_OK_With_IN(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk,aaa"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.True(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 //Test_MultiCommandParams_NOK test
@@ -165,9 +178,15 @@ func Test_MultiCommandParams_NOK(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb kkk").Return(&shell.CommandResult{Stdout: "kkk"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 //Test_MultiCommandParams_NOKWith_IN test
@@ -236,9 +255,15 @@ func Test_MultiCommandParamsComplexOppositeEmptyReturn(t *testing.T) {
 	defer ctrl.Finish()
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 //Test_MultiCommandParamsComplexOppositeWithNumber test
@@ -252,9 +277,15 @@ func Test_MultiCommandParamsComplexOppositeWithNumber(t *testing.T) {
 	defer ctrl.Finish()
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 //Test_MultiCommand4_2_13 test
@@ -269,9 +300,15 @@ func Test_MultiCommand4_2_13(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
 	executor.EXPECT().Exec("ps -ef | grep kubelet |grep 'TLSCipherSuites' | grep -o 'TLSCipherSuites=[^\"]\\S*' | awk -F \"=\" '{print $2}' |awk 'FNR <= 1'").Return(&shell.CommandResult{Stdout: ""}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	kb.runAuditTest(ab.Categories[0].SubCategory.AuditTests[0])
 	assert.False(t, ab.Categories[0].SubCategory.AuditTests[0].TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 //Test_MultiCommand4_2_13 test
@@ -286,9 +323,15 @@ func Test_MultiCommand5_2_7(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "1234\n"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb 1234").Return(&shell.CommandResult{Stdout: "\n"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	kb.runAuditTest(ab)
 	assert.False(t, ab.TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 
 }
 
@@ -302,11 +345,17 @@ func Test_MultiCommand5_3_4(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	executor := mocks.NewMockExecutor(ctrl)
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "\n\n\n\n\n"}, nil).Times(1)
 	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "default-token-ppzx7\n\n\n\n\n"}, nil).Times(1)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{})}
+	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	kb.runAuditTest(ab)
 	assert.False(t, ab.TestSucceed)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 func readTestData(fileName string, t *testing.T) []byte {
@@ -325,18 +374,30 @@ func readTestData(fileName string, t *testing.T) []byte {
 //Test_NewK8sAudit test
 func Test_NewK8sAudit(t *testing.T) {
 	args := []string{"a", "i=1.2.3"}
-	ka := NewK8sAudit(args, "k8s", "v1.6.0")
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	ka := NewK8sAudit(args, "k8s", "v1.6.0", plChan, completedChan)
 	assert.True(t, len(ka.PredicateParams) == 2)
 	assert.True(t, len(ka.PredicateChain) == 2)
 	assert.True(t, ka.ResultProcessor != nil)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 //Test_Help test
 func Test_Help(t *testing.T) {
 	args := []string{"a", "i=1.2.3"}
-	ka := NewK8sAudit(args, "k8s", "v1.6.0")
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	ka := NewK8sAudit(args, "k8s", "v1.6.0", plChan, completedChan)
 	help := ka.Help()
 	assert.True(t, len(help) > 0)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }
 
 //Test_reportResultProcessor test
@@ -352,7 +413,13 @@ func Test_reportResultProcessor(t *testing.T) {
 //Test_K8sSynopsis test
 func Test_K8sSynopsis(t *testing.T) {
 	args := []string{"a", "i=1.2.3"}
-	ka := NewK8sAudit(args, "k8s", "v1.6.0")
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	ka := NewK8sAudit(args, "k8s", "v1.6.0", plChan, completedChan)
 	s := ka.Synopsis()
 	assert.True(t, len(s) > 0)
+	go func() {
+		<-plChan
+		completedChan <- true
+	}()
 }

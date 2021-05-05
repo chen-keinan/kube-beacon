@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 GOCMD=go
-MOVESANDBOX=mv kube-beacon ~/vagrant_file/.
+MOVESANDBOX=mv ~/vms/kube-beacon/kube-beacon ~/vms-local/kube-beacon
 GOPACKR=$(GOCMD) get -u github.com/gobuffalo/packr/packr && packr
 GOMOD=$(GOCMD) mod
 GOMOCKS=$(GOCMD) generate ./...
@@ -27,8 +27,10 @@ test:
 	$(GOCMD) tool cover  -func coverage.md
 build:
 	$(GOPACKR)
+	export PATH=$GOPATH/bin:$PATH;
+	export PATH=$PATH:/home/vagrant/go/bin
+	export PATH=$PATH:/home/root/go/bin
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/kube-beacon.go;
-	$(MOVESANDBOX)
 install:build_travis
 	cp $(BINARY_NAME) $(GOPATH)/bin/$(BINARY_NAME)
 test_travis:
@@ -43,14 +45,15 @@ build_travis:
 build_remote:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go
-	$(MOVESANDBOX)
 build_docker:
-	docker build -t kbeacon.jfrog.io/docker-local/kube-beacon .
-	docker push kbeacon.jfrog.io/docker-local/kube-beacon
+	export PATH=$GOPATH/bin:$PATH;
+	docker build -t chenkeinan/kube-beacon:latest .
+	docker push chenkeinan/kube-beacon:latest
 build_docker_local:
-	docker build -t beacon:8082/docker-local/kube-beacon .
-	docker push beacon:8082/docker-local/kube-beacon:latest
-
+	docker build -t chenkeinan/kube-beacon:latest .
+	docker push chenkeinan/kube-beacon:latest
+dlv:
+	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec ./kube-beacon
 build_beb:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go

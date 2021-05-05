@@ -10,6 +10,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/filters"
+	m2 "github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/chen-keinan/beacon/ui"
 	"github.com/mitchellh/colorstring"
@@ -29,6 +30,8 @@ type K8sAudit struct {
 	PredicateParams []string
 	Spec            string
 	Version         string
+	PlChan          chan m2.KubeAuditResults
+	CompletedChan   chan bool
 }
 
 // ResultProcessor process audit results
@@ -87,7 +90,7 @@ var reportResultProcessor ResultProcessor = func(at *models.AuditBench, NumFaile
 }
 
 //NewK8sAudit new audit object
-func NewK8sAudit(args []string, spec, version string) *K8sAudit {
+func NewK8sAudit(args []string, spec, version string, plChan chan m2.KubeAuditResults, completedChan chan bool) *K8sAudit {
 	return &K8sAudit{Command: shell.NewShellExec(),
 		PredicateChain:  buildPredicateChain(args),
 		PredicateParams: buildPredicateChainParams(args),
@@ -95,6 +98,8 @@ func NewK8sAudit(args []string, spec, version string) *K8sAudit {
 		OutputGenerator: getOutputGeneratorFunction(args),
 		FileLoader:      NewFileLoader(),
 		Spec:            spec,
+		PlChan:          plChan,
+		CompletedChan:   completedChan,
 		Version:         version}
 
 }
@@ -114,7 +119,25 @@ func (bk *K8sAudit) Run(args []string) int {
 	completedTest := executeTests(ft, bk.runAuditTest)
 	// generate output data
 	ui.PrintOutput(completedTest, bk.OutputGenerator)
+	// send test results to plugin
+	sendResultToPlugin(bk.PlChan, bk.CompletedChan, completedTest)
 	return 0
+}
+
+func sendResultToPlugin(plChan chan m2.KubeAuditResults, completedChan chan bool, auditTests []*models.SubCategory) {
+	ka := m2.KubeAuditResults{BenchmarkType: "k8s", Categories: make([]m2.AuditBenchResult, 0)}
+	for _, at := range auditTests {
+		for _, ab := range at.AuditTests {
+			var testResult = "FAIL"
+			if ab.TestSucceed {
+				testResult = "PASS"
+			}
+			abr := m2.AuditBenchResult{Category: at.Name, ProfileApplicability: ab.ProfileApplicability, Description: ab.Description, AuditCommand: ab.AuditCommand, Remediation: ab.Remediation, Impact: ab.Impact, DefaultValue: ab.DefaultValue, References: ab.References, TestResult: testResult}
+			ka.Categories = append(ka.Categories, abr)
+		}
+	}
+	plChan <- ka
+	<-completedChan
 }
 
 // runAuditTest execute category of audit tests
