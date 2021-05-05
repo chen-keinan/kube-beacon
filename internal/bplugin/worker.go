@@ -2,12 +2,9 @@ package bplugin
 
 import (
 	"fmt"
-	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/pkg/models"
 	"go.uber.org/zap"
 )
-
-var log = logger.GetLog()
 
 //PluginWorker instance which match command data to specific pattern
 type PluginWorker struct {
@@ -37,8 +34,8 @@ func (pm *PluginWorker) Invoke() {
 	go func() {
 		ae := <-pm.cmd.plChan
 		if len(pm.cmd.plugins.Plugins) > 0 {
- 			for _, pl := range pm.cmd.plugins.Plugins {
- 				err := ExecuteK8sAuditResults(pl, ae)
+			for _, pl := range pm.cmd.plugins.Plugins {
+				err := ExecuteK8sAuditResults(pl, ae)
 				if err != nil {
 					pm.log.Error(fmt.Sprintf("failed to execute plugins %s", err.Error()))
 				}
