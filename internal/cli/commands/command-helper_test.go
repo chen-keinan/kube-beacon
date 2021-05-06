@@ -188,3 +188,17 @@ func Test_executeTests(t *testing.T) {
 		completedChan <- true
 	}()
 }
+
+func Test_printTestResults(t *testing.T) {
+	ab := make([]*models.AuditBench, 0)
+	ats := &models.AuditBench{Name: "bbb", TestSucceed: true}
+	atf := &models.AuditBench{Name: "ccc", TestSucceed: false}
+	ata := &models.AuditBench{Name: "ddd", NonApplicable: true}
+	ab = append(ab, ats)
+	ab = append(ab, atf)
+	ab = append(ab, ata)
+	tr := printTestResults(ab)
+	assert.Equal(t, tr.Warn, 1)
+	assert.Equal(t, tr.Pass, 1)
+	assert.Equal(t, tr.Fail, 1)
+}

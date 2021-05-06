@@ -442,3 +442,14 @@ func Test_sendResultToPlugin(t *testing.T) {
 	sendResultToPlugin(pChan, cChan, auditTests)
 
 }
+func Test_calculateFinalTotal(t *testing.T) {
+	att := make([]models.AuditTestTotals, 0)
+	atOne := models.AuditTestTotals{Fail: 2, Pass: 3, Warn: 1}
+	atTwo := models.AuditTestTotals{Fail: 1, Pass: 5, Warn: 7}
+	att = append(att, atOne)
+	att = append(att, atTwo)
+	res := calculateFinalTotal(att)
+	assert.Equal(t, res.Warn, 8)
+	assert.Equal(t, res.Pass, 8)
+	assert.Equal(t, res.Fail, 3)
+}
