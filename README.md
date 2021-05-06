@@ -124,11 +124,11 @@ kubectl delete -f k8s.yaml
 
 ## User Plugin Usage (via go plugins)
 The Kube-Beacon expose hook for user plugins [Example](https://github.com/chen-keinan/kube-beacon/tree/master/examples/plugins) :
-- **K8sBenchAuditResultHook** - this hook accepts audit benchmark results as found by running benchmark spec
- 
+- **K8sBenchAuditResultHook** - this hook accepts audit benchmark results as found by audit report
 ##### Copy plugin to folder (.beacon folder is created on the 1st startup)
 ```
 cp <plugin>.go ~/.beacon/plugins/source/<plugin>.go
+```
 
 ## Next steps
 - Add support for Amazon EKS scanning
