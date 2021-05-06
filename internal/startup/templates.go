@@ -105,8 +105,13 @@ func GetHelpSynopsis() string {
 
 //SaveBenchmarkFilesIfNotExist create benchmark audit file if not exist
 func SaveBenchmarkFilesIfNotExist(spec, version string, filesData []utils.FilesInfo) error {
+	fm := utils.NewKFolder()
+	folder, err := utils.GetBenchmarkFolder(spec, version, fm)
+	if err != nil {
+		return err
+	}
 	for _, fileData := range filesData {
-		filePath := filepath.Join(utils.GetBenchmarkFolder(spec, version), fileData.Name)
+		filePath := filepath.Join(folder, fileData.Name)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			f, err := os.Create(filePath)
 			if err != nil {

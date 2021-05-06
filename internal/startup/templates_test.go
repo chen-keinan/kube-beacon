@@ -23,13 +23,14 @@ func Test_CreateK8sBenchmarkFilesIfNotExist(t *testing.T) {
 	assert.Equal(t, bFiles[5].Name, common.ControlPlaneConfiguration)
 	assert.Equal(t, bFiles[6].Name, common.WorkerNodes)
 	assert.Equal(t, bFiles[7].Name, common.Policies)
-	err = utils.CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0")
+	fm := utils.NewKFolder()
+	err = utils.CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0", fm)
 	assert.NoError(t, err)
 	// save benchmark files to folder
 	err = SaveBenchmarkFilesIfNotExist("k8s", "v1.6.0", bFiles)
 	assert.NoError(t, err)
 	// fetch files from benchmark folder
-	bFiles, err = utils.GetK8sBenchAuditFiles("k8s", "v1.6.0")
+	bFiles, err = utils.GetK8sBenchAuditFiles("k8s", "v1.6.0", fm)
 	assert.Equal(t, bFiles[0].Name, common.MasterNodeConfigurationFiles)
 	assert.Equal(t, bFiles[1].Name, common.APIServer)
 	assert.Equal(t, bFiles[2].Name, common.ControllerManager)
@@ -54,14 +55,14 @@ func Test_CreateGkeBenchmarkFilesIfNotExist(t *testing.T) {
 	assert.Equal(t, bFiles[1].Name, common.GkeWorkerNodes)
 	assert.Equal(t, bFiles[2].Name, common.GkePolicies)
 	assert.Equal(t, bFiles[3].Name, common.GkeManagedServices)
-
-	err = utils.CreateBenchmarkFolderIfNotExist("gke", "v1.1.0")
+	fm := utils.NewKFolder()
+	err = utils.CreateBenchmarkFolderIfNotExist("gke", "v1.1.0", fm)
 	assert.NoError(t, err)
 	// save benchmark files to folder
 	err = SaveBenchmarkFilesIfNotExist("gke", "v1.1.0", bFiles)
 	assert.NoError(t, err)
 	// fetch files from benchmark folder
-	bFiles, err = utils.GetK8sBenchAuditFiles("gke", "v1.1.0")
+	bFiles, err = utils.GetK8sBenchAuditFiles("gke", "v1.1.0", fm)
 	assert.Equal(t, bFiles[0].Name, common.GkeControlPlaneConfiguration)
 	assert.Equal(t, bFiles[1].Name, common.GkeWorkerNodes)
 	assert.Equal(t, bFiles[2].Name, common.GkePolicies)
@@ -79,10 +80,13 @@ func Test_GetHelpSynopsis(t *testing.T) {
 
 //Test_SaveBenchmarkFilesIfNotExist test
 func Test_SaveBenchmarkFilesIfNotExist(t *testing.T) {
-	err := os.RemoveAll(utils.GetBenchmarkFolder("k8s", "v1.6.0"))
+	fm := utils.NewKFolder()
+	folder, err2 := utils.GetBenchmarkFolder("k8s", "v1.6.0", fm)
+	assert.NoError(t, err2)
+	err := os.RemoveAll(folder)
 	assert.NoError(t, err)
 	filesData := make([]utils.FilesInfo, 0)
-	err = utils.CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0")
+	err = utils.CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0", fm)
 	assert.NoError(t, err)
 	filesData = append(filesData, utils.FilesInfo{Name: common.Scheduler, Data: "bbb"})
 	err = SaveBenchmarkFilesIfNotExist("k8s", "v1.6.0", filesData)
@@ -93,10 +97,13 @@ func Test_SaveBenchmarkFilesIfNotExist(t *testing.T) {
 
 //Test_SaveBenchmarkFilesIfNotExist test
 func Test_SaveGkeBenchmarkFilesIfNotExist(t *testing.T) {
-	err := os.RemoveAll(utils.GetBenchmarkFolder("gke", "v1.1.0"))
+	fm := utils.NewKFolder()
+	folder, err2 := utils.GetBenchmarkFolder("gke", "v1.1.0", fm)
+	assert.NoError(t, err2)
+	err := os.RemoveAll(folder)
 	assert.NoError(t, err)
 	filesData := make([]utils.FilesInfo, 0)
-	err = utils.CreateBenchmarkFolderIfNotExist("gke", "v1.1.0")
+	err = utils.CreateBenchmarkFolderIfNotExist("gke", "v1.1.0", fm)
 	assert.NoError(t, err)
 	filesData = append(filesData, utils.FilesInfo{Name: common.Scheduler, Data: "bbb"})
 	err = SaveBenchmarkFilesIfNotExist("gke", "v1.1.0", filesData)

@@ -31,19 +31,24 @@ func Test_CreateHomeFolderIfNotExist(t *testing.T) {
 
 //Test_GetBenchmarkFolder test
 func Test_GetBenchmarkFolder(t *testing.T) {
-	a := GetBenchmarkFolder("k8s", "v1.6.0")
+	fm := NewKFolder()
+	a, err := GetBenchmarkFolder("k8s", "v1.6.0", fm)
+	assert.NoError(t, err)
 	assert.True(t, strings.HasSuffix(a, ".beacon/benchmarks/k8s/v1.6.0"))
 }
 
 //Test_CreateBenchmarkFolderIfNotExist test
 func Test_CreateBenchmarkFolderIfNotExist(t *testing.T) {
-	err := CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0")
+	fm := NewKFolder()
+	err := CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0", fm)
 	assert.NoError(t, err)
-	_, err = os.Stat(GetBenchmarkFolder("k8s", "v1.6.0"))
+	folder, err := GetBenchmarkFolder("k8s", "v1.6.0", fm)
+	assert.NoError(t, err)
+	_, err = os.Stat(folder)
 	if os.IsNotExist(err) {
 		t.Fatal()
 	}
-	err = os.RemoveAll(GetBenchmarkFolder("k8s", "v1.6.0"))
+	err = os.RemoveAll(folder)
 	assert.NoError(t, err)
 }
 
@@ -54,7 +59,7 @@ func Test_GetK8sBenchAuditFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0")
+	err = CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0", fm)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,11 +67,13 @@ func Test_GetK8sBenchAuditFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	f, err := GetK8sBenchAuditFiles("k8s", "v1.6.0")
+	f, err := GetK8sBenchAuditFiles("k8s", "v1.6.0", fm)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.RemoveAll(GetBenchmarkFolder("k8s", "v1.6.0"))
+	folder, err := GetBenchmarkFolder("k8s", "v1.6.0", fm)
+	assert.NoError(t, err)
+	err = os.RemoveAll(folder)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,13 +84,19 @@ func Test_GetK8sBenchAuditFiles(t *testing.T) {
 
 //Test_GetK8sBenchAuditNoFolder test
 func Test_GetK8sBenchAuditNoFolder(t *testing.T) {
-	_, err := GetK8sBenchAuditFiles("k8s", "v1.6.0")
+	fm := NewKFolder()
+	_, err := GetK8sBenchAuditFiles("k8s", "v1.6.0", fm)
 	assert.True(t, err != nil)
 }
 
 func saveFilesIfNotExist(filesData []FilesInfo) error {
+	fm := NewKFolder()
+	folder, err := GetBenchmarkFolder("k8s", "v1.6.0", fm)
+	if err != nil {
+		return err
+	}
 	for _, fileData := range filesData {
-		filePath := filepath.Join(GetBenchmarkFolder("k8s", "v1.6.0"), fileData.Name)
+		filePath := filepath.Join(folder, fileData.Name)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			f, err := os.Create(filePath)
 			if err != nil {

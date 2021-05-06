@@ -62,7 +62,9 @@ func Test_getSpecificTestsToExecute(t *testing.T) {
 //Test_LoadAuditTest test
 func Test_LoadAuditTest(t *testing.T) {
 	fm := utils.NewKFolder()
-	err := os.RemoveAll(utils.GetBenchmarkFolder("k8s", "v1.6.0"))
+	folder, err2 := utils.GetBenchmarkFolder("k8s", "v1.6.0", fm)
+	assert.NoError(t, err2)
+	err := os.RemoveAll(folder)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +72,7 @@ func Test_LoadAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = utils.CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0")
+	err = utils.CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0", fm)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,16 +91,18 @@ func Test_LoadAuditTest(t *testing.T) {
 
 //Test_LoadGkeAuditTest test
 func Test_LoadGkeAuditTest(t *testing.T) {
-	err := os.RemoveAll(utils.GetBenchmarkFolder("gke", "v1.1.0"))
+	fm := utils.NewKFolder()
+	folder, err2 := utils.GetBenchmarkFolder("gke", "v1.1.0", fm)
+	assert.NoError(t, err2)
+	err := os.RemoveAll(folder)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fm := utils.NewKFolder()
 	err = utils.CreateHomeFolderIfNotExist(fm)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = utils.CreateBenchmarkFolderIfNotExist("gke", "v1.1.0")
+	err = utils.CreateBenchmarkFolderIfNotExist("gke", "v1.1.0", fm)
 	if err != nil {
 		t.Fatal(err)
 	}

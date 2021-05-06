@@ -19,7 +19,8 @@ import (
 //Test_StartCli tests
 func Test_StartCli(t *testing.T) {
 	initBenchmarkSpecData("k8s", "v1.6.0")
-	files, err := utils.GetK8sBenchAuditFiles("k8s", "v1.6.0")
+	fm := utils.NewKFolder()
+	files, err := utils.GetK8sBenchAuditFiles("k8s", "v1.6.0", fm)
 	if err != nil {
 		t.Fatal(err)
 	}

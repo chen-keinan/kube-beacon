@@ -24,7 +24,7 @@ type FolderMgr interface {
 	GetHomeFolder() (string, error)
 }
 
-//KFolder kube-knark folder object
+//KFolder kube-beacon folder object
 type KFolder struct {
 }
 
@@ -45,7 +45,7 @@ func (kf KFolder) CreateFolder(folderName string) error {
 	return nil
 }
 
-//GetHomeFolder return kube-knark home folder
+//GetHomeFolder return kube-beacon home folder
 func (kf KFolder) GetHomeFolder() (string, error) {
 	usr, err := user.Current()
 	if err != nil {
@@ -120,14 +120,21 @@ func CreateHomeFolderIfNotExist(fm FolderMgr) error {
 }
 
 //GetBenchmarkFolder return benchmark folder
-func GetBenchmarkFolder(spec, version string) string {
-	return filepath.Join(GetHomeFolder(), fmt.Sprintf("benchmarks/%s/%s/", spec, version))
+func GetBenchmarkFolder(spec, version string, fm FolderMgr) (string, error) {
+	folder, err := fm.GetHomeFolder()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(folder, fmt.Sprintf("benchmarks/%s/%s/", spec, version)), nil
 }
 
 //CreateBenchmarkFolderIfNotExist create beacon benchmark folder if not exist
-func CreateBenchmarkFolderIfNotExist(spec, version string) error {
-	benchmarkFolder := GetBenchmarkFolder(spec, version)
-	_, err := os.Stat(benchmarkFolder)
+func CreateBenchmarkFolderIfNotExist(spec, version string, fm FolderMgr) error {
+	benchmarkFolder, err := GetBenchmarkFolder(spec, version, fm)
+	if err != nil {
+		return err
+	}
+	_, err = os.Stat(benchmarkFolder)
 	if os.IsNotExist(err) {
 		errDir := os.MkdirAll(benchmarkFolder, 0750)
 		if errDir != nil {
@@ -138,15 +145,18 @@ func CreateBenchmarkFolderIfNotExist(spec, version string) error {
 }
 
 //GetK8sBenchAuditFiles return k8s benchmark file
-func GetK8sBenchAuditFiles(spec, version string) ([]FilesInfo, error) {
+func GetK8sBenchAuditFiles(spec, version string, fm FolderMgr) ([]FilesInfo, error) {
 	filesData := make([]FilesInfo, 0)
-	folder := GetBenchmarkFolder(spec, version)
+	folder, err := GetBenchmarkFolder(spec, version, fm)
+	if err != nil {
+		return filesData, err
+	}
 	filesInfo, err := ioutil.ReadDir(filepath.Join(folder))
 	if err != nil {
 		return nil, err
 	}
 	for _, fileInfo := range filesInfo {
-		filePath := filepath.Join(GetBenchmarkFolder(spec, version), filepath.Clean(fileInfo.Name()))
+		filePath := filepath.Join(folder, filepath.Clean(fileInfo.Name()))
 		fData, err := ioutil.ReadFile(filepath.Clean(filePath))
 		if err != nil {
 			return nil, err

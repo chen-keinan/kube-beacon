@@ -26,7 +26,7 @@ func initBenchmarkSpecData(spec, version string) {
 	if err != nil {
 		panic(err)
 	}
-	err = utils.CreateBenchmarkFolderIfNotExist(spec, version)
+	err = utils.CreateBenchmarkFolderIfNotExist(spec, version, fm)
 	if err != nil {
 		panic(err)
 	}
