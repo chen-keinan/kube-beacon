@@ -452,4 +452,6 @@ func Test_calculateFinalTotal(t *testing.T) {
 	assert.Equal(t, res.Warn, 8)
 	assert.Equal(t, res.Pass, 8)
 	assert.Equal(t, res.Fail, 3)
+	str := printFinalResults([]models.AuditTestTotals{res})
+	assert.Equal(t, str, "\u001B[34mTest Result Total\u001B[0m \u001B[32mPass:\u001B[0m 8 , \u001B[33mWarn:\u001B[0m 8 , \u001B[31mFail:\u001B[0m 3 ")
 }

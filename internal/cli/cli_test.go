@@ -104,7 +104,18 @@ func Test_InvokeCli(t *testing.T) {
 	assert.True(t, a == 0)
 }
 
-func TestInitPluginFolder(t *testing.T) {
+func Test_InitPluginFolder(t *testing.T) {
 	fm := utils.NewKFolder()
 	initPluginFolders(fm)
+}
+
+func Test_InitPluginWorker(t *testing.T) {
+	completedChan := make(chan bool)
+	plChan := make(chan m2.KubeAuditResults)
+	go func() {
+		plChan <- m2.KubeAuditResults{}
+		completedChan <- true
+	}()
+	initPluginWorker(plChan, completedChan)
+
 }
