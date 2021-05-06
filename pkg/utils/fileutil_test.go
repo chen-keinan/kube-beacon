@@ -124,3 +124,23 @@ func Test_GetEnv(t *testing.T) {
 	homeFolder = GetEnv(common.BeaconHomeEnvVar, "/home/user")
 	assert.Equal(t, homeFolder, "/home/user")
 }
+
+//Test_PluginsSourceFolder test
+func Test_PluginsSourceFolder(t *testing.T) {
+	fm := NewKFolder()
+	err := CreatePluginsSourceFolderIfNotExist(fm)
+	assert.NoError(t, err)
+	a, err := GetPluginSourceSubFolder(fm)
+	assert.NoError(t, err)
+	assert.True(t, strings.HasSuffix(a, PluginSourceSubFolder))
+}
+
+//Test_PluginsCompiledFolder test
+func Test_PluginsCompiledFolder(t *testing.T) {
+	fm := NewKFolder()
+	err := CreatePluginsCompiledFolderIfNotExist(fm)
+	assert.NoError(t, err)
+	a, err := GetCompilePluginSubFolder(fm)
+	assert.NoError(t, err)
+	assert.True(t, strings.HasSuffix(a, CompilePluginSubFolder))
+}
