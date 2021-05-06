@@ -103,3 +103,8 @@ func Test_InvokeCli(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, a == 0)
 }
+
+func TestInitPluginFolder(t *testing.T) {
+	fm := utils.NewKFolder()
+	initPluginFolders(fm)
+}

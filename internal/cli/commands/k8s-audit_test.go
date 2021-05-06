@@ -423,3 +423,22 @@ func Test_K8sSynopsis(t *testing.T) {
 		completedChan <- true
 	}()
 }
+
+func Test_sendResultToPlugin(t *testing.T) {
+	pChan := make(chan m2.KubeAuditResults)
+	cChan := make(chan bool)
+	auditTests := make([]*models.SubCategory, 0)
+	ab := make([]*models.AuditBench, 0)
+	ats := &models.AuditBench{Name: "bbb", TestSucceed: true}
+	atf := &models.AuditBench{Name: "ccc", TestSucceed: false}
+	ab = append(ab, ats)
+	ab = append(ab, atf)
+	mst := &models.SubCategory{Name: "aaa", AuditTests: ab}
+	auditTests = append(auditTests, mst)
+	go func() {
+		<-pChan
+		cChan <- true
+	}()
+	sendResultToPlugin(pChan, cChan, auditTests)
+
+}

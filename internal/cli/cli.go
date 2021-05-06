@@ -51,8 +51,7 @@ func initBenchmarkSpecData(spec, version string) {
 }
 
 //initBenchmarkSpecData initialize benchmark spec file and save if to file system
-func initPluginFolders() {
-	fm := utils.NewKFolder()
+func initPluginFolders(fm utils.FolderMgr) {
 	err := utils.CreatePluginsSourceFolderIfNotExist(fm)
 	if err != nil {
 		panic(err)
@@ -61,7 +60,6 @@ func initPluginFolders() {
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 //loadAuditBenchPluginSymbols load API call plugin symbols
@@ -115,7 +113,8 @@ func StartCLI(sa SanitizeArgs) {
 	// init cli folder and templates
 	initBenchmarkSpecData(ad.specType, ad.specVersion)
 	// init plugin folders
-	initPluginFolders()
+	fm := utils.NewKFolder()
+	initPluginFolders(fm)
 	// init plugin worker
 	initPluginWorker(plChan, completedChan)
 	status, err := invokeCommandCli(cmdArgs, commands)

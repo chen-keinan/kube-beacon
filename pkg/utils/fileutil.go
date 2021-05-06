@@ -24,17 +24,17 @@ type FolderMgr interface {
 	GetHomeFolder() (string, error)
 }
 
-//KFolder kube-beacon folder object
-type KFolder struct {
+//bFolder kube-beacon folder object
+type bFolder struct {
 }
 
-//NewKFolder return KFolder instance
+//NewKFolder return bFolder instance
 func NewKFolder() FolderMgr {
-	return &KFolder{}
+	return &bFolder{}
 }
 
 //CreateFolder create new kube beacon folder
-func (kf KFolder) CreateFolder(folderName string) error {
+func (kf bFolder) CreateFolder(folderName string) error {
 	_, err := os.Stat(folderName)
 	if os.IsNotExist(err) {
 		errDir := os.MkdirAll(folderName, 0750)
@@ -46,7 +46,7 @@ func (kf KFolder) CreateFolder(folderName string) error {
 }
 
 //GetHomeFolder return kube-beacon home folder
-func (kf KFolder) GetHomeFolder() (string, error) {
+func (kf bFolder) GetHomeFolder() (string, error) {
 	usr, err := user.Current()
 	if err != nil {
 		return "", err
@@ -134,14 +134,7 @@ func CreateBenchmarkFolderIfNotExist(spec, version string, fm FolderMgr) error {
 	if err != nil {
 		return err
 	}
-	_, err = os.Stat(benchmarkFolder)
-	if os.IsNotExist(err) {
-		errDir := os.MkdirAll(benchmarkFolder, 0750)
-		if errDir != nil {
-			return fmt.Errorf("failed to create beacon benchmark folder folder at %s", benchmarkFolder)
-		}
-	}
-	return nil
+	return fm.CreateFolder(benchmarkFolder)
 }
 
 //GetK8sBenchAuditFiles return k8s benchmark file

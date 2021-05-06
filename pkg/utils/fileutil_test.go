@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"github.com/chen-keinan/beacon/internal/common"
+	"github.com/chen-keinan/beacon/pkg/utils/mocks"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
@@ -143,4 +145,77 @@ func Test_PluginsCompiledFolder(t *testing.T) {
 	a, err := GetCompilePluginSubFolder(fm)
 	assert.NoError(t, err)
 	assert.True(t, strings.HasSuffix(a, CompilePluginSubFolder))
+}
+
+func TestCreateBenchmarkFoldersErrorHomeFolder(t *testing.T) {
+	ctl := gomock.NewController(t)
+	fm := mocks.NewMockFolderMgr(ctl)
+	fm.EXPECT().GetHomeFolder().Return("homePath", fmt.Errorf("error")).Times(1)
+	err := CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0", fm)
+	assert.Error(t, err)
+	fmr := NewKFolder()
+	path, err := GetBenchmarkFolder("k8s", "v1.6.0", fmr)
+	assert.NoError(t, err)
+	rhfp := GetHomeFolder()
+	fm2 := mocks.NewMockFolderMgr(ctl)
+	fm2.EXPECT().GetHomeFolder().Return(rhfp, nil).Times(1)
+	fm2.EXPECT().CreateFolder(path).Return(fmt.Errorf("error")).Times(1)
+	err = CreateBenchmarkFolderIfNotExist("k8s", "v1.6.0", fm2)
+	assert.Error(t, err)
+}
+
+func TestCreatePluginsCompiledFolderIfNotExist(t *testing.T) {
+	ctl := gomock.NewController(t)
+	fm := mocks.NewMockFolderMgr(ctl)
+	fm.EXPECT().GetHomeFolder().Return("homePath", fmt.Errorf("error")).Times(1)
+	err := CreatePluginsCompiledFolderIfNotExist(fm)
+	assert.Error(t, err)
+	fmr := NewKFolder()
+	path, err := GetCompilePluginSubFolder(fmr)
+	assert.NoError(t, err)
+	rhfp := GetHomeFolder()
+	fm2 := mocks.NewMockFolderMgr(ctl)
+	fm2.EXPECT().GetHomeFolder().Return(rhfp, nil).Times(1)
+	fm2.EXPECT().CreateFolder(path).Return(fmt.Errorf("error")).Times(1)
+	err = CreatePluginsCompiledFolderIfNotExist(fm2)
+	assert.Error(t, err)
+}
+
+func TestCreatePluginsSourcesFolderIfNotExist(t *testing.T) {
+	ctl := gomock.NewController(t)
+	fm := mocks.NewMockFolderMgr(ctl)
+	fm.EXPECT().GetHomeFolder().Return("homePath", fmt.Errorf("error")).Times(1)
+	err := CreatePluginsSourceFolderIfNotExist(fm)
+	assert.Error(t, err)
+	fmr := NewKFolder()
+	path, err := GetPluginSourceSubFolder(fmr)
+	assert.NoError(t, err)
+	rhfp := GetHomeFolder()
+	fm2 := mocks.NewMockFolderMgr(ctl)
+	fm2.EXPECT().GetHomeFolder().Return(rhfp, nil).Times(1)
+	fm2.EXPECT().CreateFolder(path).Return(fmt.Errorf("error")).Times(1)
+	err = CreatePluginsSourceFolderIfNotExist(fm2)
+	assert.Error(t, err)
+}
+
+func TestGetBenchmarkFoldersErrorHomeFolder(t *testing.T) {
+	ctl := gomock.NewController(t)
+	fm := mocks.NewMockFolderMgr(ctl)
+	fm.EXPECT().GetHomeFolder().Return("homePath", fmt.Errorf("error")).Times(1)
+	_, err := GetBenchmarkFolder("k8s", "v1.6.0", fm)
+	assert.Error(t, err)
+}
+func TestGetSourcePluginFoldersErrorHomeFolder(t *testing.T) {
+	ctl := gomock.NewController(t)
+	fm := mocks.NewMockFolderMgr(ctl)
+	fm.EXPECT().GetHomeFolder().Return("homePath", fmt.Errorf("error")).Times(1)
+	_, err := GetPluginSourceSubFolder(fm)
+	assert.Error(t, err)
+}
+func TestGetCompiledPluginFoldersErrorHomeFolder(t *testing.T) {
+	ctl := gomock.NewController(t)
+	fm := mocks.NewMockFolderMgr(ctl)
+	fm.EXPECT().GetHomeFolder().Return("homePath", fmt.Errorf("error")).Times(1)
+	_, err := GetCompilePluginSubFolder(fm)
+	assert.Error(t, err)
 }
