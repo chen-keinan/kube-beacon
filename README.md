@@ -126,7 +126,7 @@ kubectl delete -f k8s.yaml
 The Kube-Beacon expose hook for user plugins [Example](https://github.com/chen-keinan/kube-beacon/tree/master/examples/plugins) :
 - **K8sBenchAuditResultHook** - this hook accepts audit benchmark results as found by audit report
 - 
-##### compile plugin
+##### Compile user plugin
 ```
 go build -buildmode=plugin -o=~/<plugin folder>/bench_plugin.so /<plugin folder>/bench_plugin.go
 ```
