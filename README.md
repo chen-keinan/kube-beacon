@@ -11,7 +11,7 @@ Kube-Beacon is an open source audit scanner who perform audit check on a deploye
 
 The audit tests are the full implementation of [CIS Kubernetes Benchmark specification](https://www.cisecurity.org/benchmark/kubernetes/) <br>
 
-NEW !! audit result now can be published to an external system via user plugin (go plugin) 
+NEW !! audit result now can be leveraged as webhook via user plugin(using go plugin) 
 #### Audit checks are performed  on master and worker nodes and the output audit report include :
 * root cause of the security issue
 * proposed remediation for security issue
