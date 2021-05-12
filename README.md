@@ -122,7 +122,7 @@ kubectl delete clusterrolebinding default-admin
 kubectl delete -f k8s.yaml
 ```
 
-## User Plugin Usage (via go plugins)
+## User Plugin Usage
 The Kube-Beacon expose hook for user plugins [Example](https://github.com/chen-keinan/kube-beacon/tree/master/examples/plugins) :
 - **K8sBenchAuditResultHook** - this hook accepts audit benchmark results as found by audit report
 
