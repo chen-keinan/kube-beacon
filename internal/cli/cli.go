@@ -119,7 +119,6 @@ func initPluginWorker(plChan chan models.KubeAuditResults, completedChan chan bo
 
 //StartCLICommand invoke cli k8s command beacon cli
 func StartCLICommand(fm utils.FolderMgr, plChan chan models.KubeAuditResults, completedChan chan bool, ad ArgsData, cmdArgs []string, commands map[string]cli.CommandFactory) {
-	// create cli data
 	// init plugin folders
 	initPluginFolders(fm)
 	// init plugin worker

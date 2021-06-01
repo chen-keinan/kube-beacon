@@ -21,8 +21,8 @@ require (
 	github.com/stretchr/testify v1.6.1
 	go.uber.org/fx v1.13.1
 	go.uber.org/zap v1.10.0
-	golang.org/x/crypto v0.0.0-20210505212654-3497b51f5e64 // indirect
-	golang.org/x/sys v0.0.0-20210503173754-0981d6026fa6 // indirect
+	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
+	golang.org/x/sys v0.0.0-20210531225629-47163c9f4e4f // indirect
 	golang.org/x/tools v0.0.0-20200308013534-11ec41452d41 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )
