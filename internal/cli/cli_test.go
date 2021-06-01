@@ -18,8 +18,8 @@ import (
 
 //Test_StartCli tests
 func Test_StartCli(t *testing.T) {
-	initBenchmarkSpecData("k8s", "v1.6.0")
 	fm := utils.NewKFolder()
+	initBenchmarkSpecData(fm, ArgsData{SpecType: "k8s", SpecVersion: "v1.6.0"})
 	files, err := utils.GetK8sBenchAuditFiles("k8s", "v1.6.0", fm)
 	if err != nil {
 		t.Fatal(err)
@@ -38,15 +38,15 @@ func Test_StartCli(t *testing.T) {
 func Test_ArgsSanitizer(t *testing.T) {
 	args := []string{"--a", "-b"}
 	ad := ArgsSanitizer(args)
-	assert.Equal(t, ad.filters[0], "a")
-	assert.Equal(t, ad.filters[1], "b")
-	assert.False(t, ad.help)
+	assert.Equal(t, ad.Filters[0], "a")
+	assert.Equal(t, ad.Filters[1], "b")
+	assert.False(t, ad.Help)
 	args = []string{}
 	ad = ArgsSanitizer(args)
-	assert.True(t, ad.filters[0] == "")
-	args = []string{"--help"}
+	assert.True(t, ad.Filters[0] == "")
+	args = []string{"--Help"}
 	ad = ArgsSanitizer(args)
-	assert.True(t, ad.help)
+	assert.True(t, ad.Help)
 }
 
 //Test_BeaconHelpFunc test
@@ -62,12 +62,12 @@ func Test_BeaconHelpFunc(t *testing.T) {
 func Test_createCliBuilderData(t *testing.T) {
 	cmdArgs := []string{"a"}
 	ad := ArgsSanitizer(os.Args[1:])
-	cmdArgs = append(cmdArgs, ad.filters...)
+	cmdArgs = append(cmdArgs, ad.Filters...)
 	cmds := make([]cli.Command, 0)
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
 	// invoke cli
-	cmds = append(cmds, commands.NewK8sAudit(cmdArgs, ad.specType, ad.specVersion, plChan, completedChan))
+	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, []utils.FilesInfo{}))
 	c := createCliBuilderData(cmdArgs, cmds)
 	_, ok := c["a"]
 	assert.True(t, ok)
@@ -86,14 +86,14 @@ func Test_InvokeCli(t *testing.T) {
 	executor := mocks.NewMockExecutor(ctrl)
 	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "1234"}, nil).Times(1)
 	tl := mocks.NewMockTestLoader(ctrl)
-	tl.EXPECT().LoadAuditTests("k8s", "v1.6.0").Return([]*models.SubCategory{{Name: "te", AuditTests: []*models.AuditBench{ab}}})
+	tl.EXPECT().LoadAuditTests(nil).Return([]*models.SubCategory{{Name: "te", AuditTests: []*models.AuditBench{ab}}})
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
 	go func() {
 		<-plChan
 		completedChan <- true
 	}()
-	kb := &commands.K8sAudit{Command: executor, ResultProcessor: commands.GetResultProcessingFunction([]string{}), FileLoader: tl, OutputGenerator: commands.ConsoleOutputGenerator, Spec: "k8s", Version: "v1.6.0", PlChan: plChan, CompletedChan: completedChan}
+	kb := &commands.K8sAudit{Command: executor, ResultProcessor: commands.GetResultProcessingFunction([]string{}), FileLoader: tl, OutputGenerator: commands.ConsoleOutputGenerator, PlChan: plChan, CompletedChan: completedChan}
 	cmdArgs := []string{"a"}
 	cmds := make([]cli.Command, 0)
 	// invoke cli
