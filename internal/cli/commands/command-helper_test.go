@@ -84,7 +84,7 @@ func Test_LoadAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	at := NewFileLoader().LoadAuditTests("k8s", "v1.6.0")
+	at := NewFileLoader().LoadAuditTests(bFiles)
 	assert.True(t, len(at) != 0)
 	assert.True(t, strings.Contains(at[0].AuditTests[0].Name, "1.1.1"))
 }
@@ -114,7 +114,7 @@ func Test_LoadGkeAuditTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	at := NewFileLoader().LoadAuditTests("k8s", "v1.6.0")
+	at := NewFileLoader().LoadAuditTests(bFiles)
 	assert.True(t, len(at) != 0)
 	assert.True(t, strings.Contains(at[0].AuditTests[0].Name, "1.1.1"))
 }

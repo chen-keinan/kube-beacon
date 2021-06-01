@@ -28,10 +28,9 @@ type K8sAudit struct {
 	FileLoader      TestLoader
 	PredicateChain  []filters.Predicate
 	PredicateParams []string
-	Spec            string
-	Version         string
 	PlChan          chan m2.KubeAuditResults
 	CompletedChan   chan bool
+	FilesInfo       []utils.FilesInfo
 }
 
 // ResultProcessor process audit results
@@ -90,18 +89,16 @@ var reportResultProcessor ResultProcessor = func(at *models.AuditBench, NumFaile
 }
 
 //NewK8sAudit new audit object
-func NewK8sAudit(args []string, spec, version string, plChan chan m2.KubeAuditResults, completedChan chan bool) *K8sAudit {
+func NewK8sAudit(filters []string, plChan chan m2.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo) *K8sAudit {
 	return &K8sAudit{Command: shell.NewShellExec(),
-		PredicateChain:  buildPredicateChain(args),
-		PredicateParams: buildPredicateChainParams(args),
-		ResultProcessor: GetResultProcessingFunction(args),
-		OutputGenerator: getOutputGeneratorFunction(args),
+		PredicateChain:  buildPredicateChain(filters),
+		PredicateParams: buildPredicateChainParams(filters),
+		ResultProcessor: GetResultProcessingFunction(filters),
+		OutputGenerator: getOutputGeneratorFunction(filters),
 		FileLoader:      NewFileLoader(),
-		Spec:            spec,
 		PlChan:          plChan,
-		CompletedChan:   completedChan,
-		Version:         version}
-
+		FilesInfo:       fi,
+		CompletedChan:   completedChan}
 }
 
 //Help return benchmark command help
@@ -112,7 +109,7 @@ func (bk K8sAudit) Help() string {
 //Run execute the full k8s benchmark
 func (bk *K8sAudit) Run(args []string) int {
 	// load audit tests fro benchmark folder
-	auditTests := bk.FileLoader.LoadAuditTests(bk.Spec, bk.Version)
+	auditTests := bk.FileLoader.LoadAuditTests(bk.FilesInfo)
 	// filter tests by cmd criteria
 	ft := filteredAuditBenchTests(auditTests, bk.PredicateChain, bk.PredicateParams)
 	//execute audit tests and show it in progress bar

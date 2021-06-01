@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/chen-keinan/beacon/internal/bplugin"
 	"github.com/chen-keinan/beacon/internal/cli/commands"
@@ -11,43 +12,64 @@ import (
 	"github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/cli"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"os"
 	"plugin"
 	"strings"
 )
 
+// StartCLI start kube-beacon audit tester
+func StartCLI() {
+	app := fx.New(
+		// dependency injection
+		fx.Provide(NewK8sResultChan),
+		fx.Provide(NewCompletionChan),
+		fx.Provide(NewArgFunc),
+		fx.Provide(NewCliArgs),
+		fx.Provide(utils.NewKFolder),
+		fx.Provide(initBenchmarkSpecData),
+		fx.Provide(NewCliCommands),
+		fx.Provide(NewCommandArgs),
+		fx.Provide(createCliBuilderData),
+		fx.Invoke(StartCLICommand),
+	)
+	if err := app.Start(context.Background()); err != nil {
+		panic(err)
+	}
+}
+
 var log = logger.GetLog()
 
 //initBenchmarkSpecData initialize benchmark spec file and save if to file system
-func initBenchmarkSpecData(spec, version string) {
-	fm := utils.NewKFolder()
+func initBenchmarkSpecData(fm utils.FolderMgr, ad ArgsData) []utils.FilesInfo {
 	err := utils.CreateHomeFolderIfNotExist(fm)
 	if err != nil {
 		panic(err)
 	}
-	err = utils.CreateBenchmarkFolderIfNotExist(spec, version, fm)
+	err = utils.CreateBenchmarkFolderIfNotExist(ad.SpecType, ad.SpecVersion, fm)
 	if err != nil {
 		panic(err)
 	}
 	var filesData []utils.FilesInfo
-	switch spec {
+	switch ad.SpecType {
 	case "k8s":
-		if version == "v1.6.0" {
+		if ad.SpecVersion == "v1.6.0" {
 			filesData, err = startup.GenerateK8sBenchmarkFiles()
 		}
 	case "gke":
-		if version == "v1.1.0" {
+		if ad.SpecVersion == "v1.1.0" {
 			filesData, err = startup.GenerateGkeBenchmarkFiles()
 		}
 	}
 	if err != nil {
 		panic(err)
 	}
-	err = startup.SaveBenchmarkFilesIfNotExist(spec, version, filesData)
+	err = startup.SaveBenchmarkFilesIfNotExist(ad.SpecType, ad.SpecVersion, filesData)
 	if err != nil {
 		panic(err)
 	}
+	return filesData
 }
 
 //initBenchmarkSpecData initialize benchmark spec file and save if to file system
@@ -95,33 +117,60 @@ func initPluginWorker(plChan chan models.KubeAuditResults, completedChan chan bo
 	worker.Invoke()
 }
 
-//StartCLI initialize beacon cli
-func StartCLI(sa SanitizeArgs) {
-	// create cli data
-	cmdArgs := []string{"a"}
-	ad := sa(os.Args[1:])
-	cmds := make([]cli.Command, 0)
-	cmdArgs = append(cmdArgs, ad.filters...)
-	// invoke cli
-	plChan := make(chan models.KubeAuditResults)
-	completedChan := make(chan bool)
-	cmds = append(cmds, commands.NewK8sAudit(ad.filters, ad.specType, ad.specVersion, plChan, completedChan))
-	commands := createCliBuilderData(cmdArgs, cmds)
-	if ad.help {
-		cmdArgs = cmdArgs[1:]
-	}
-	// init cli folder and templates
-	initBenchmarkSpecData(ad.specType, ad.specVersion)
+//StartCLICommand invoke cli k8s command beacon cli
+func StartCLICommand(fm utils.FolderMgr, plChan chan models.KubeAuditResults, completedChan chan bool, ad ArgsData, cmdArgs []string, commands map[string]cli.CommandFactory) {
 	// init plugin folders
-	fm := utils.NewKFolder()
 	initPluginFolders(fm)
 	// init plugin worker
 	initPluginWorker(plChan, completedChan)
+	if ad.Help {
+		cmdArgs = cmdArgs[1:]
+	}
 	status, err := invokeCommandCli(cmdArgs, commands)
 	if err != nil {
 		log.Console(err.Error())
 	}
 	os.Exit(status)
+}
+
+//NewCommandArgs return new cli command args
+// accept cli args and return command args
+func NewCommandArgs(ad ArgsData) []string {
+	cmdArgs := []string{"a"}
+	cmdArgs = append(cmdArgs, ad.Filters...)
+	return cmdArgs
+}
+
+//NewCliCommands return cli k8s obj commands
+// accept cli args data , completion chan , result chan , spec files and return artay of cli commands
+func NewCliCommands(ad ArgsData, plChan chan models.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo) []cli.Command {
+	cmds := make([]cli.Command, 0)
+	// invoke cli
+	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, fi))
+	return cmds
+}
+
+//NewArgFunc return args func
+func NewArgFunc() SanitizeArgs {
+	return ArgsSanitizer
+}
+
+//NewCliArgs return cli args
+func NewCliArgs(sa SanitizeArgs) ArgsData {
+	ad := sa(os.Args[1:])
+	return ad
+}
+
+//NewCompletionChan return plugin Completion chan
+func NewCompletionChan() chan bool {
+	completedChan := make(chan bool)
+	return completedChan
+}
+
+//NewK8sResultChan return plugin test result chan
+func NewK8sResultChan() chan models.KubeAuditResults {
+	plChan := make(chan models.KubeAuditResults)
+	return plChan
 }
 
 //createCliBuilderData return cli params and commands
@@ -149,7 +198,7 @@ func invokeCommandCli(args []string, commands map[string]cli.CommandFactory) (in
 
 //ArgsSanitizer sanitize CLI arguments
 var ArgsSanitizer SanitizeArgs = func(str []string) ArgsData {
-	ad := ArgsData{specType: "k8s"}
+	ad := ArgsData{SpecType: "k8s"}
 	args := make([]string, 0)
 	if len(str) == 0 {
 		args = append(args, "")
@@ -158,43 +207,43 @@ var ArgsSanitizer SanitizeArgs = func(str []string) ArgsData {
 		arg = strings.Replace(arg, "--", "", -1)
 		arg = strings.Replace(arg, "-", "", -1)
 		switch {
-		case arg == "help", arg == "h":
-			ad.help = true
+		case arg == "Help", arg == "h":
+			ad.Help = true
 			args = append(args, arg)
 		case strings.HasPrefix(arg, "s="):
-			ad.specType = arg[len("s="):]
+			ad.SpecType = arg[len("s="):]
 		case strings.HasPrefix(arg, "spec="):
-			ad.specType = arg[len("spec="):]
+			ad.SpecType = arg[len("spec="):]
 		case strings.HasPrefix(arg, "v="):
-			ad.specVersion = fmt.Sprintf("v%s", arg[len("v="):])
+			ad.SpecVersion = fmt.Sprintf("v%s", arg[len("v="):])
 		case strings.HasPrefix(arg, "version="):
-			ad.specVersion = fmt.Sprintf("v%s", arg[len("version="):])
+			ad.SpecVersion = fmt.Sprintf("v%s", arg[len("version="):])
 		default:
 			args = append(args, arg)
 		}
 	}
-	if ad.specType == "k8s" && len(ad.specVersion) == 0 {
-		ad.specVersion = "v1.6.0"
+	if ad.SpecType == "k8s" && len(ad.SpecVersion) == 0 {
+		ad.SpecVersion = "v1.6.0"
 	}
-	if ad.specType == "gke" && len(ad.specVersion) == 0 {
-		ad.specVersion = "v1.1.0"
+	if ad.SpecType == "gke" && len(ad.SpecVersion) == 0 {
+		ad.SpecVersion = "v1.1.0"
 	}
-	ad.filters = args
+	ad.Filters = args
 	return ad
 }
 
 //ArgsData hold cli args data
 type ArgsData struct {
-	filters     []string
-	help        bool
-	specType    string
-	specVersion string
+	Filters     []string
+	Help        bool
+	SpecType    string
+	SpecVersion string
 }
 
 //SanitizeArgs sanitizer func
 type SanitizeArgs func(str []string) ArgsData
 
-// BeaconHelpFunc beacon help function with all supported commands
+// BeaconHelpFunc beacon Help function with all supported commands
 func BeaconHelpFunc(app string) cli.HelpFunc {
 	return func(commands map[string]cli.CommandFactory) string {
 		var buf bytes.Buffer
