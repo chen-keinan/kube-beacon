@@ -77,10 +77,6 @@ func NewFileLoader() TestLoader {
 //LoadAuditTests load audit test from benchmark folder
 func (tl AuditTestLoader) LoadAuditTests(auditFiles []utils.FilesInfo) []*models.SubCategory {
 	auditTests := make([]*models.SubCategory, 0)
-	/*	auditFiles, err := utils.GetK8sBenchAuditFiles(spec, version, fm)
-		if err != nil {
-			panic(fmt.Sprintf("failed to read audit files %s", err))
-		}*/
 	audit := models.Audit{}
 	for _, auditFile := range auditFiles {
 		err := yaml.Unmarshal([]byte(auditFile.Data), &audit)
