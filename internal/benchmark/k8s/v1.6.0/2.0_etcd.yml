@@ -79,7 +79,7 @@ categories:
             Then, edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and set the below parameters. --peer-client-file=</path/to/peer-cert-file> --peer-key-file=</path/to/peer-key-file>
           check_type: multi_param
           impact: etcd cluster peers would need to set up TLS for their communication.
-          eval_expr: "'$0' == '1'; && '$2' == '$3';"
+          eval_expr: "'$0' == '$1'; && '$2' == '$3';"
           default_value: "Note: This recommendation is applicable only for etcd clusters.
         If you are using only one\netcd server in your environment then this recommendation
         is not applicable.\n  --peer-client-file=</path/to/peer-cert-file> --peer-key-file=</path/to/peer-key-file>\n
