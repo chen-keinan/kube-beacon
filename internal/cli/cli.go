@@ -23,6 +23,7 @@ import (
 func StartCLI() {
 	app := fx.New(
 		// dependency injection
+		fx.NopLogger,
 		fx.Provide(NewK8sResultChan),
 		fx.Provide(NewCompletionChan),
 		fx.Provide(NewArgFunc),
