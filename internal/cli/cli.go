@@ -208,7 +208,7 @@ var ArgsSanitizer SanitizeArgs = func(str []string) ArgsData {
 		arg = strings.Replace(arg, "--", "", -1)
 		arg = strings.Replace(arg, "-", "", -1)
 		switch {
-		case arg == "Help", arg == "h":
+		case arg == "help", arg == "h":
 			ad.Help = true
 			args = append(args, arg)
 		case strings.HasPrefix(arg, "s="):

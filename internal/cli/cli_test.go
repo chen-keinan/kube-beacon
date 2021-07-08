@@ -44,7 +44,7 @@ func Test_ArgsSanitizer(t *testing.T) {
 	args = []string{}
 	ad = ArgsSanitizer(args)
 	assert.True(t, ad.Filters[0] == "")
-	args = []string{"--Help"}
+	args = []string{"--help"}
 	ad = ArgsSanitizer(args)
 	assert.True(t, ad.Help)
 }
