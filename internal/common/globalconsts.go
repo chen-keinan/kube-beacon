@@ -37,6 +37,8 @@ const (
 	NotValidNumber = "10000"
 	//Report arg
 	Report = "r"
+	//ReportFull arg
+	ReportFull = "report"
 	//Synopsis help
 	Synopsis = "synopsis"
 	//BeaconCli Name

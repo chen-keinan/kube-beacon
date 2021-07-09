@@ -113,7 +113,7 @@ func isArgsExist(args []string, name string) bool {
 
 //GetResultProcessingFunction return processing function by specificTests
 func GetResultProcessingFunction(args []string) ResultProcessor {
-	if isArgsExist(args, common.Report) {
+	if isArgsExist(args, common.Report) || isArgsExist(args, common.ReportFull) {
 		return reportResultProcessor
 	}
 	return simpleResultProcessor
@@ -121,7 +121,7 @@ func GetResultProcessingFunction(args []string) ResultProcessor {
 
 //getOutPutGeneratorFunction return output generator function
 func getOutputGeneratorFunction(args []string) ui.OutputGenerator {
-	if isArgsExist(args, common.Report) {
+	if isArgsExist(args, common.Report) || isArgsExist(args, common.ReportFull) {
 		return ReportOutputGenerator
 	}
 	return ConsoleOutputGenerator
