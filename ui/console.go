@@ -7,19 +7,17 @@ import (
 	"time"
 )
 
-var log = logger.GetLog()
-
 // OutputGenerator for  audit results
-type OutputGenerator func(at []*models.SubCategory)
+type OutputGenerator func(at []*models.SubCategory, log *logger.BLogger)
 
 //PrintOutput print audit test result to console
-func PrintOutput(auditTests []*models.SubCategory, outputGenerator OutputGenerator) {
+func PrintOutput(auditTests []*models.SubCategory, outputGenerator OutputGenerator, log *logger.BLogger) {
 	log.Console(auditResult)
-	outputGenerator(auditTests)
+	outputGenerator(auditTests, log)
 }
 
 //ShowProgressBar execute audit test and show progress bar
-func ShowProgressBar(a *models.SubCategory, execTestFunc func(ad *models.AuditBench) []*models.AuditBench) *models.SubCategory {
+func ShowProgressBar(a *models.SubCategory, execTestFunc func(ad *models.AuditBench) []*models.AuditBench, log *logger.BLogger) *models.SubCategory {
 	if len(a.AuditTests) == 0 {
 		return a
 	}

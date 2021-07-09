@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"github.com/chen-keinan/beacon/internal/common"
+	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/shell"
@@ -25,7 +26,7 @@ func Test_EvalVarSingleIn(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	k := kb.evalExpression(bench, []string{"aaa"}, 1, make([]string, 0), 0)
+	k := kb.evalExpression(bench, []string{"aaa"}, 1, make([]string, 0), 0, logger.GetLog())
 	assert.True(t, k == 0)
 }
 
@@ -38,7 +39,7 @@ func Test_EvalVarSingleNotInGood(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	k := kb.evalExpression(bench, []string{"ttt,aaa"}, 1, make([]string, 0), 0)
+	k := kb.evalExpression(bench, []string{"ttt,aaa"}, 1, make([]string, 0), 0, logger.GetLog())
 	assert.True(t, k == 0)
 }
 
@@ -51,7 +52,7 @@ func Test_EvalVarSingleNotInBad(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	k := kb.evalExpression(bench, []string{"RBAC,aaa"}, 1, make([]string, 0), 0)
+	k := kb.evalExpression(bench, []string{"RBAC,aaa"}, 1, make([]string, 0), 0, logger.GetLog())
 	assert.True(t, k > 0)
 }
 
@@ -64,7 +65,7 @@ func Test_EvalVarSingleNotInSingleValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	k := kb.evalExpression(bench, []string{"aaa"}, 1, make([]string, 0), 0)
+	k := kb.evalExpression(bench, []string{"aaa"}, 1, make([]string, 0), 0, logger.GetLog())
 	assert.True(t, k == 0)
 }
 
@@ -77,7 +78,7 @@ func Test_EvalVarMultiExprSingleValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	k := kb.evalExpression(bench, []string{"AlwaysAdmit"}, 1, make([]string, 0), 0)
+	k := kb.evalExpression(bench, []string{"AlwaysAdmit"}, 1, make([]string, 0), 0, logger.GetLog())
 	assert.True(t, k > 0)
 }
 
@@ -90,7 +91,7 @@ func Test_EvalVarMultiExprMultiValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	k := kb.evalExpression(bench, []string{"bbb,aaa"}, 1, make([]string, 0), 0)
+	k := kb.evalExpression(bench, []string{"bbb,aaa"}, 1, make([]string, 0), 0, logger.GetLog())
 	assert.True(t, k == 0)
 }
 
@@ -103,7 +104,7 @@ func Test_EvalVarMultiExprMultiEmptyValue(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	k := kb.evalExpression(bench, []string{common.GrepRegex}, 1, make([]string, 0), 0)
+	k := kb.evalExpression(bench, []string{common.GrepRegex}, 1, make([]string, 0), 0, logger.GetLog())
 	assert.True(t, k > 0)
 }
 
@@ -116,7 +117,7 @@ func Test_EvalVarComparator(t *testing.T) {
 	}
 	kb := K8sAudit{}
 	bench := ab.Categories[0].SubCategory.AuditTests[0]
-	k := kb.evalExpression(bench, []string{"1204"}, 1, make([]string, 0), 0)
+	k := kb.evalExpression(bench, []string{"1204"}, 1, make([]string, 0), 0, logger.GetLog())
 	assert.True(t, k == 0)
 }
 
@@ -376,7 +377,7 @@ func Test_NewK8sAudit(t *testing.T) {
 	args := []string{"a", "i=1.2.3"}
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
-	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{})
+	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog())
 	assert.True(t, len(ka.PredicateParams) == 2)
 	assert.True(t, len(ka.PredicateChain) == 2)
 	assert.True(t, ka.ResultProcessor != nil)
@@ -391,7 +392,7 @@ func Test_Help(t *testing.T) {
 	args := []string{"a", "i=1.2.3"}
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
-	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{})
+	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog())
 	help := ka.Help()
 	assert.True(t, len(help) > 0)
 	go func() {
@@ -415,7 +416,7 @@ func Test_K8sSynopsis(t *testing.T) {
 	args := []string{"a", "i=1.2.3"}
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
-	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{})
+	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog())
 	s := ka.Synopsis()
 	assert.True(t, len(s) > 0)
 	go func() {

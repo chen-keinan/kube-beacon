@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/shell"
@@ -181,7 +182,7 @@ func Test_executeTests(t *testing.T) {
 	plChan := make(chan m2.KubeAuditResults)
 	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	sc := []*models.SubCategory{{AuditTests: []*models.AuditBench{ab}}}
-	executeTests(sc, kb.runAuditTest)
+	executeTests(sc, kb.runAuditTest, logger.GetLog())
 	assert.False(t, ab.TestSucceed)
 	go func() {
 		<-plChan
@@ -197,7 +198,7 @@ func Test_printTestResults(t *testing.T) {
 	ab = append(ab, ats)
 	ab = append(ab, atf)
 	ab = append(ab, ata)
-	tr := printTestResults(ab)
+	tr := printTestResults(ab, logger.GetLog())
 	assert.Equal(t, tr.Warn, 1)
 	assert.Equal(t, tr.Pass, 1)
 	assert.Equal(t, tr.Fail, 1)
