@@ -25,9 +25,7 @@ categories:
         the system: prefix as they are required for the operation of system components.'
       eval_expr: "'$0' == 'system:masters';"
       default_value: 'By default a single clusterrolebinding called cluster-admin
-        is provided with the system:masters group as its principal.
-
-'
+        is provided with the system:masters group as its principal.'
       references:
       - https://kubernetes.io/docs/admin/authorization/rbac/#user-facing-roles
     -
@@ -51,9 +49,7 @@ categories:
       eval_expr: "('$0' != 'system:kube-controller-manager'; && '$1' == 'no'; && '$2'
         == 'no'; && '$3' == 'no';) || '$0' == 'system:kube-controller-manager';"
       default_value: 'By default a single clusterrolebinding called cluster-admin
-        is provided with the system:masters group as its principal.
-
-'
+        is provided with the system:masters group as its principal.'
       references: []
     -
       name: 5.1.3 Minimize wildcard use in Roles and ClusterRoles
@@ -96,11 +92,10 @@ categories:
         rights granted to applications can be more easily audited and reviewed.
       profile_applicability: Master
       audit:
-      - 'kubectl get serviceaccounts --all-namespaces -o yaml |grep -A5 ''kind: ServiceAccount''
+      - 'kubectl get serviceaccounts -n=default -o yaml |grep -A5 ''kind: ServiceAccount''
         |grep -A5 default |grep -o ''automountServiceAccountToken:[^"]\S*'' | awk
         -F "=" ''{print $2}'' |awk ''FNR <= 1'''
-      - kubectl get roleBinding --all-namespaces=true -o yaml | grep -A5 subjects
-        | grep -A2 ServiceAccount | grep name |grep default
+      - kubectl get roleBinding --all-namespaces=true -o yaml | grep -A5 subjects| grep -A2 ServiceAccount | grep name |grep default
       - kubectl get clusterRoleBinding --all-namespaces=true -o yaml |grep -A5 subjects
         | grep -A2 ServiceAccount |grep name |grep default
       remediation: |-

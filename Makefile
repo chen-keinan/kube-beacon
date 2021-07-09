@@ -45,6 +45,7 @@ build_travis:
 build_remote:
 	$(GOPACKR)
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go
+	mv kube-beacon /Users/chenkeinan/boxes/basic_box/kube-beacon
 build_docker:
 	export PATH=$GOPATH/bin:$PATH;
 	docker build -t chenkeinan/kube-beacon:latest .
