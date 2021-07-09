@@ -24,6 +24,7 @@ func StartCLI() {
 	app := fx.New(
 		// dependency injection
 		fx.NopLogger,
+		fx.Provide(logger.GetLog),
 		fx.Provide(NewK8sResultChan),
 		fx.Provide(NewCompletionChan),
 		fx.Provide(NewArgFunc),
@@ -39,8 +40,6 @@ func StartCLI() {
 		panic(err)
 	}
 }
-
-var log = logger.GetLog()
 
 //initBenchmarkSpecData initialize benchmark spec file and save if to file system
 func initBenchmarkSpecData(fm utils.FolderMgr, ad ArgsData) []utils.FilesInfo {
@@ -119,7 +118,7 @@ func initPluginWorker(plChan chan models.KubeAuditResults, completedChan chan bo
 }
 
 //StartCLICommand invoke cli k8s command beacon cli
-func StartCLICommand(fm utils.FolderMgr, plChan chan models.KubeAuditResults, completedChan chan bool, ad ArgsData, cmdArgs []string, commands map[string]cli.CommandFactory) {
+func StartCLICommand(fm utils.FolderMgr, plChan chan models.KubeAuditResults, completedChan chan bool, ad ArgsData, cmdArgs []string, commands map[string]cli.CommandFactory, log *logger.BLogger) {
 	// init plugin folders
 	initPluginFolders(fm)
 	// init plugin worker
@@ -144,10 +143,10 @@ func NewCommandArgs(ad ArgsData) []string {
 
 //NewCliCommands return cli k8s obj commands
 // accept cli args data , completion chan , result chan , spec files and return artay of cli commands
-func NewCliCommands(ad ArgsData, plChan chan models.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo) []cli.Command {
+func NewCliCommands(ad ArgsData, plChan chan models.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo, log *logger.BLogger) []cli.Command {
 	cmds := make([]cli.Command, 0)
 	// invoke cli
-	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, fi))
+	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, fi, log))
 	return cmds
 }
 

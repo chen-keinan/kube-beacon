@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/chen-keinan/beacon/internal/cli/commands"
 	"github.com/chen-keinan/beacon/internal/common"
+	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/shell"
@@ -67,7 +68,7 @@ func Test_createCliBuilderData(t *testing.T) {
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
 	// invoke cli
-	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, []utils.FilesInfo{}))
+	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog()))
 	c := createCliBuilderData(cmdArgs, cmds)
 	_, ok := c["a"]
 	assert.True(t, ok)

@@ -18,8 +18,6 @@ import (
 	"strings"
 )
 
-var log = logger.GetLog()
-
 //K8sAudit k8s benchmark object
 type K8sAudit struct {
 	Command         shell.Executor
@@ -31,17 +29,18 @@ type K8sAudit struct {
 	PlChan          chan m2.KubeAuditResults
 	CompletedChan   chan bool
 	FilesInfo       []utils.FilesInfo
+	Log             *logger.BLogger
 }
 
 // ResultProcessor process audit results
 type ResultProcessor func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench
 
 // ConsoleOutputGenerator print audit tests to stdout
-var ConsoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
+var ConsoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory, log *logger.BLogger) {
 	grandTotal := make([]models.AuditTestTotals, 0)
 	for _, a := range at {
 		log.Console(fmt.Sprintf("%s %s\n", "[Category]", a.Name))
-		categoryTotal := printTestResults(a.AuditTests)
+		categoryTotal := printTestResults(a.AuditTests, log)
 		grandTotal = append(grandTotal, categoryTotal)
 	}
 	log.Console(printFinalResults(grandTotal))
@@ -71,7 +70,7 @@ func calculateFinalTotal(granTotal []models.AuditTestTotals) models.AuditTestTot
 }
 
 // ReportOutputGenerator print failed audit test to human report
-var ReportOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory) {
+var ReportOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory, log *logger.BLogger) {
 	for _, a := range at {
 		log.Table(reports.GenerateAuditReport(a.AuditTests))
 	}
@@ -89,7 +88,7 @@ var reportResultProcessor ResultProcessor = func(at *models.AuditBench, NumFaile
 }
 
 //NewK8sAudit new audit object
-func NewK8sAudit(filters []string, plChan chan m2.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo) *K8sAudit {
+func NewK8sAudit(filters []string, plChan chan m2.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo, log *logger.BLogger) *K8sAudit {
 	return &K8sAudit{Command: shell.NewShellExec(),
 		PredicateChain:  buildPredicateChain(filters),
 		PredicateParams: buildPredicateChainParams(filters),
@@ -98,6 +97,7 @@ func NewK8sAudit(filters []string, plChan chan m2.KubeAuditResults, completedCha
 		FileLoader:      NewFileLoader(),
 		PlChan:          plChan,
 		FilesInfo:       fi,
+		Log:             log,
 		CompletedChan:   completedChan}
 }
 
@@ -113,9 +113,9 @@ func (bk *K8sAudit) Run(args []string) int {
 	// filter tests by cmd criteria
 	ft := filteredAuditBenchTests(auditTests, bk.PredicateChain, bk.PredicateParams)
 	//execute audit tests and show it in progress bar
-	completedTest := executeTests(ft, bk.runAuditTest)
+	completedTest := executeTests(ft, bk.runAuditTest, bk.Log)
 	// generate output data
-	ui.PrintOutput(completedTest, bk.OutputGenerator)
+	ui.PrintOutput(completedTest, bk.OutputGenerator, bk.Log)
 	// send test results to plugin
 	sendResultToPlugin(bk.PlChan, bk.CompletedChan, completedTest)
 	return 0
@@ -151,7 +151,7 @@ func (bk *K8sAudit) runAuditTest(at *models.AuditBench) []*models.AuditBench {
 		cmdTotalRes = append(cmdTotalRes, res)
 	}
 	// evaluate command result with expression
-	NumFailedTest := bk.evalExpression(at, cmdTotalRes, len(cmdTotalRes), make([]string, 0), 0)
+	NumFailedTest := bk.evalExpression(at, cmdTotalRes, len(cmdTotalRes), make([]string, 0), 0, bk.Log)
 	// continue with result processing
 	auditRes = append(auditRes, bk.ResultProcessor(at, NumFailedTest)...)
 	return auditRes
@@ -187,7 +187,7 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 		for _, param := range paramArr {
 			paramNum, err := strconv.Atoi(param)
 			if err != nil {
-				log.Console(fmt.Sprintf("failed to convert param for command %s", cmd))
+				bk.Log.Console(fmt.Sprintf("failed to convert param for command %s", cmd))
 				continue
 			}
 			if paramNum < len(prevResult) {
@@ -204,14 +204,14 @@ func (bk *K8sAudit) execCommand(at *models.AuditBench, index int, prevResult []s
 	}
 	result, _ := bk.Command.Exec(cmd)
 	if result.Stderr != "" {
-		log.Console(fmt.Sprintf("Failed to execute command %s\n %s", result.Stderr, cmd))
+		bk.Log.Console(fmt.Sprintf("Failed to execute command %s\n %s", result.Stderr, cmd))
 	}
 	return bk.addDummyCommandResponse(at.EvalExpr, index, result.Stdout)
 }
 
 func (bk *K8sAudit) execCmdWithParams(arr []IndexValue, index int, prevResHolder []IndexValue, currCommand string, resArr []string) []string {
 	if len(arr) == 0 {
-		return execShellCmd(prevResHolder, resArr, currCommand, bk.Command)
+		return execShellCmd(prevResHolder, resArr, currCommand, bk.Command, bk.Log)
 	}
 	sArr := strings.Split(utils.RemoveNewLineSuffix(arr[0].value), "\n")
 	for _, a := range sArr {
@@ -222,7 +222,7 @@ func (bk *K8sAudit) execCmdWithParams(arr []IndexValue, index int, prevResHolder
 	return resArr
 }
 
-func execShellCmd(prevResHolder []IndexValue, resArr []string, currCommand string, se shell.Executor) []string {
+func execShellCmd(prevResHolder []IndexValue, resArr []string, currCommand string, se shell.Executor, log *logger.BLogger) []string {
 	for _, param := range prevResHolder {
 		if param.value == common.EmptyValue || param.value == common.NotValidNumber || param.value == "" {
 			resArr = append(resArr, param.value)
@@ -243,20 +243,20 @@ func execShellCmd(prevResHolder []IndexValue, resArr []string, currCommand strin
 
 //evalExpression expression eval as cartesian product
 func (bk *K8sAudit) evalExpression(at *models.AuditBench,
-	commandRes []string, commResSize int, permutationArr []string, testFailure int) int {
+	commandRes []string, commResSize int, permutationArr []string, testFailure int, log *logger.BLogger) int {
 	if len(commandRes) == 0 {
-		return evalCommand(at, permutationArr, testFailure)
+		return evalCommand(at, permutationArr, testFailure, log)
 	}
 	outputs := strings.Split(utils.RemoveNewLineSuffix(commandRes[0]), "\n")
 	for _, o := range outputs {
 		permutationArr = append(permutationArr, o)
-		testFailure = bk.evalExpression(at, commandRes[1:commResSize], commResSize-1, permutationArr, testFailure)
+		testFailure = bk.evalExpression(at, commandRes[1:commResSize], commResSize-1, permutationArr, testFailure, log)
 		permutationArr = permutationArr[:len(permutationArr)-1]
 	}
 	return testFailure
 }
 
-func evalCommand(at *models.AuditBench, permutationArr []string, testExec int) int {
+func evalCommand(at *models.AuditBench, permutationArr []string, testExec int, log *logger.BLogger) int {
 	// build command expression with params
 	expr := at.CmdExprBuilder(permutationArr, at.EvalExpr)
 	testExec++
