@@ -44,7 +44,7 @@ func AddFailedMessages(at *models.AuditBench, NumFailedTest int) []*models.Audit
 	av := make([]*models.AuditBench, 0)
 	testSucceeded := NumFailedTest == 0
 	at.TestSucceed = testSucceeded
-	if !testSucceeded {
+	if !testSucceeded || at.NonApplicable {
 		av = append(av, at)
 	}
 	return av
