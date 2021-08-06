@@ -91,7 +91,7 @@ cd jobs
 kubectl apply -f k8s.yaml
 ```
 
-- gke cluster run the following jon
+- gke cluster run the following job
 
 ```
 kubectl apply -f gke.yaml
