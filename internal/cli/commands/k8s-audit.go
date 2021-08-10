@@ -251,6 +251,9 @@ func (bk *K8sAudit) evalExpression(at *models.AuditBench,
 	for _, o := range outputs {
 		permutationArr = append(permutationArr, o)
 		testFailure = bk.evalExpression(at, commandRes[1:commResSize], commResSize-1, permutationArr, testFailure, log)
+		if testFailure > 0 {
+			return testFailure
+		}
 		permutationArr = permutationArr[:len(permutationArr)-1]
 	}
 	return testFailure

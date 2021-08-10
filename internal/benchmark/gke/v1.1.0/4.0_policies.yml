@@ -12,8 +12,8 @@ categories:
         environment and should be used only where and when needed.
       profile_applicability: Master
       audit:
-      - tf=/dev/stdout &&  kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].name
-        |grep cluster-admin > tf && awk '{ print $3 }' tf
+      - kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].name
+        |grep cluster-admin | awk '{ print $3 }'
       remediation: |-
         Identify all clusterrolebindings to the cluster-admin role. Check if they are used and if they need this role or if they could use a role with fewer privileges.
         Where possible, first bind users to a lower privileged role and then remove the clusterrolebinding to the cluster-admin role :
@@ -36,8 +36,8 @@ categories:
         of users to reduce the risk of privilege escalation.
       profile_applicability: Master
       audit:
-      - tf=/dev/stdout && kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
-        |grep User  > tf && awk '{ print $1 }' tf
+      - kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
+        |grep User  |  awk '{ print $1 }'
       - 'kubectl auth can-i get secrets --all-namespaces --as #0'
       - kubectl auth can-i list secrets --all-namespaces --as=#0
       - kubectl auth can-i watch secrets --all-namespaces --as=#0
@@ -77,8 +77,8 @@ categories:
         As such, access to create new pods should be restricted to the smallest possible group of users.
       profile_applicability: Master
       audit:
-      - tf=/dev/stdout && kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
-        |grep User  > tf && awk '{ print $1 }' tf
+      - kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
+        |grep User | awk '{ print $1 }'
       - 'kubectl auth can-i  --all-namespaces --as #0 create pod'
       remediation: Where possible, remove create access to pod objects in the cluster.
       check_type: multi_param
@@ -141,7 +141,7 @@ categories:
         flag set to true.
       profile_applicability: Master
       audit:
-      - kubectl get psp -o=custom-columns=:.metadata.name
+      - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.privileged}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.privileged field is omitted or set to false.
@@ -160,7 +160,7 @@ categories:
         set to true.
       profile_applicability: Master
       audit:
-      - kubectl get psp -o=custom-columns=:.metadata.name
+      - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostPID}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.hostPID field is omitted or set to false.
@@ -178,7 +178,7 @@ categories:
         set to true.
       profile_applicability: Master
       audit:
-      - kubectl get psp -o=custom-columns=:.metadata.name
+      - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostIPC}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.hostIPC field is omitted or set to false.
@@ -196,7 +196,7 @@ categories:
         flag set to true.
       profile_applicability: Level 1 - Master Node
       audit:
-      - kubectl get psp -o=custom-columns=:.metadata.name
+      - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostNetwork}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.hostNetwork field is omitted or set to false.
@@ -214,7 +214,7 @@ categories:
         flag set to true.
       profile_applicability: Level 1 - Master Node
       audit:
-      - kubectl get psp -o=custom-columns=:.metadata.name
+      - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.allowPrivilegeEscalation}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.allowPrivilegeEscalation field is omitted or set to false.
@@ -230,7 +230,7 @@ categories:
       description: Do not generally permit containers to be run as the root user.
       profile_applicability: Level 1 - Master Node
       audit:
-      - kubectl get psp -o=custom-columns=:.metadata.name
+      - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.runAsUser.rule}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.runAsUser.rule is set to either MustRunAsNonRoot or MustRunAs with the range of UIDs not including 0.
       check_type: multi_param
@@ -244,7 +244,7 @@ categories:
       description: Do not generally permit containers with the potentially dangerous NET_RAW capability.
       profile_applicability: Level 1 - Master Node
       audit:
-      - 'tfr=/dev/stdout && kubectl get psp -o=custom-columns=:.metadata.name > tfr && sed '':a;N;$!ba;s/\n/ /g'' tfr'
+      - 'tfr=/dev/stdout && kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name > tfr && sed '':a;N;$!ba;s/\n/ /g'' tfr'
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.requiredDropCapabilities}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.requiredDropCapabilities is set to include either NET_RAW or ALL.
       check_type: multi_param
@@ -259,7 +259,7 @@ categories:
       description: Do not generally permit containers with capabilities assigned beyond the default set.
       profile_applicability: Level 1 - Master Node
       audit:
-      - kubectl get psp -o=custom-columns=:.metadata.name
+      - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
       - 'tfr3=/dev/stdout && tfr2=/dev/stdout && kubectl get psp #0 -o=jsonpath=''{.spec.allowedCapabilities}'' > tfr3 && sed ''s/"/ /g'' tfr3 > tfr2  && sed ''s/[][]//g'' tfr2'
       remediation: Ensure that allowedCapabilities is not present in PSPs for the cluster unless it is set to an empty array.
       check_type: multi_param
@@ -274,7 +274,7 @@ categories:
       description: Do not generally permit containers with capabilities
       profile_applicability: Level 1 - Master Node
       audit:
-      - 'tfr=/dev/stdout && kubectl get psp -o=custom-columns=:.metadata.name > tfr && sed '':a;N;$!ba;s/\n/ /g'' tfr'
+      - 'tfr=/dev/stdout && kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name > tfr && sed '':a;N;$!ba;s/\n/ /g'' tfr'
       - 'kubectl get psp #0 -o=jsonpath=''{.spec.requiredDropCapabilities}'''
       remediation: Review the use of capabilites in applications runnning on your cluster. Where a namespace contains applicaions which do not require any Linux capabities to operate consider adding a PSP which forbids the admission of containers which do not drop all capabilities.
       check_type: multi_param
