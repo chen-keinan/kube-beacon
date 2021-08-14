@@ -113,14 +113,12 @@ categories:
             644 or more restrictive.
           profile_applicability: Worker
           audit:
-            - ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
-              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'stat -c %a #0'
+            - stat -c %a $(ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1') 2> /dev/null
           remediation: Run the following command to modify the file permissions of the
             --client-ca-file chmod 644 <filename>
           check_type: multi_param
           impact: None
-          eval_expr: "$1 <= 644;"
+          eval_expr: "$0 <= 644"
           default_value: By default no --client-ca-file is specified.
           references:
             - https://kubernetes.io/docs/admin/authentication/#x509-client-certs
@@ -130,15 +128,13 @@ categories:
             root:root.
           profile_applicability: Worker
           audit:
-            - ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'
-              | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - ' stat -c %U:%G #0'
+            - stat -c %a $(ps -ef | grep kubelet |grep 'client-ca-file' | grep -o 'client-ca-file=[^"]\S*'| awk -F "=" '{print $2}' |awk 'FNR <= 1') 2> /dev/null
           remediation: |-
             Remediation:
             Run the following command to modify the ownership of the --client-ca-file. chown root:root <filename>
           check_type: multi_param
           impact: None
-          eval_expr: "'$1' <= 'root:root';"
+          eval_expr: "'$0' == 'root:root';"
           default_value: By default no --client-ca-file is specified.
           references:
             - https://kubernetes.io/docs/admin/authentication/#x509-client-certs

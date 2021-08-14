@@ -20,7 +20,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/fx v1.13.1
 	go.uber.org/zap v1.17.0
-	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e // indirect
+	golang.org/x/crypto v0.0.0-20210813211128-0a44fdfbc16e // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e // indirect
 	golang.org/x/tools v0.1.2 // indirect
