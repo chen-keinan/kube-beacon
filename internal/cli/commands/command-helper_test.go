@@ -170,13 +170,12 @@ func Test_filteredAuditBenchTests(t *testing.T) {
 func Test_executeTests(t *testing.T) {
 	ab := &models.AuditBench{}
 	ab.AuditCommand = []string{"aaa", "bbb"}
-	ab.EvalExpr = "'$0' == ''; && '$1' == '';"
+	ab.EvalExpr = "'${0}' == ''; && '${1}' == '';"
 	ab.CommandParams = map[int][]string{}
-	ab.CmdExprBuilder = utils.UpdateCmdExprParam
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	evalcmd := m3.NewMockCmdEvaluator(ctrl)
-	evalcmd.EXPECT().EvalCommand([]string{"aaa", "bbb"}, ab.EvalExpr).Return(eval.CmdEvalResult{Match: true, CmdEvalExpr: ab.EvalExpr, Error: nil})
+	evalcmd.EXPECT().EvalCommand([]string{"aaa", "bbb"}, ab.EvalExpr).Return(eval.CmdEvalResult{Match: false, CmdEvalExpr: ab.EvalExpr, Error: nil})
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
 	kb := K8sAudit{Evaluator: evalcmd, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}

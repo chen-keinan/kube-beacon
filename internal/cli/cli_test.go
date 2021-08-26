@@ -83,7 +83,6 @@ func Test_InvokeCli(t *testing.T) {
 	ab.AuditCommand = []string{"aaa"}
 	ab.EvalExpr = "'$0' != '';"
 	ab.CommandParams = map[int][]string{}
-	ab.CmdExprBuilder = utils.UpdateCmdExprParam
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	evalCmd := m3.NewMockCmdEvaluator(ctrl)
