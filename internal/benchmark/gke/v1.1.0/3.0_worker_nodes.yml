@@ -15,13 +15,13 @@ categories:
       audit:
       - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - 'stat -c %a #0'
+      - 'stat -c %a ${0}'
       remediation: Run the below command (based on the file location on your system) on the each worker
         node. For example,
         chmod 644 <proxy kubeconfig file>
       check_type: multi_param
       impact: None
-      eval_expr: "$1 <= 644;"
+      eval_expr: "${1} <= 644;"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kube-proxy/
@@ -33,13 +33,13 @@ categories:
       profile_applicability: Master
       audit:
       - ps -ef | grep kube-proxy |grep 'kubeconfig' | grep -o 'kubeconfig=[^"]\S*' | awk -F "=" '{print $2}' | awk 'FNR <= 1'
-      - 'stat -c %U:%G #0'
+      - 'stat -c %U:%G ${0}'
       remediation: Run the below command (based on the file location on your system) on the each worker
         node. For example,
         chown root:root <proxy kubeconfig file>
       check_type: multi_param
       impact: None
-      eval_expr: "'$1' == 'root:root';"
+      eval_expr: "'${1}' == 'root:root';"
       default_value: See the GKE documentation for the default value.
       references:
       - hthttps://kubernetes.io/docs/admin/kube-proxy/
@@ -51,12 +51,12 @@ categories:
       profile_applicability: Master
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - 'stat -c %a #0'
+      - 'stat -c %a ${0}'
       remediation: Run the following command (using the config file location identied in the Audit step)
         chmod 644 /var/lib/kubelet/config.yaml
       check_type: multi_param
       impact: None
-      eval_expr: "$1 <= 644;"
+      eval_expr: "${1} <= 644;"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
@@ -69,12 +69,12 @@ categories:
       profile_applicability: Master
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - 'stat -c %U:%G #0'
+      - 'stat -c %U:%G ${0}'
       remediation: Run the following command (using the config file location identied in the Audit step)
         chown root:root /etc/kubernetes/kubelet.conf
       check_type: multi_param
       impact: None
-      eval_expr: "'$1' == 'root:root';"
+      eval_expr: "'${1}' == 'root:root';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
@@ -85,12 +85,12 @@ categories:
       profile_applicability: Master
       audit:
         - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-        - 'grep -A5 ''authentication'' #0 | grep -A1 ''anonymous''| grep  -o ''enabled:[^"]\S*''| awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
+        - 'grep -A5 ''authentication'' ${0} | grep -A1 ''anonymous''| grep  -o ''enabled:[^"]\S*''| awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
         - ps -ef | grep kubelet |grep ' --anonymous-auth' | grep -o ' --anonymous-auth=[^"]\S*' | awk -F "=" '{print $2}' |awk 'FNR <= 1'
       remediation: If using a Kubelet config file, edit the file to set authentication anonymous enabled to false.\n If using executable arguments, edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
       check_type: multi_param
       impact: Anonymous requests will be rejected.
-      eval_expr: "'$1' == 'false'; || '$2' == 'false';"
+      eval_expr: "'${1}' == 'false'; || '${1}' == 'false';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -101,7 +101,7 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
         -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep -A5 ''authorization'' #0 | grep  ''mode:[^"]\S*''| awk -F ":" ''{print
+      - ' grep -A5 ''authorization'' ${0} | grep  ''mode:[^"]\S*''| awk -F ":" ''{print
             $2}'' |awk ''FNR <= 1'''
       - ps -ef | grep kubelet |grep ' --authorization-mode' | grep -o ' --authorization-mode=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -113,7 +113,7 @@ categories:
         --authorization-mode=Webhook
       check_type: multi_param
       impact: Unauthorized requests will be denied.
-      eval_expr: "'$1' != 'AlwaysAllow'; && '$2' != 'AlwaysAllow';"
+      eval_expr: "'${1}' != 'AlwaysAllow'; && '${1}' != 'AlwaysAllow';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -124,7 +124,7 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
         -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep -A10 ''authentication'' #0 |grep -A1 ''x509'' |grep ''clientCAFile:[^"]\S*''|
+      - ' grep -A10 ''authentication'' ${0} |grep -A1 ''x509'' |grep ''clientCAFile:[^"]\S*''|
             awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
       - ps -ef | grep kubelet |grep ' --client-ca-file' | grep -o ' --client-ca-file=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -134,7 +134,7 @@ categories:
         --client-ca-file=<path/to/client-ca-file>
       check_type: multi_param
       impact: You require TLS to be configured on apiserver as well as kubelets.
-      eval_expr: "'$1' != ''; || '$2' != '';"
+      eval_expr: "'${1}' != ''; || '${1}' != '';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -145,7 +145,7 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --read-only-port' | grep -o ' --read-only-port=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep ''readOnlyPort'' #0 |grep ''readOnlyPort:[^"]\S*''| awk -F ":"
+      - ' grep ''readOnlyPort'' ${0} |grep ''readOnlyPort:[^"]\S*''| awk -F ":"
            ''{print $2}'' |awk ''FNR <= 1'''
       remediation: |-
         If using a Kubelet config file, edit the file to set readOnlyPort to 0.
@@ -156,7 +156,7 @@ categories:
       check_type: multi_param
       impact: Removal of the read-only port will require that any service which made
         use of it will need to be re-configured to use the main Kubelet API.
-      eval_expr: "'$0' != ''; || '$1' == '0';"
+      eval_expr: "'${0}' != ''; || '${1}' == '0';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -166,7 +166,7 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
         -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep ''streamingConnectionIdleTimeout'' #0 |grep ''streamingConnectionIdleTimeout:[^"]\S*''|
+      - ' grep ''streamingConnectionIdleTimeout'' ${0} |grep ''streamingConnectionIdleTimeout:[^"]\S*''|
             awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
       - ps -ef | grep kubelet |grep ' --streamingConnectionIdleTimeout' | grep -o
         ' --streamingConnectionIdleTimeout=[^"]\S*' | awk -F "=" '{print $2}' |awk
@@ -177,7 +177,7 @@ categories:
         --streaming-connection-idle-timeout=5m
       check_type: multi_param
       impact: Long-lived connections could be interrupted.
-      eval_expr: "'$1' != '0'; && '$2' != '0s';"
+      eval_expr: "'${1}' != '0'; && '${1}' != '0s';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -189,7 +189,7 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
         -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep ''protectKernelDefaults'' #0 |grep ''protectKernelDefaults:[^"]\S*''|
+      - ' grep ''protectKernelDefaults'' ${0} |grep ''protectKernelDefaults:[^"]\S*''|
             awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
       - ps -ef | grep kubelet |grep ' --protect-kernel-defaults' | grep -o ' --protect-kernel-defaults=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -199,7 +199,7 @@ categories:
         --protect-kernel-defaults=true
       check_type: multi_param
       impact: You would have to re-tune kernel parameters to match kubelet parameters.
-      eval_expr: "'$1' == 'true'; || '$2' == 'true';"
+      eval_expr: "'${1}' == 'true'; || '${1}' == 'true';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -209,7 +209,7 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
         -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep ''makeIPTablesUtilChains'' #0 |grep ''makeIPTablesUtilChains:[^"]\S*''|
+      - ' grep ''makeIPTablesUtilChains'' ${0} |grep ''makeIPTablesUtilChains:[^"]\S*''|
             awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
       - ps -ef | grep kubelet |grep ' --make-iptables-util-chains' | grep -o ' --make-iptables-util-chains=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -220,7 +220,7 @@ categories:
       impact: Kubelet would manage the iptables on the system and keep it in sync.
         If you are using any other iptables management solution, then there might
         be some conflicts
-      eval_expr: "('$1' != 'false'; && '$2' == ''; ) || '$2' == 'true';"
+      eval_expr: "('${1}' != 'false'; && '${1}' == ''; ) || '${1}' == 'true';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -237,7 +237,7 @@ categories:
       impact: Some cloud providers may require this flag to ensure that hostname matches
         names issued by the cloud provider. In these environments, this recommendation
         should not apply.
-      eval_expr: "'$0' == '';"
+      eval_expr: "'${0}' == '';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -251,7 +251,7 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
         -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep ''event-qps'' #0 |grep ''event-qps:[^"]\S*''| awk -F ":" ''{print
+      - ' grep ''event-qps'' ${0} |grep ''event-qps:[^"]\S*''| awk -F ":" ''{print
             $2}'' |awk ''FNR <= 1'''
       - ps -ef | grep kubelet |grep ' --event-qps' | grep -o ' --event-qps=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -263,7 +263,7 @@ categories:
       impact: Setting this parameter to 0 could result in a denial of service condition
         due to excessive events being created. The cluster's event processing and
         storage systems should be scaled to handle expected event loads.
-      eval_expr: "('$1' != '0'; && '$2' == ''; ) || '$2' != '0';"
+      eval_expr: "('${1}' != '0'; && '${1}' == ''; ) || '${1}' != '0';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -275,9 +275,9 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
         -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep ''tlsCertFile'' #0 |grep ''tlsCertFile:[^"]\S*''| awk -F ":" ''{print
+      - ' grep ''tlsCertFile'' ${0} |grep ''tlsCertFile:[^"]\S*''| awk -F ":" ''{print
             $2}'' |awk ''FNR <= 1'''
-      - ' grep ''tlsPrivateKeyFile'' #0 |grep ''tlsPrivateKeyFile:[^"]\S*''| awk
+      - ' grep ''tlsPrivateKeyFile'' ${0} |grep ''tlsPrivateKeyFile:[^"]\S*''| awk
             -F ":" ''{print $2}'' |awk ''FNR <= 1'''
       - ps -ef | grep kubelet |grep ' --tls-cert-file' | grep -o ' --tls-cert-file=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -289,7 +289,7 @@ categories:
       check_type: multi_param
       impact: TLS and client certificate authentication must be configured for your Kubernetes cluster
         deployment.
-      eval_expr: "('$1' != ''; && '$2' != '';) || ('$3' != ''; && '$4' != '';)"
+      eval_expr: "('${1}' != ''; && '${1}' != '';) || ('${3}' != ''; && '${4}' != '';)"
       default_value: See the GKE documentation for the default value.
       references:
       - https://kubernetes.io/docs/admin/kubelet/
@@ -302,7 +302,7 @@ categories:
       audit:
       - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
         -F "=" '{print $2}' |awk 'FNR <= 1'
-      - ' grep ''rotateCertificates'' #0 |grep ''rotateCertificates:[^"]\S*''|
+      - ' grep ''rotateCertificates'' ${0} |grep ''rotateCertificates:[^"]\S*''|
              awk -F ":" ''{print $2}'' |awk ''FNR <= 1'''
       - ps -ef | grep kubelet |grep ' --rotate-certificates' | grep -o ' --rotate-certificates=[^"]\S*'
         | awk -F "=" '{print $2}' |awk 'FNR <= 1'
@@ -313,7 +313,7 @@ categories:
         variable.
       check_type: multi_param
       impact: None
-      eval_expr: "('$1' == ''; || '$1' == 'true'; ) || '$2' == 'true';"
+      eval_expr: "('${1}' == ''; || '${1}' == 'true'; ) || '${1}' == 'true';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://github.com/kubernetes/kubernetes/pull/41912
@@ -333,7 +333,7 @@ categories:
         --feature-gates=RotateKubeletServerCertificate=true
       check_type: multi_param
       impact: None
-      eval_expr: "'$0' == 'true';"
+      eval_expr: "'${0}' == 'true';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://github.com/kubernetes/kubernetes/pull/45059

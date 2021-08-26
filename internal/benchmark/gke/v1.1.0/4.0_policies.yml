@@ -23,7 +23,7 @@ categories:
         environment to ensure they were not required for operation of the cluster.
         Specifically, modifications should not be made to clusterrolebindings with
         the system: prefix as they are required for the operation of system components.'
-      eval_expr: "'$0' == 'system:masters';"
+      eval_expr: "'${0}' == 'system:masters';"
       default_value: 'By default a single clusterrolebinding called cluster-admin
         is provided with the system:masters group as its principal.'
       references:
@@ -38,16 +38,16 @@ categories:
       audit:
       - kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
         |grep User  |  awk '{ print $1 }'
-      - 'kubectl auth can-i get secrets --all-namespaces --as #0'
-      - kubectl auth can-i list secrets --all-namespaces --as=#0
-      - kubectl auth can-i watch secrets --all-namespaces --as=#0
+      - 'kubectl auth can-i get secrets --all-namespaces --as ${0}'
+      - kubectl auth can-i list secrets --all-namespaces --as=${0}
+      - kubectl auth can-i watch secrets --all-namespaces --as=${0}
       remediation: Where possible, remove get, list and watch access to secret objects
         in the cluster.
       check_type: multi_param
       impact: Care should be taken not to remove access to secrets to system components
         which require this for their operation
-      eval_expr: "('$0' != 'system:kube-controller-manager'; && '$1' == 'no'; && '$2'
-        == 'no'; && '$3' == 'no';) || '$0' == 'system:kube-controller-manager';"
+      eval_expr: "('${0}' != 'system:kube-controller-manager'; && '${1}' == 'no'; && '${1}'
+        == 'no'; && '${3}' == 'no';) || '${0}' == 'system:kube-controller-manager';"
       default_value: 'By default a single clusterrolebinding called cluster-admin
         is provided with the system:masters group as its principal.
 
@@ -67,7 +67,7 @@ categories:
         roles with specific objects or actions.
       check_type: multi_param
       impact: ''
-      eval_expr: "'$0' == '' && '$1' == ''"
+      eval_expr: "'${0}' == '' && '${1}' == ''"
       default_value: ''
       references: []
     -
@@ -79,12 +79,12 @@ categories:
       audit:
       - kubectl get clusterrolebindings -o=custom-columns=NAME:.metadata.name,ROLE:.roleRef.name,SUBJECT:.subjects[*].kind
         |grep User | awk '{ print $1 }'
-      - 'kubectl auth can-i  --all-namespaces --as #0 create pod'
+      - 'kubectl auth can-i  --all-namespaces --as ${0} create pod'
       remediation: Where possible, remove create access to pod objects in the cluster.
       check_type: multi_param
       impact: Care should be taken not to remove access to pods to system components
         which require this for their operation
-      eval_expr: " '$1' == 'no';"
+      eval_expr: " '${1}' == 'no';"
       default_value: By default in a kubeadm cluster the following list of principals
         have create privileges on pod objects
       references: []
@@ -108,7 +108,7 @@ categories:
       check_type: multi_param
       impact: All workloads which require access to the Kubernetes API will require
         an explicit service account to be created.
-      eval_expr: " ('$0' != ''; && '$0' == 'false';) && '$1' == ''; && '$2' == '';"
+      eval_expr: " ('${0}' != ''; && '${0}' == 'false';) && '${1}' == ''; && '${1}' == '';"
       default_value: By default the default service account allows for its service
         account token to be mounted in pods in its namespace.
       references:
@@ -131,7 +131,7 @@ categories:
       impact: Pods mounted without service account tokens will not be able to communicate
         with the API server, except where the resource is available to unauthenticated
         principals.
-      eval_expr: "'$0' != ''; && '$0' == 'false'; &&  '$1' != ''; && '$1' == 'false';"
+      eval_expr: "'${0}' != ''; && '${0}' == 'false'; &&  '${1}' != ''; && '${1}' == 'false';"
       default_value: By default, all pods get a service account token mounted in them.
       references:
       - https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
@@ -142,13 +142,13 @@ categories:
       profile_applicability: Master
       audit:
       - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
-      - 'kubectl get psp #0 -o=jsonpath=''{.spec.privileged}'''
+      - 'kubectl get psp ${0} -o=jsonpath=''{.spec.privileged}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.privileged field is omitted or set to false.
       check_type: multi_param
       impact: 'Pods defined with spec.containers[].securityContext.privileged: true
         will not be permitted.'
-      eval_expr: "'false' IN ($1); || '' IN ($1);"
+      eval_expr: "'false' IN (${1}); || '' IN (${1});"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod-
@@ -161,13 +161,13 @@ categories:
       profile_applicability: Master
       audit:
       - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
-      - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostPID}'''
+      - 'kubectl get psp ${0} -o=jsonpath=''{.spec.hostPID}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.hostPID field is omitted or set to false.
       check_type: multi_param
       impact: 'Pods defined with spec.hostPID: true will not be permitted unless they
         are run under a specific PSP.'
-      eval_expr: "'false' IN ($1); || '' IN ($1);"
+      eval_expr: "'false' IN (${1}); || '' IN (${1});"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy
@@ -179,13 +179,13 @@ categories:
       profile_applicability: Master
       audit:
       - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
-      - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostIPC}'''
+      - 'kubectl get psp ${0} -o=jsonpath=''{.spec.hostIPC}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.hostIPC field is omitted or set to false.
       check_type: multi_param
       impact: 'Pods defined with spec.hostIPC: true will not be permitted unless they
         are run under a specific PSP.'
-      eval_expr: "'false' IN ($1); || '' IN ($1);"
+      eval_expr: "'false' IN (${1}); || '' IN (${1});"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy
@@ -197,13 +197,13 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
-      - 'kubectl get psp #0 -o=jsonpath=''{.spec.hostNetwork}'''
+      - 'kubectl get psp ${0} -o=jsonpath=''{.spec.hostNetwork}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.hostNetwork field is omitted or set to false.
       check_type: multi_param
       impact: 'Pods defined with spec.hostNetwork: true will not be permitted unless
         they are run under a specific PSP.'
-      eval_expr: "'false' IN ($1); || '' IN ($1);"
+      eval_expr: "'false' IN (${1}); || '' IN (${1});"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy
@@ -215,13 +215,13 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
-      - 'kubectl get psp #0 -o=jsonpath=''{.spec.allowPrivilegeEscalation}'''
+      - 'kubectl get psp ${0} -o=jsonpath=''{.spec.allowPrivilegeEscalation}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring
         that the .spec.allowPrivilegeEscalation field is omitted or set to false.
       check_type: multi_param
       impact: 'Pods defined with spec.allowPrivilegeEscalation: true will not be permitted
         unless they are run under a specific PSP.'
-      eval_expr: "'false' IN ($1); || '' IN ($1);"
+      eval_expr: "'false' IN (${1}); || '' IN (${1});"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy
@@ -231,11 +231,11 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
-      - 'kubectl get psp #0 -o=jsonpath=''{.spec.runAsUser.rule}'''
+      - 'kubectl get psp ${0} -o=jsonpath=''{.spec.runAsUser.rule}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.runAsUser.rule is set to either MustRunAsNonRoot or MustRunAs with the range of UIDs not including 0.
       check_type: multi_param
       impact: Pods with containers which run as the root user will not be permitted.
-      eval_expr: "'$1' == 'MustRunAsNonRoot'; ||  '$1' != '0';"
+      eval_expr: "'${1}' == 'MustRunAsNonRoot'; ||  '${1}' != '0';"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
@@ -245,11 +245,11 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - 'tfr=/dev/stdout && kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name > tfr && sed '':a;N;$!ba;s/\n/ /g'' tfr'
-      - 'kubectl get psp #0 -o=jsonpath=''{.spec.requiredDropCapabilities}'''
+      - 'kubectl get psp ${0} -o=jsonpath=''{.spec.requiredDropCapabilities}'''
       remediation: Create a PSP as described in the Kubernetes documentation, ensuring that the .spec.requiredDropCapabilities is set to include either NET_RAW or ALL.
       check_type: multi_param
       impact: Pods with containers which run with the NET_RAW capability will not be permitted.
-      eval_expr: "'NET_RAW' IN ($1); || 'ALL' IN ($1);"
+      eval_expr: "'NET_RAW' IN (${1}); || 'ALL' IN (${1});"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
@@ -260,11 +260,11 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name
-      - 'tfr3=/dev/stdout && tfr2=/dev/stdout && kubectl get psp #0 -o=jsonpath=''{.spec.allowedCapabilities}'' > tfr3 && sed ''s/"/ /g'' tfr3 > tfr2  && sed ''s/[][]//g'' tfr2'
+      - 'tfr3=/dev/stdout && tfr2=/dev/stdout && kubectl get psp ${0} -o=jsonpath=''{.spec.allowedCapabilities}'' > tfr3 && sed ''s/"/ /g'' tfr3 > tfr2  && sed ''s/[][]//g'' tfr2'
       remediation: Ensure that allowedCapabilities is not present in PSPs for the cluster unless it is set to an empty array.
       check_type: multi_param
       impact: Pods with containers which require capabilities outwith the default set will not be permitted.
-      eval_expr: "'' == '$1';"
+      eval_expr: "'' == '${1}';"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
@@ -275,11 +275,11 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - 'tfr=/dev/stdout && kubectl get psp 2> /dev/null -o=custom-columns=:.metadata.name > tfr && sed '':a;N;$!ba;s/\n/ /g'' tfr'
-      - 'kubectl get psp #0 -o=jsonpath=''{.spec.requiredDropCapabilities}'''
+      - 'kubectl get psp ${0} -o=jsonpath=''{.spec.requiredDropCapabilities}'''
       remediation: Review the use of capabilites in applications runnning on your cluster. Where a namespace contains applicaions which do not require any Linux capabities to operate consider adding a PSP which forbids the admission of containers which do not drop all capabilities.
       check_type: multi_param
       impact: Pods with containers require capabilities to operate will not be permitted.
-      eval_expr: "'ALL' == '$1';"
+      eval_expr: "'ALL' == '${1}';"
       default_value: By default, PodSecurityPolicies are not defined.
       references:
       - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#enabling-pod- security-policies
@@ -292,11 +292,11 @@ categories:
       audit:
       - 'ps -ef | grep kubelet |grep '' --network-plugin'' | grep -o '' --network-plugin=[^"]\S*'' | awk -F "=" ''{print $2}'' |awk ''FNR <= 1'''
       - ls /etc/cni/net.d -A1 2>/dev/null |head -1
-      - 'grep type /etc/cni/net.d/#1 |grep -o ''"type":[^"]\S*'' | awk -F ":" ''{print $2}'' |awk ''FNR <= 1'' | sed ''s/"//g'' | sed ''s/,//g'''
+      - 'grep type /etc/cni/net.d/${1} |grep -o ''"type":[^"]\S*'' | awk -F ":" ''{print $2}'' |awk ''FNR <= 1'' | sed ''s/"//g'' | sed ''s/,//g'''
       remediation: If the CNI plugin in use does not support network policies, consideration should be given to making use of a different plugin, or finding an alternate mechanism for restricting traffic in the Kubernetes cluster..
       check_type: multi_param
       impact: None.
-      eval_expr: "'cni' == '$0'; && ('$2' == 'Kube-router'; || '$2' == 'Calico'; || '$2' == 'Canal'; || '$2' == 'Cilium'; || '$2' == 'WeaveNet';)"
+      eval_expr: "'cni' == '${0}'; && ('${1}' == 'Kube-router'; || '${1}' == 'Calico'; || '${1}' == 'Canal'; || '${1}' == 'Cilium'; || '${1}' == 'WeaveNet';)"
       default_value: This will depend on the CNI plugin in use..
       references:
       - https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage- net/network-plugins/
@@ -306,11 +306,11 @@ categories:
       profile_applicability: Level 1 - Master Node
       audit:
       - 'kubectl get namespaces | awk ''{print $1}'' |sed -n ''1d;p'''
-      - 'kubectl get networkpolicy --namespace=#0 2>/dev/null |awk ''{print $1}'' | sed -n ''1d;p'''
+      - 'kubectl get networkpolicy --namespace=${0} 2>/dev/null |awk ''{print $1}'' | sed -n ''1d;p'''
       remediation: Follow the documentation and create NetworkPolicy objects as you need them.
       check_type: multi_param
       impact: Once network policies are in use within a given namespace, traffic not explicitly allowed by a network policy will be denied. As such it is important to ensure that, when introducing network policies, legitimate traffic is not blocked.
-      eval_expr: "'$1' != '';"
+      eval_expr: "'${1}' != '';"
       default_value: By default, network policies are not created.
       references:
       - https://kubernetes.io/docs/concepts/services-networking/networkpolicies/
@@ -325,7 +325,7 @@ categories:
       remediation: If possible, rewrite application code to read secrets from mounted secret files, rather than from environment variables.
       check_type: multi_param
       impact: Application code which expects to read secrets in the form of environment variables would need modification
-      eval_expr: "'$0' == '';"
+      eval_expr: "'${0}' == '';"
       default_value: By default, secrets are not defined
       references:
       - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets
@@ -338,7 +338,7 @@ categories:
       remediation: Refer to the secrets management options offered by your cloud provider or a third-party secrets management solution.
       check_type: multi_param
       impact: None
-      eval_expr: "'$0' != '';"
+      eval_expr: "'${0}' != '';"
       default_value: By default, no external secret management is configured.
       references:
       - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets
@@ -351,7 +351,7 @@ categories:
       remediation: Follow the Kubernetes documentation and setup image provenance.
       check_type: multi_param
       impact: You need to regularly maintain your provenance configuration based on container image updates.
-      eval_expr: "'$0' != ''; &&  '$0' == 'false';"
+      eval_expr: "'${0}' != ''; &&  '${0}' == 'false';"
       default_value: By default, image provenance is not set.
       references:
       - https://kubernetes.io/docs/admin/admission-controllers/#imagepolicywebhook
@@ -367,7 +367,7 @@ categories:
       remediation: Follow the documentation and create namespaces for objects in your deployment as you need them.
       check_type: multi_param
       impact: You need to switch between namespaces for administration.
-      eval_expr: "'$0' == 'default'; ||  '$0' == 'kube-system';"
+      eval_expr: "'${0}' == 'default'; ||  '${0}' == 'kube-system';"
       default_value: 'By default, Kubernetes starts with two initial namespaces: \n 1. default - The default namespace for objects with no other namespace\n 2. kube-system - The namespace for objects created by the Kubernetes system'
       references:
       - https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
@@ -384,7 +384,7 @@ categories:
         KUBE_API_ARGS="--feature-gates=AllAlpha=true"
       check_type: multi_param
       impact: If the docker/default seccomp profile is too restrictive for you, you would have to create/manage your own seccomp profiles. Also, you need to enable all alpha features for this to work. There is no individual switch to turn on this feature.
-      eval_expr: "'$0' == 'true'; &&  '$1' != '';"
+      eval_expr: "'${0}' == 'true'; &&  '${1}' != '';"
       default_value: By default, seccomp profile is set to unconfined which means that no seccomp profiles are enabled.
       references:
       - https://github.com/kubernetes/kubernetes/issues/39845
@@ -430,7 +430,7 @@ categories:
         KUBE_API_ARGS="--feature-gates=AllAlpha=true"
       check_type: multi_param
       impact: If you incorrectly apply security contexts, you may have trouble running the pods.
-      eval_expr: "'$0' == 'true';"
+      eval_expr: "'${0}' == 'true';"
       default_value: By default, no security contexts are automatically applied to pods.
       references:
       - https://kubernetes.io/docs/concepts/policy/security-context/
@@ -454,6 +454,6 @@ categories:
       remediation: Ensure that namespaces are created to allow for appropriate segregation of Kubernetes resources and that all new resources are created in a specific namespace.
       check_type: multi_param
       impact: None
-      eval_expr: "'$0' == 'true';"
+      eval_expr: "'${0}' == 'true';"
       default_value: Unless a namespace is specific on object creation, the default namespace will be used
       references:

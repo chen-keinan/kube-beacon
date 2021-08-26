@@ -1,5 +1,5 @@
 ---
-benchmark_type: k8s
+benchmark_type: lxd
 categories:
   - name: Control Plane Components
     sub_category:
@@ -13,13 +13,13 @@ categories:
           profile_applicability: Level 1 - Worker Node
           audit:
             - aaa
-            - 'bbb #0'
+            - 'bbb ${0}'
           remediation: |-
             Run the below command (based on the file location on your system) on the each worker node. For example,
             chmod 644 <proxy kubeconfig file>
           check_type: multi_param
           impact: None
-          eval_expr: "$1 <= 644;"
+          eval_expr: "${1} <= 644;"
           default_value: By default, proxy file has permissions of 640.
           references:
             - https://kubernetes.io/docs/admin/kube-proxy/

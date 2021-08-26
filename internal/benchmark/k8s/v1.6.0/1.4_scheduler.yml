@@ -17,7 +17,7 @@ categories:
             --profiling=false
           check_type: multi_param
           impact: Profiling information would not be available.
-          eval_expr: "'$0' == 'false'; && '$0' == '$1';"
+          eval_expr: "'${0}' == 'false'; && '${0}' == '${1}';"
           default_value: By default, profiling is enabled.
           references:
             - https://kubernetes.io/docs/admin/kube-scheduler/
@@ -34,7 +34,7 @@ categories:
             parameter
           check_type: multi_param
           impact: None
-          eval_expr: "'$0' == '127.0.0.1'; && '$0' == '$1';"
+          eval_expr: "'${0}' == '127.0.0.1'; && '${0}' == '${1}';"
           default_value: By default, the --bind-address parameter is set to 0.0.0.0
           references:
             - https://kubernetes.io/docs/reference/command-line-tools-reference/kube- scheduler/

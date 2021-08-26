@@ -1,5 +1,5 @@
 ---
-benchmark_type: k8s
+benchmark_type: lxd
 categories:
   - name: Control Plane Components
     sub_category:
@@ -18,7 +18,7 @@ categories:
 '
           check_type: multi_param
           impact: You need to set the API Server up with the right TLS certificates.
-          eval_expr: "$0 > 0; && $0 < 65535;"
+          eval_expr: "${0} > 0; && ${0} < 65535;"
           default_value: By default, port 6443 is used as the secure port.
           references:
             - https://kubernetes.io/docs/admin/kube-apiserver/

@@ -11,6 +11,7 @@ import (
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
+	"github.com/chen-keinan/go-command-eval/eval"
 	"github.com/mitchellh/cli"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -146,7 +147,9 @@ func NewCommandArgs(ad ArgsData) []string {
 func NewCliCommands(ad ArgsData, plChan chan models.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo, log *logger.BLogger) []cli.Command {
 	cmds := make([]cli.Command, 0)
 	// invoke cli
-	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, fi, log))
+	evaluator := eval.NewEvalCmd()
+	// invoke cli
+	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, fi, log, evaluator))
 	return cmds
 }
 

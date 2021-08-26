@@ -20,7 +20,7 @@ categories:
             Then, edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and set the below parameters. --cert-file=</path/to/ca-file> --key-file=</path/to/key-file>
           check_type: multi_param
           impact: Client connections only over TLS would be served.
-          eval_expr: "'$0' == '1'; && '$2' == '$3';"
+          eval_expr: "'${0}' == '1'; && '${2}' == '${3}';"
           default_value: By default, TLS encryption is not set.
           references:
             - https://coreos.com/etcd/docs/latest/op-guide/security.html
@@ -38,7 +38,7 @@ categories:
           check_type: multi_param
           impact: All clients attempting to access the etcd server will require a valid
             client certificate.
-          eval_expr: "'$0' == 'true'; && '$0' == '$1';"
+          eval_expr: "'${0}' == 'true'; && '${0}' == '${1}';"
           default_value: By default, the etcd service can be queried by unauthenticated
             clients.
           references:
@@ -56,7 +56,7 @@ categories:
             --auto-tls=false
           check_type: multi_param
           impact: Clients will not be able to use self-signed certificates for TLS.
-          eval_expr: "'$0' == 'true'; && '$0' == '$1';"
+          eval_expr: "'${0}' == 'true'; && '${0}' == '${1}';"
           default_value: By default, --auto-tls is set to false.
           references:
             - https://coreos.com/etcd/docs/latest/op-guide/security.html
@@ -79,7 +79,7 @@ categories:
             Then, edit the etcd pod specification file /etc/kubernetes/manifests/etcd.yaml on the master node and set the below parameters. --peer-client-file=</path/to/peer-cert-file> --peer-key-file=</path/to/peer-key-file>
           check_type: multi_param
           impact: etcd cluster peers would need to set up TLS for their communication.
-          eval_expr: "'$0' == '$1'; && '$2' == '$3';"
+          eval_expr: "'${0}' == '${1}'; && '${2}' == '${3}';"
           default_value: "Note: This recommendation is applicable only for etcd clusters.
         If you are using only one\netcd server in your environment then this recommendation
         is not applicable.\n  --peer-client-file=</path/to/peer-cert-file> --peer-key-file=</path/to/peer-key-file>\n
@@ -100,7 +100,7 @@ categories:
           check_type: multi_param
           impact: All peers attempting to communicate with the etcd server will require
             a valid client certificate for authentication.
-          eval_expr: "'$0' == 'true'; && '$0' == '$1';"
+          eval_expr: "'${0}' == 'true'; && '${0}' == '${1}';"
           default_value: |-
             Note: This recommendation is applicable only for etcd clusters. If you are using only one
             etcd server in your environment then this recommendation is not applicable. By default, --peer-client-cert-auth argument is set to false.
@@ -122,7 +122,7 @@ categories:
           check_type: multi_param
           impact: All peers attempting to communicate with the etcd server will require
             a valid client certificate for authentication.
-          eval_expr: "'$0' == 'true'; && '$0' == '$1';"
+          eval_expr: "'${0}' == 'true'; && '${0}' == '${1}';"
           default_value: |-
             Note: This recommendation is applicable only for etcd clusters. If you are using only one etcd server in your environment then this recommendation is not applicable.
             By default, --peer-auto-tls argument is set to false.
@@ -147,7 +147,7 @@ categories:
           check_type: multi_param
           impact: Additional management of the certificates and keys for the dedicated
             certificate authority will be required.
-          eval_expr: "'$0' != ''; && '$0' == '$1'; && '$0' != '$2';"
+          eval_expr: "'${0}' != ''; && '${0}' == '${1}'; && '${0}' != '${2}';"
           default_value: By default, no etcd certificate is created and used.
           references:
             - https://coreos.com/etcd/docs/latest/op-guide/security.html

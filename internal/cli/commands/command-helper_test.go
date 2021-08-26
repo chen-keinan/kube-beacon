@@ -1,14 +1,14 @@
 package commands
 
 import (
+	m3 "github.com/chen-keinan/beacon/internal/cli/mocks"
 	"github.com/chen-keinan/beacon/internal/logger"
-	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
-	"github.com/chen-keinan/beacon/internal/shell"
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/filters"
 	m2 "github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
+	"github.com/chen-keinan/go-command-eval/eval"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -21,10 +21,10 @@ import (
 //Test_AddFailedMessages text
 func Test_AddFailedMessages(t *testing.T) {
 	atb1 := &models.AuditBench{TestSucceed: false}
-	afm := AddFailedMessages(atb1, 1)
+	afm := AddFailedMessages(atb1, false)
 	assert.True(t, len(afm) == 1)
 	atb2 := &models.AuditBench{TestSucceed: true}
-	afm = AddFailedMessages(atb2, 0)
+	afm = AddFailedMessages(atb2, true)
 	assert.True(t, len(afm) == 0)
 }
 
@@ -170,17 +170,15 @@ func Test_filteredAuditBenchTests(t *testing.T) {
 func Test_executeTests(t *testing.T) {
 	ab := &models.AuditBench{}
 	ab.AuditCommand = []string{"aaa", "bbb"}
-	ab.EvalExpr = "'$0' == ''; && '$1' == '';"
+	ab.EvalExpr = "'${0}' == ''; && '${1}' == '';"
 	ab.CommandParams = map[int][]string{}
-	ab.CmdExprBuilder = utils.UpdateCmdExprParam
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	executor := mocks.NewMockExecutor(ctrl)
-	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "\n\n\n\n\n"}, nil).Times(1)
-	executor.EXPECT().Exec("bbb").Return(&shell.CommandResult{Stdout: "default-token-ppzx7\n\n\n\n\n"}, nil).Times(1)
+	evalcmd := m3.NewMockCmdEvaluator(ctrl)
+	evalcmd.EXPECT().EvalCommand([]string{"aaa", "bbb"}, ab.EvalExpr).Return(eval.CmdEvalResult{Match: false, CmdEvalExpr: ab.EvalExpr, Error: nil})
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
-	kb := K8sAudit{Command: executor, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
+	kb := K8sAudit{Evaluator: evalcmd, ResultProcessor: GetResultProcessingFunction([]string{}), PlChan: plChan, CompletedChan: completedChan}
 	sc := []*models.SubCategory{{AuditTests: []*models.AuditBench{ab}}}
 	executeTests(sc, kb.runAuditTest, logger.GetLog())
 	assert.False(t, ab.TestSucceed)
