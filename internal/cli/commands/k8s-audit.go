@@ -13,6 +13,7 @@ import (
 	m2 "github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/chen-keinan/beacon/ui"
+	"github.com/chen-keinan/go-command-eval/eval"
 	"github.com/mitchellh/colorstring"
 	"strconv"
 	"strings"
@@ -29,11 +30,12 @@ type K8sAudit struct {
 	PlChan          chan m2.KubeAuditResults
 	CompletedChan   chan bool
 	FilesInfo       []utils.FilesInfo
+	Evaluator       eval.CmdEvaluator
 	Log             *logger.BLogger
 }
 
 // ResultProcessor process audit results
-type ResultProcessor func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench
+type ResultProcessor func(at *models.AuditBench, match bool) []*models.AuditBench
 
 // ConsoleOutputGenerator print audit tests to stdout
 var ConsoleOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory, log *logger.BLogger) {
@@ -77,18 +79,25 @@ var ReportOutputGenerator ui.OutputGenerator = func(at []*models.SubCategory, lo
 }
 
 // simpleResultProcessor process audit results to stdout print only
-var simpleResultProcessor ResultProcessor = func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench {
-	return AddAllMessages(at, NumFailedTest)
+var simpleResultProcessor ResultProcessor = func(at *models.AuditBench, match bool) []*models.AuditBench {
+	return AddAllMessages(at, match)
 }
 
 // ResultProcessor process audit results to std out and failure results
-var reportResultProcessor ResultProcessor = func(at *models.AuditBench, NumFailedTest int) []*models.AuditBench {
+var reportResultProcessor ResultProcessor = func(at *models.AuditBench, match bool) []*models.AuditBench {
 	// append failed messages
-	return AddFailedMessages(at, NumFailedTest)
+	return AddFailedMessages(at, match)
+}
+
+//CmdEvaluator interface expose one method to evaluate command with evalExpr
+//k8s-audit.go
+//go:generate mockgen -destination=../mocks/mock_CmdEvaluator.go -package=mocks . CmdEvaluator
+type CmdEvaluator interface {
+	EvalCommand(commands []string, evalExpr string) eval.CmdEvalResult
 }
 
 //NewK8sAudit new audit object
-func NewK8sAudit(filters []string, plChan chan m2.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo, log *logger.BLogger) *K8sAudit {
+func NewK8sAudit(filters []string, plChan chan m2.KubeAuditResults, completedChan chan bool, fi []utils.FilesInfo, log *logger.BLogger,evaluator CmdEvaluator) *K8sAudit {
 	return &K8sAudit{Command: shell.NewShellExec(),
 		PredicateChain:  buildPredicateChain(filters),
 		PredicateParams: buildPredicateChainParams(filters),
@@ -97,6 +106,7 @@ func NewK8sAudit(filters []string, plChan chan m2.KubeAuditResults, completedCha
 		FileLoader:      NewFileLoader(),
 		PlChan:          plChan,
 		FilesInfo:       fi,
+		Evaluator:       evaluator,
 		Log:             log,
 		CompletedChan:   completedChan}
 }
@@ -144,16 +154,10 @@ func (bk *K8sAudit) runAuditTest(at *models.AuditBench) []*models.AuditBench {
 		auditRes = append(auditRes, at)
 		return auditRes
 	}
-	cmdTotalRes := make([]string, 0)
 	// execute audit test command
-	for index := range at.AuditCommand {
-		res := bk.execCommand(at, index, cmdTotalRes, make([]IndexValue, 0))
-		cmdTotalRes = append(cmdTotalRes, res)
-	}
-	// evaluate command result with expression
-	NumFailedTest := bk.evalExpression(at, cmdTotalRes, len(cmdTotalRes), make([]string, 0), 0, bk.Log)
+	cmdEvalResult := bk.Evaluator.EvalCommand(at.AuditCommand, at.EvalExpr)
 	// continue with result processing
-	auditRes = append(auditRes, bk.ResultProcessor(at, NumFailedTest)...)
+	auditRes = append(auditRes, bk.ResultProcessor(at, cmdEvalResult.Match)...)
 	return auditRes
 }
 
