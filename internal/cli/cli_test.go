@@ -2,11 +2,11 @@ package cli
 
 import (
 	"github.com/chen-keinan/beacon/internal/cli/commands"
+	m3 "github.com/chen-keinan/beacon/internal/cli/mocks"
 	"github.com/chen-keinan/beacon/internal/common"
 	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/mocks"
 	"github.com/chen-keinan/beacon/internal/models"
-	"github.com/chen-keinan/beacon/internal/shell"
 	m2 "github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/chen-keinan/go-command-eval/eval"
@@ -86,8 +86,8 @@ func Test_InvokeCli(t *testing.T) {
 	ab.CmdExprBuilder = utils.UpdateCmdExprParam
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	executor := mocks.NewMockExecutor(ctrl)
-	executor.EXPECT().Exec("aaa").Return(&shell.CommandResult{Stdout: "1234"}, nil).Times(1)
+	evalCmd := m3.NewMockCmdEvaluator(ctrl)
+	evalCmd.EXPECT().EvalCommand([]string{"aaa"}, ab.EvalExpr).Return(eval.CmdEvalResult{Match: true}).Times(1)
 	tl := mocks.NewMockTestLoader(ctrl)
 	tl.EXPECT().LoadAuditTests(nil).Return([]*models.SubCategory{{Name: "te", AuditTests: []*models.AuditBench{ab}}})
 	completedChan := make(chan bool)
@@ -96,7 +96,7 @@ func Test_InvokeCli(t *testing.T) {
 		<-plChan
 		completedChan <- true
 	}()
-	kb := &commands.K8sAudit{Command: executor, ResultProcessor: commands.GetResultProcessingFunction([]string{}), FileLoader: tl, OutputGenerator: commands.ConsoleOutputGenerator, PlChan: plChan, CompletedChan: completedChan}
+	kb := &commands.K8sAudit{Evaluator: evalCmd, ResultProcessor: commands.GetResultProcessingFunction([]string{}), FileLoader: tl, OutputGenerator: commands.ConsoleOutputGenerator, PlChan: plChan, CompletedChan: completedChan}
 	cmdArgs := []string{"a"}
 	cmds := make([]cli.Command, 0)
 	// invoke cli

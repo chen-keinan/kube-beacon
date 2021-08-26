@@ -1,5 +1,5 @@
 ---
-benchmark_type: k8s
+benchmark_type: lxd
 categories:
   - name: Control Plane Components
     sub_category:
@@ -13,12 +13,12 @@ categories:
           audit:
             - ps -ef | grep kubelet |grep ' --config' | grep -o ' --config=[^"]\S*' | awk
               -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'sudo grep ''TLSCipherSuites'' #0 |grep ''TLSCipherSuites:[^"]\S*''| awk -F
+            - 'sudo grep ''TLSCipherSuites'' ${0} |grep ''TLSCipherSuites:[^"]\S*''| awk -F
         ":" ''{print $2}'' |awk ''FNR <= 1'''
-            - 'echo #1 > tmp && sed ''s/,/\n/g'' tmp'
+            - 'echo ${1} > tmp && sed ''s/,/\n/g'' tmp'
             - ps -ef | grep kubelet |grep 'TLSCipherSuites' | grep -o 'TLSCipherSuites=[^"]\S*'
               | awk -F "=" '{print $2}' |awk 'FNR <= 1'
-            - 'echo #3 > tmp && sed ''s/,/\n/g'' tmp'
+            - 'echo ${3} > tmp && sed ''s/,/\n/g'' tmp'
           remediation: |-
             If using a Kubelet config file, edit the file to set TLSCipherSuites: to TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
             ,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256 or to a subset of these values.
@@ -27,10 +27,10 @@ categories:
           check_type: multi_param
           impact: Kubelet clients that cannot support modern cryptographic ciphers will
             not be able to make connections to the Kubelet API.
-          eval_expr: "'$2'; IN ('TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256','TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+          eval_expr: "'${2}'; IN ('TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256','TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
         ,'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305','TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
         ,'TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305','TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384','TLS_RSA_WITH_AES_256_GCM_SHA384','TLS_RSA_WITH_AES_128_GCM_SHA256');
-        || '$4'; IN ('TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256','TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+        || '${4}'; IN ('TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256','TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
         ,'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305','TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384','TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305','TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384','TLS_RSA_WITH_AES_256_GCM_SHA384','TLS_RSA_WITH_AES_128_GCM_SHA256');"
           default_value: By default the Kubernetes API server supports a wide range of
             TLS ciphers

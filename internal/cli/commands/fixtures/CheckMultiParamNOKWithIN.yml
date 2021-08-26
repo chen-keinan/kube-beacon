@@ -1,5 +1,5 @@
 ---
-benchmark_type: k8s
+benchmark_type: lxd
 categories:
   - name: Control Plane Components
     sub_category:
@@ -10,7 +10,7 @@ categories:
           profile_applicability: Level 1 - Master Node
           audit:
             - aaa
-            - 'bbb #0'
+            - 'bbb ${0}'
           remediation: Edit the API server pod specification file /etc/kubernetes/manifests/kube-
             apiserver.yaml on the master node and set the --authorization-mode parameter
             to a value that includes RBAC, for example:--authorization-mode=Node,RBAC
@@ -18,7 +18,7 @@ categories:
           impact: When RBAC is enabled you will need to ensure that appropriate RBAC settings
             (including Roles, RoleBindings and ClusterRoleBindings) are configured to
             allow appropriate access.
-          eval_expr: "!('$0' IN ($1));"
+          eval_expr: "!('${0}' IN (${1}));"
           default_value: By default, RBAC authorization is not enabled.
           references:
             - https://kubernetes.io/docs/reference/access-authn-authz/rbac/

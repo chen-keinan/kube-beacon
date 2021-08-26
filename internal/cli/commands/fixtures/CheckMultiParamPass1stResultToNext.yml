@@ -1,5 +1,5 @@
 ---
-benchmark_type: k8s
+benchmark_type: lxd
 categories:
   - name: Control Plane Components
     sub_category:
@@ -12,15 +12,15 @@ categories:
           audit:
             - aaa
             - bbb
-            - 'ccc #1'
+            - 'ccc ${1}'
           remediation: Follow the Kubernetes documentation and configure a EncryptionConfig
             file. In this file, choose aescbc, kms or secretbox as the encryption provider.
           check_type: multi_param
           impact: None
-          eval_expr: "'$0' == '$1'; && (('$2' == '- aescbc:'; && $3 == '- kms:';)  ||
-        $4 == '- secretbox:';)"
+          eval_expr: "'${0}' == '${1}'; && (('${2}' == '- aescbc:'; && ${3} == '- kms:';)  ||
+        ${4} == '- secretbox:';)"
           default_value: By default, no encryption provider is set.
           references:
             - aaa
             - bbb
-            - 'ccc #1'
+            - 'ccc ${1}'

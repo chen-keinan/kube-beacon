@@ -1,5 +1,5 @@
 ---
-benchmark_type: k8s
+benchmark_type: lxd
 categories:
   - name: Control Plane Components
     sub_category:
@@ -17,7 +17,7 @@ categories:
             parameter is set to a value that does not include ServiceAccount.
           check_type: multi_param
           impact: None
-          eval_expr: "'$0' != ''; && !('ServiceAccount' IN ($0));"
+          eval_expr: "'${0}' != ''; && !('ServiceAccount' IN (${0}));"
           default_value: By default, ServiceAccount is set.
           references:
             - https://kubernetes.io/docs/admin/kube-apiserver/
