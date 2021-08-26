@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/Knetic/govaluate"
 	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/models"
 	"github.com/chen-keinan/beacon/internal/reports"
@@ -154,28 +153,6 @@ func (bk *K8sAudit) runAuditTest(at *models.AuditBench) []*models.AuditBench {
 	// continue with result processing
 	auditRes = append(auditRes, bk.ResultProcessor(at, cmdEvalResult.Match)...)
 	return auditRes
-}
-
-//IndexValue hold command index and result
-type IndexValue struct {
-	index int
-	value string
-}
-
-func evalCommandExpr(expr string) (int, error) {
-	expression, err := govaluate.NewEvaluableExpression(expr)
-	if err != nil {
-		return 0, err
-	}
-	result, err := expression.Evaluate(nil)
-	if err != nil {
-		return 0, err
-	}
-	b, ok := result.(bool)
-	if ok && b {
-		return 1, nil
-	}
-	return 0, nil
 }
 
 //Synopsis for help
