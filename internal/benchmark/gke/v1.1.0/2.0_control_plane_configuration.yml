@@ -25,7 +25,7 @@ categories:
       check_type: multi_param
       impact: External mechanisms for authentication generally require additional software to be
         deployed.
-      eval_expr: "'$0' != ''; && '$0' == '$1';"
+      eval_expr: "'${0}' != ''; && '${0}' == '${1}';"
       default_value: See the GKE documentation for the default value.
       references:
       - https://cloud.google.com/kubernetes-engine/docs/concepts/cis-benchmarks
