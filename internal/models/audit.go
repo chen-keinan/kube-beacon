@@ -2,9 +2,7 @@ package models
 
 import (
 	"github.com/chen-keinan/beacon/internal/common"
-	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/mitchellh/mapstructure"
-	"strings"
 )
 
 //Audit data model
@@ -44,7 +42,6 @@ type AuditBench struct {
 	DefaultValue         string   `mapstructure:"default_value" yaml:"default_value"`
 	References           []string `mapstructure:"references" yaml:"references"`
 	EvalExpr             string   `mapstructure:"eval_expr" yaml:"eval_expr"`
-	CmdExprBuilder       utils.CmdExprBuilder
 	TestSucceed          bool
 	CommandParams        map[int][]string
 	Category             string
@@ -68,29 +65,9 @@ func (at *AuditBench) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err != nil {
 		return err
 	}
-	switch at.CheckType {
-	case "multi_param":
-		at.CmdExprBuilder = utils.UpdateCmdExprParam
-	}
 	at.CommandParams = make(map[int][]string)
-	for index, command := range at.AuditCommand {
-		findIndex(command, "#", index, at.CommandParams)
-	}
 	if at.TestType == common.NonApplicableTest || at.TestType == common.ManualTest {
 		at.NonApplicable = true
 	}
 	return nil
-}
-
-// find all params in command to be replace with output
-func findIndex(s, c string, commandIndex int, locations map[int][]string) {
-	b := strings.Index(s, c)
-	if b == -1 {
-		return
-	}
-	if locations[commandIndex] == nil {
-		locations[commandIndex] = make([]string, 0)
-	}
-	locations[commandIndex] = append(locations[commandIndex], s[b+1:b+2])
-	findIndex(s[b+2:], c, commandIndex, locations)
 }

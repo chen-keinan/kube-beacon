@@ -4,8 +4,8 @@ import (
 	"fmt"
 	m3 "github.com/chen-keinan/beacon/internal/cli/mocks"
 	"github.com/chen-keinan/beacon/internal/logger"
- 	"github.com/chen-keinan/beacon/internal/models"
- 	m2 "github.com/chen-keinan/beacon/pkg/models"
+	"github.com/chen-keinan/beacon/internal/models"
+	m2 "github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/chen-keinan/go-command-eval/eval"
 	"github.com/golang/mock/gomock"
@@ -15,8 +15,6 @@ import (
 	"os"
 	"testing"
 )
-
-
 
 func TestRunAuditTests(t *testing.T) {
 	tests := []struct {
@@ -78,7 +76,7 @@ func Test_NewK8sAudit(t *testing.T) {
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
 	evaluator := eval.NewEvalCmd()
-	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog(),evaluator)
+	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog(), evaluator)
 	assert.True(t, len(ka.PredicateParams) == 2)
 	assert.True(t, len(ka.PredicateChain) == 2)
 	assert.True(t, ka.ResultProcessor != nil)
@@ -94,7 +92,7 @@ func Test_Help(t *testing.T) {
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
 	evaluator := eval.NewEvalCmd()
-	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog(),evaluator)
+	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog(), evaluator)
 	help := ka.Help()
 	assert.True(t, len(help) > 0)
 	go func() {
@@ -119,7 +117,7 @@ func Test_K8sSynopsis(t *testing.T) {
 	completedChan := make(chan bool)
 	plChan := make(chan m2.KubeAuditResults)
 	evaluator := eval.NewEvalCmd()
-	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog(),evaluator)
+	ka := NewK8sAudit(args, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog(), evaluator)
 	s := ka.Synopsis()
 	assert.True(t, len(s) > 0)
 	go func() {

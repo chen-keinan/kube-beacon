@@ -70,7 +70,7 @@ func Test_createCliBuilderData(t *testing.T) {
 	plChan := make(chan m2.KubeAuditResults)
 	// invoke cli
 	evaluator := eval.NewEvalCmd()
-	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog(),evaluator))
+	cmds = append(cmds, commands.NewK8sAudit(ad.Filters, plChan, completedChan, []utils.FilesInfo{}, logger.GetLog(), evaluator))
 	c := createCliBuilderData(cmdArgs, cmds)
 	_, ok := c["a"]
 	assert.True(t, ok)
