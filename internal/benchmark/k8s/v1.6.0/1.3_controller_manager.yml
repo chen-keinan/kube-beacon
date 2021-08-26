@@ -17,7 +17,7 @@ categories:
             --terminated-pod-gc-threshold=10
           check_type: multi_param
           impact: None
-          eval_expr: "'$0' == '10'; && '$0' == '$1';"
+          eval_expr: "'${0}' == '10'; && '${0}' == '${1}';"
           default_value: "--terminated-pod-gc-threshold is set to 12500."
           references:
             - https://kubernetes.io/docs/admin/kube-controller-manager/
@@ -33,7 +33,7 @@ categories:
             --profiling=false
           check_type: multi_param
           impact: Profiling information would not be available.
-          eval_expr: "'$0' == 'false'; && '$0' == '$1';"
+          eval_expr: "'${0}' == 'false'; && '${0}' == '${1}';"
           default_value: By default, profiling is enabled.
           references:
             - https://kubernetes.io/docs/admin/kube-controller-manager/
@@ -52,7 +52,7 @@ categories:
           impact: |-
             Whatever authorizer is configured for the cluster, it must grant sufficient permissions to the service accounts to perform their intended tasks. When using the RBAC authorizer, those roles are created and bound to the appropriate service accounts in the kube-system namespace automatically with default roles and rolebindings that are auto-reconciled on startup.
             If using other authorization methods (ABAC, Webhook, etc), the cluster deployer is responsible for granting appropriate permissions to the service accounts (the required permissions can be seen by inspecting the controller-roles.yaml and controller-role- bindings.yaml files for the RBAC roles.
-          eval_expr: "'$0' == 'true'; && '$0' == '$1';"
+          eval_expr: "'${0}' == 'true'; && '${0}' == '${1}';"
           default_value: By default, --use-service-account-credentials is set to false.
           references:
             - https://kubernetes.io/docs/admin/kube-controller-manager/
@@ -73,7 +73,7 @@ categories:
             --service-account-private-key-file=<filename>
           check_type: multi_param
           impact: You would need to securely maintain the key file and rotate the keys based on your organization''s key rotation policy.
-          eval_expr: "'$0' != ''; && '$0' == '$1';"
+          eval_expr: "'${0}' != ''; && '${0}' == '${1}';"
           default_value: By default, --service-account-private-key-file it not set.
           references:
             - https://kubernetes.io/docs/admin/kube-controller-manager/
@@ -89,7 +89,7 @@ categories:
             --root-ca-file=<path/to/file>
           check_type: multi_param
           impact: You need to setup and maintain root certificate authority file.
-          eval_expr: "'$0' != ''; && '$0' == '$1';"
+          eval_expr: "'${0}' != ''; && '${0}' == '${1}';"
           default_value: By default, --root-ca-file is not set.
           references:
             - https://kubernetes.io/docs/admin/kube-controller-manager/
@@ -106,7 +106,7 @@ categories:
             --feature-gates=RotateKubeletServerCertificate=true
           check_type: multi_param
           impact: None
-          eval_expr: "'$0' != ''; && '$0' == '$1';"
+          eval_expr: "'${0}' != ''; && '${0}' == '${1}';"
           default_value: By default, RotateKubeletServerCertificate is set to "true" this
             recommendation verifies that it has not been disabled.
           references:
@@ -126,7 +126,7 @@ categories:
             the -- bind-address parameter
           check_type: multi_param
           impact: None
-          eval_expr: "'$0' == '127.0.0.1'; && '$0' == '$1';"
+          eval_expr: "'${0}' == '127.0.0.1'; && '${0}' == '${1}';"
           default_value: By default, the --bind-address parameter is set to 0.0.0.0
           references:
             - https://kubernetes.io/docs/reference/command-line-tools-reference/kube- controller-manager/
