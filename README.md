@@ -134,7 +134,7 @@ go build -buildmode=plugin -o=~/<plugin folder>/bench_plugin.so /<plugin folder>
 ```
 cp /<plugin folder>/bench_plugin.so ~/.beacon/plugins/compile/bench_plugin.so
 ```
-
-## Next steps
+Note: Plugin and binary must compile with the same linux env 
+ ## Next steps
 - Add support for Amazon EKS scanning
 
