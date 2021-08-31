@@ -100,13 +100,13 @@ func loadAuditBenchPluginSymbols(log *zap.Logger) hook.K8sBenchAuditResultHook {
 	pl := uplugin.NewPluginLoader(sourceFolder, compliledFolder)
 	names, err := pl.Plugins(uplugin.CompiledExt)
 	if err != nil {
-		panic("failed tpo get plugin compiled plugins")
+		panic(fmt.Sprintf("failed to get plugin compiled plugins %s", err.Error()))
 	}
 	apiPlugin := hook.K8sBenchAuditResultHook{Plugins: make([]plugin.Symbol, 0), Plug: pl}
 	for _, name := range names {
 		sym, err := pl.Load(name, common.K8sBenchAuditResultHook)
 		if err != nil {
-			log.Error(fmt.Sprintf("failed to load sym %s error %s", name,err.Error()))
+			log.Error(fmt.Sprintf("failed to load sym %s error %s", name, err.Error()))
 			continue
 		}
 		apiPlugin.Plugins = append(apiPlugin.Plugins, sym)
