@@ -1,4 +1,4 @@
-package bplugin
+package hook
 
 import (
 	m2 "github.com/chen-keinan/beacon/pkg/models"
@@ -14,5 +14,4 @@ func Test_NewPluginWorker(t *testing.T) {
 	plChan := make(chan m2.KubeAuditResults)
 	pw := NewPluginWorker(NewPluginWorkerData(plChan, K8sBenchAuditResultHook{}, completedChan), production)
 	assert.True(t, len(pw.cmd.plugins.Plugins) == 0)
-
 }

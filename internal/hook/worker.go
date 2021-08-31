@@ -1,10 +1,18 @@
-package bplugin
+package hook
 
 import (
 	"fmt"
 	"github.com/chen-keinan/beacon/pkg/models"
+	"github.com/chen-keinan/go-user-plugins/uplugin"
 	"go.uber.org/zap"
+	"plugin"
 )
+
+//K8sBenchAuditResultHook hold the plugin symbol for K8s bench audit result Hook
+type K8sBenchAuditResultHook struct {
+	Plugins []plugin.Symbol
+	Plug    *uplugin.PluginLoader
+}
 
 //PluginWorker instance which match command data to specific pattern
 type PluginWorker struct {
@@ -35,7 +43,7 @@ func (pm *PluginWorker) Invoke() {
 		ae := <-pm.cmd.plChan
 		if len(pm.cmd.plugins.Plugins) > 0 {
 			for _, pl := range pm.cmd.plugins.Plugins {
-				err := ExecuteK8sAuditResults(pl, ae)
+				_, err := pm.cmd.plugins.Plug.Invoke(pl, ae)
 				if err != nil {
 					pm.log.Error(fmt.Sprintf("failed to execute plugins %s", err.Error()))
 				}

@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/chen-keinan/beacon/internal/bplugin"
 	"github.com/chen-keinan/beacon/internal/cli/commands"
 	"github.com/chen-keinan/beacon/internal/common"
+	"github.com/chen-keinan/beacon/internal/hook"
 	"github.com/chen-keinan/beacon/internal/logger"
 	"github.com/chen-keinan/beacon/internal/startup"
 	"github.com/chen-keinan/beacon/pkg/models"
 	"github.com/chen-keinan/beacon/pkg/utils"
 	"github.com/chen-keinan/go-command-eval/eval"
+	"github.com/chen-keinan/go-user-plugins/uplugin"
 	"github.com/mitchellh/cli"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -86,19 +87,26 @@ func initPluginFolders(fm utils.FolderMgr) {
 }
 
 //loadAuditBenchPluginSymbols load API call plugin symbols
-func loadAuditBenchPluginSymbols(log *zap.Logger) bplugin.K8sBenchAuditResultHook {
-	pl, err := bplugin.NewPluginLoader()
+func loadAuditBenchPluginSymbols(log *zap.Logger) hook.K8sBenchAuditResultHook {
+	fm := utils.NewKFolder()
+	sourceFolder, err := utils.GetPluginSourceSubFolder(fm)
 	if err != nil {
-		log.Error(fmt.Sprintf("failed to load plugin symbol %s", err.Error()))
+		panic("failed tpo get plugin source sourceFolder")
 	}
-	plugins, err := pl.Plugins()
+	compliledFolder, err := utils.GetCompilePluginSubFolder(fm)
 	if err != nil {
-		log.Error(fmt.Sprintf("failed to load plugin symbol %s", err.Error()))
+		panic("failed tpo get plugin compiled sourceFolder")
 	}
-	apiPlugin := bplugin.K8sBenchAuditResultHook{Plugins: make([]plugin.Symbol, 0)}
-	for _, name := range plugins {
-		sym, err := pl.Compile(name, common.K8sBenchAuditResultHook)
+	pl := uplugin.NewPluginLoader(sourceFolder, compliledFolder)
+	names, err := pl.Plugins(uplugin.CompiledExt)
+	if err != nil {
+		panic(fmt.Sprintf("failed to get plugin compiled plugins %s", err.Error()))
+	}
+	apiPlugin := hook.K8sBenchAuditResultHook{Plugins: make([]plugin.Symbol, 0), Plug: pl}
+	for _, name := range names {
+		sym, err := pl.Load(name, common.K8sBenchAuditResultHook)
 		if err != nil {
+			log.Error(fmt.Sprintf("failed to load sym %s error %s", name, err.Error()))
 			continue
 		}
 		apiPlugin.Plugins = append(apiPlugin.Plugins, sym)
@@ -113,8 +121,8 @@ func initPluginWorker(plChan chan models.KubeAuditResults, completedChan chan bo
 		panic(err)
 	}
 	k8sHooks := loadAuditBenchPluginSymbols(log)
-	pluginData := bplugin.NewPluginWorkerData(plChan, k8sHooks, completedChan)
-	worker := bplugin.NewPluginWorker(pluginData, log)
+	pluginData := hook.NewPluginWorkerData(plChan, k8sHooks, completedChan)
+	worker := hook.NewPluginWorker(pluginData, log)
 	worker.Invoke()
 }
 
