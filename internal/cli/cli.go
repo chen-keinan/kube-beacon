@@ -106,7 +106,7 @@ func loadAuditBenchPluginSymbols(log *zap.Logger) hook.K8sBenchAuditResultHook {
 	for _, name := range names {
 		sym, err := pl.Load(name, common.K8sBenchAuditResultHook)
 		if err != nil {
-			log.Error(fmt.Sprintf("failed to load sym %s", name))
+			log.Error(fmt.Sprintf("failed to load sym %s error %s", name,err.Error()))
 			continue
 		}
 		apiPlugin.Plugins = append(apiPlugin.Plugins, sym)
