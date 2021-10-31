@@ -33,7 +33,7 @@ NEW !! audit result now can be leveraged as webhook via user plugin(using go plu
 ```sh
 git clone https://github.com/chen-keinan/kube-beacon
 cd kube-beacon
-make install
+make build
 ```
 
 - Note: kube-beacon require root user to be executed
