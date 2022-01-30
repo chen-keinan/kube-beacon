@@ -1,5 +1,5 @@
 # Use an official golang runtime as a parent image
-FROM golang:1.15-alpine as builder
+FROM golang:1.17-alpine as builder
 
 ENV GO111MODULE=on
 
