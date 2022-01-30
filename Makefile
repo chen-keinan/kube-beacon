@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 GOCMD=go
 MOVESANDBOX=mv ~/vms/kube-beacon/kube-beacon ~/vms-local/kube-beacon
-GOPACKR=$(GOCMD) get -u github.com/gobuffalo/packr/packr && packr
+GOPACKR=$(GOCMD) install -u github.com/gobuffalo/packr/packr && packr
 GOMOD=$(GOCMD) mod
 GOMOCKS=$(GOCMD) generate ./...
 GOBUILD=$(GOCMD) build
@@ -34,7 +34,7 @@ build:
 install:build_travis
 	cp $(BINARY_NAME) $(GOPATH)/bin/$(BINARY_NAME)
 test_travis:
-	$(GOCMD) get github.com/golang/mock/mockgen@latest
+	$(GOCMD) install github.com/golang/mock/mockgen@latest
 	$(GOCMD) install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
 	$(GOMOCKS)
 	$(GOTEST) ./... -coverprofile coverage.md fmt
