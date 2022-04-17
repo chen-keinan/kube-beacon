@@ -12,7 +12,7 @@ require (
 	github.com/magiconair/properties v1.8.5
 	github.com/mitchellh/cli v1.1.2
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/mitchellh/mapstructure v1.4.1
+	github.com/mitchellh/mapstructure v1.4.3
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/fx v1.13.1
 	go.uber.org/zap v1.18.1
