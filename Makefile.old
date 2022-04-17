@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 GOCMD=go
-MOVESANDBOX=mv ~/vms/kube/kube-beacon ~/vms-local/kube-beacon
+MOVESANDBOX=mv ~/vms/kube-beacon/kube-beacon ~/vms-local/kube-beacon
 GOMOD=$(GOCMD) mod
 GOMOCKS=$(GOCMD) generate ./...
 GOBUILD=$(GOCMD) build
@@ -14,15 +14,11 @@ all:test lint build
 fmt:
 	$(GOCMD) fmt ./...
 lint:
-	$(GOCMD) get -d github.com/golang/mock/mockgen@v1.6.0
-	$(GOCMD) install -v github.com/golang/mock/mockgen
-	export PATH=$HOME/go/bin:$PATH
-	$(GOMOCKS)
 	./scripts/lint.sh
 tidy:
 	$(GOMOD) tidy -v
 test:
-	$(GOCMD) get -d github.com/golang/mock/mockgen@v1.6.0
+	$(GOCMD) install github.com/golang/mock/mockgen@latest
 	$(GOCMD) install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
 	$(GOMOCKS)
 	$(GOTEST) ./... -coverprofile coverage.md fmt
@@ -32,13 +28,24 @@ build:
 	export PATH=$GOPATH/bin:$PATH;
 	export PATH=$PATH:/home/vagrant/go/bin
 	export PATH=$PATH:/home/root/go/bin
-	GOOS=linux GOARCH=amd64 $(GOBUILD) -v ./cmd/kube;
-build_local:
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/kube-beacon.go;
+install:build_travis
+	cp $(BINARY_NAME) $(GOPATH)/bin/$(BINARY_NAME)
+test_travis:
+	$(GOCMD) install github.com/golang/mock/mockgen@latest
+	$(GOCMD) install -v github.com/golang/mock/mockgen && export PATH=$GOPATH/bin:$PATH;
+	$(GOMOCKS)
+	$(GOTEST) ./... -coverprofile coverage.md fmt
+	$(GOCMD) tool cover -html=coverage.md -o coverage.html
+build_travis:
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -v cmd/kube/kube-beacon.go;
+build_remote:
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -v -gcflags='-N -l' cmd/kube/kube-beacon.go
+	mv kube-beacon /Users/chenkeinan/boxes/basic_box/kube-beacon
+build_docker:
 	export PATH=$GOPATH/bin:$PATH;
-	export PATH=$PATH:/home/vagrant/go/bin
-	export PATH=$PATH:/home/root/go/bin
-	$(GOBUILD) ./cmd/kube;
-
+	docker build -t chenkeinan/kube-beacon:latest .
+	docker push chenkeinan/kube-beacon:latest
 build_docker_local:
 	docker build -t chenkeinan/kube-beacon:latest .
 	docker push chenkeinan/kube-beacon:latest
