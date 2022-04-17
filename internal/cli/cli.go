@@ -208,6 +208,7 @@ func invokeCommandCli(args []string, commands map[string]cli.CommandFactory) (in
 }
 
 //ArgsSanitizer sanitize CLI arguments
+//nolint
 var ArgsSanitizer SanitizeArgs = func(str []string) ArgsData {
 	ad := ArgsData{SpecType: "k8s"}
 	args := make([]string, 0)

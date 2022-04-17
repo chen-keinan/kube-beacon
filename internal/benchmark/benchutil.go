@@ -7,7 +7,10 @@ import (
 	"io/ioutil"
 )
 
+// K8sFolder folder
 const K8sFolder = "k8s/v1.6.0"
+
+// GkeFolder folder
 const GkeFolder = "gke/v1.1.0"
 
 var (
@@ -18,6 +21,7 @@ var (
 	resGke embed.FS
 )
 
+//LoadK8sSpecs load specs
 func LoadK8sSpecs() ([]utils.FilesInfo, error) {
 	dir, _ := resK8s.ReadDir(K8sFolder)
 	specs := make([]utils.FilesInfo, 0)
@@ -39,6 +43,7 @@ func LoadK8sSpecs() ([]utils.FilesInfo, error) {
 	return specs, nil
 }
 
+//LoadGkeSpecs load specs
 func LoadGkeSpecs() ([]utils.FilesInfo, error) {
 	dir, _ := resGke.ReadDir(GkeFolder)
 	specs := make([]utils.FilesInfo, 0)
