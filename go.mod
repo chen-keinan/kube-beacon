@@ -13,7 +13,7 @@ require (
 	github.com/mitchellh/cli v1.1.2
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/mitchellh/mapstructure v1.4.3
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	go.uber.org/fx v1.13.1
 	go.uber.org/zap v1.18.1
 	gopkg.in/yaml.v2 v2.4.0
