@@ -14,7 +14,7 @@ require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/stretchr/testify v1.7.1
-	go.uber.org/fx v1.13.1
+	go.uber.org/fx v1.17.1
 	go.uber.org/zap v1.21.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -45,10 +45,10 @@ require (
 	github.com/posener/complete v1.1.1 // indirect
 	github.com/rogpeppe/go-internal v1.3.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/dig v1.10.0 // indirect
+	go.uber.org/dig v1.14.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
-	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e // indirect
+	golang.org/x/sys v0.0.0-20210903071746-97244b99971b // indirect
 	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
 	gopkg.in/cheggaaa/pb.v2 v2.0.7 // indirect
 	gopkg.in/fatih/color.v1 v1.7.0 // indirect
