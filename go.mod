@@ -10,7 +10,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/gosuri/uitable v0.0.4
 	github.com/magiconair/properties v1.8.6
-	github.com/mitchellh/cli v1.1.2
+	github.com/mitchellh/cli v1.1.3
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/stretchr/testify v1.7.1
@@ -22,8 +22,8 @@ require (
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
 	github.com/Masterminds/goutils v1.1.0 // indirect
-	github.com/Masterminds/semver v1.5.0 // indirect
-	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
+	github.com/Masterminds/semver/v3 v3.1.1 // indirect
+	github.com/Masterminds/sprig/v3 v3.2.0 // indirect
 	github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -44,6 +44,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/posener/complete v1.1.1 // indirect
 	github.com/rogpeppe/go-internal v1.3.0 // indirect
+	github.com/shopspring/decimal v1.2.0 // indirect
+	github.com/spf13/cast v1.3.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/dig v1.14.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
