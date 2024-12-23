@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    codefresh.io/entity: internal-config
+    codefresh.io/internal: "true"
+  name: in-cluster
+spec:
+  destination:
+    namespace: codefresh
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    directory:
+      include: '{all-runtimes-all-clusters/*.yaml,all-runtimes-all-clusters/**/*.yaml,runtimes/codefresh/*.yaml,runtimes/codefresh/**/*.yaml,control-planes/*.yaml,control-planes/**/*.yaml}'
+      recurse: true
+    path: resources
+    repoURL: https://github.com/chen-keinan/kube-beacon.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - allowEmpty=true

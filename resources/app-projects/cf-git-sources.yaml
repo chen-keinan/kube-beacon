@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: cf-git-sources
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destinations:
+  - namespace: '*'
+    server: '*'
+  sourceRepos:
+  - '*'
+  namespaceResourceBlacklist:
+  - group: codefresh.io
+    kind: Product
+  - group: codefresh.io
+    kind: PromotionFlow
+  - group: codefresh.io
+    kind: PromotionPolicy
