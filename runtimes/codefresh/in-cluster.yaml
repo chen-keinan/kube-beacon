@@ -15,7 +15,7 @@ spec:
   source:
     directory:
       include: >-
-        {all-runtimes-all-clusters/**/*.yaml,all-runtimes-all-clusters/*.yaml,codefresh/trivy-operator.yaml,configurations/**/*.yaml,control-planes/**/*.yaml,control-planes/*.yaml,runtimes/codefresh/**/*.yaml,runtimes/codefresh/*.yaml}
+        {all-runtimes-all-clusters/**/*.yaml,all-runtimes-all-clusters/*.yaml,codefresh/cf-gitops-runtime.yaml,codefresh/trivy-operator.yaml,configurations/**/*.yaml,control-planes/**/*.yaml,control-planes/*.yaml,runtimes/codefresh/**/*.yaml,runtimes/codefresh/*.yaml}
       recurse: true
     path: resources
     repoURL: https://github.com/chen-keinan/kube-beacon.git

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cf-gitops-runtime
+  labels:
+    codefresh.io/entity: runtime
+    codefresh.io/internal: 'true'
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/chen-keinan/kube-beacon.git
+    targetRevision: HEAD
+    path: resources/codefresh/chart
+    helm:
+      releaseName: cf-gitops-runtime
+  destination:
+    namespace: codefresh
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true

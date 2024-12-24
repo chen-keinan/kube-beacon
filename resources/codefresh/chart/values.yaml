@@ -1,0 +1,28 @@
+gitops-runtime:
+  app-proxy:
+    config:
+      cors: http://local.codefresh.io,https://chenk-platform.ngrok.app
+  global:
+    codefresh:
+      accountId: 6107f96b1895b556b7835b26
+      url: https://chenk-platform.ngrok.app
+      userToken:
+        secretKeyRef:
+          name: codefresh-user-token
+          key: token
+    runtime:
+      cluster: https://kubernetes.default.svc
+      codefreshHosted: false
+      ingress:
+        enabled: false
+      ingressUrl: http://host.docker.internal:8080
+      isConfigurationRuntime: true
+      name: codefresh
+  installer:
+    skipValidation: true
+  internal-router:
+    service:
+      nodePort: 31243
+      type: NodePort
+  tunnel-client:
+    enabled: false
